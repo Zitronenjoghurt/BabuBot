@@ -8,16 +8,18 @@ DB = Database.get_instance()
 class AbstractDatabaseEntity(AbstractSerializableEntity):
     TABLE_NAME = ""
     SERIALIZED_PROPERTIES = ["id"]
+    SAVED_PROPERTIES = []
 
     def __init__(self, id: Optional[int] = None) -> None:
         self.id = id
 
     def save(self) -> None:
         data = self.to_dict()
+        save_data = {key: value for key, value in data.items() if key in self.SAVED_PROPERTIES}
         if self.id is None:
-            self.id = DB.insert(table_name=self.TABLE_NAME, data=data)
+            self.id = DB.insert(table_name=self.TABLE_NAME, data=save_data)
         else:
-            DB.update(table_name=self.TABLE_NAME, entity_id=self.id, data=data)
+            DB.update(table_name=self.TABLE_NAME, entity_id=self.id, data=save_data)
 
     @classmethod
     def find(cls, **kwargs) -> Any:

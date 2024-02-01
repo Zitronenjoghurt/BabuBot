@@ -9,6 +9,7 @@ class User(AbstractDatabaseEntity):
     TABLE_NAME = "users"
     SERIALIZED_PROPERTIES = ["id", "userid", "word_counter"]
     SERIALIZE_CLASSES = {"word_counter": WordCounter}
+    SAVED_PROPERTIES = ["userid", "word_counter"]
 
     def __init__(
             self, 
