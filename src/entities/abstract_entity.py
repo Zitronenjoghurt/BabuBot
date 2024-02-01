@@ -29,19 +29,32 @@ class AbstractEntity():
 
     @classmethod
     def find(cls, **kwargs) -> Any:
-        entities = cls.findall(**kwargs)
-        if len(entities) > 0:
-            return entities[0]
-
-    @classmethod
-    def findall(cls, **kwargs) -> Any:
-        results = DB.find(table_name=cls.TABLE_NAME, **kwargs)
-        entities = []
-        for result in results:
+        result = DB.find(table_name=cls.TABLE_NAME, **kwargs)
+        if not result:
+            return None
+        try:
             id = int(result[0])
             data = json.loads(result[1])
             data["id"] = id
-            entities.append(cls.from_dict(data=data))
+        except Exception as e:
+            raise RuntimeError(f"An error occured while trying to find one entity with data {str(data)} in table {cls.TABLE_NAME}:\n{e}")
+        return cls.from_dict(data=data)
+
+    @classmethod
+    def findall(cls, **kwargs) -> Any:
+        results = DB.findall(table_name=cls.TABLE_NAME, **kwargs)
+        if not results:
+            return None
+        
+        entities = []
+        for result in results:
+            try:
+                id = int(result[0])
+                data = json.loads(result[1])
+                data["id"] = id
+                entities.append(cls.from_dict(data=data))
+            except Exception as e:
+                raise RuntimeError(f"An error occured while trying to find an entity of many with data {str(data)} in table {cls.TABLE_NAME}:\n{e}")
         return entities
     
     # Return entity if exists, otherwise create a new one
