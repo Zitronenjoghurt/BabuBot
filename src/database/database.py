@@ -2,6 +2,8 @@ import json
 import sqlite3
 from typing import Any, Optional
 
+TABLE_NAMES = ["users"]
+
 class Database():
     _instance = None
 
@@ -10,6 +12,11 @@ class Database():
             raise RuntimeError("Tried to initialize multiple instances of Database.")
         self.connection = sqlite3.connect("bot.db")
         self.cursor = self.connection.cursor()
+        self._setup()
+
+    def _setup(self) -> None:
+        for table_name in TABLE_NAMES:
+            self.create_table(table_name=table_name)
 
     @staticmethod
     def get_instance() -> 'Database':
@@ -38,8 +45,19 @@ class Database():
         json_data = json.dumps(data)
         self.cursor.execute(f"UPDATE {table_name} SET data = ? WHERE id = ?", (json_data, entity_id))
         self.connection.commit()
-        
+
     def find(self, table_name: str, **kwargs) -> Any:
+        conditions = []
+        values = []
+        for key, value in kwargs.items():
+            conditions.append(f"json_extract(data, '$.{key}') = ?")
+            values.append(value)
+        
+        query = " AND ".join(conditions)
+        self.cursor.execute(f"SELECT id, data FROM {table_name} WHERE {query}", values)
+        return self.cursor.fetchone()
+        
+    def findall(self, table_name: str, **kwargs) -> Any:
         conditions = []
         values = []
         for key, value in kwargs.items():
