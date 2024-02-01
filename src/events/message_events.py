@@ -15,6 +15,8 @@ class MessageEvents(commands.Cog):
             return
         user: User = User.load(userid=str(message.author.id))
 
+        user.message_statistics.process_message(message=message.content)
+
         counted_words = CONFIG.countable_words_in_message(message=message.content)
         for word in counted_words:
             user.word_counter.count_word(word=word)
