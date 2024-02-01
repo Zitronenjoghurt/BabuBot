@@ -8,6 +8,7 @@ DB = Database.get_instance()
 
 class AbstractEntity():
     TABLE_NAME = ""
+    SAVED_PROPERTIES = ["id"]
 
     def __init__(self, id: Optional[int] = None) -> None:
         self.id = id
@@ -15,10 +16,16 @@ class AbstractEntity():
     def to_dict(self) -> dict:
         return {}
     
-    @staticmethod
-    def from_dict(data: dict) -> 'AbstractEntity':
-        data = retrieve_data(data, ["id"])
-        return AbstractEntity(**data)
+    @classmethod
+    def from_dict(cls, data: dict) -> 'AbstractEntity':
+        data = retrieve_data(data, cls.SAVED_PROPERTIES)
+        return cls(**data)
+    
+    def to_dict(self) -> dict:
+        data = {}
+        for property in self.SAVED_PROPERTIES:
+            data[property] = getattr(self, property)
+        return data
 
     def save(self) -> None:
         data = self.to_dict()
