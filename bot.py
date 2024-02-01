@@ -9,7 +9,7 @@ CONFIG = Config.get_instance()
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-bot = commands.Bot(command_prefix="%", intents=intents)
+bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents)
 
 @bot.event
 async def on_ready():

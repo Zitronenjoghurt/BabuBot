@@ -13,9 +13,11 @@ class Config():
         config_data = file_to_dict(CONFIG_FILE_PATH)
         
         self.BOT_TOKEN = config_data.get("token", None)
+        self.PREFIX = config_data.get("prefix", None)
 
         try:
             validate_of_type(self.BOT_TOKEN, str, "token")
+            validate_of_type(self.PREFIX, str, "prefix")
         except ValueError as e:
             raise RuntimeError(f"An error occured while initializing config: {e}")
 
