@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from src.constants.config import Config
-from src.entities.user import User
 from src.utils.command_operations import get_extensions
 
 CONFIG = Config.get_instance()

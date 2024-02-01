@@ -1,4 +1,5 @@
 {
     "prefix": "%",
-    "token": "BOT_TOKEN"
+    "token": "BOT_TOKEN",
+    "counted_words": []
 }
