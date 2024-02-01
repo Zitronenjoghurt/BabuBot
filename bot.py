@@ -19,7 +19,7 @@ async def on_ready():
         await bot.load_extension(extension)
 
     # Set activity
-    await bot.change_presence(activity=discord.Game(name="The Bobbing Bobs"))
+    await bot.change_presence(activity=discord.Game(name="MUDA MUDA MUDA"))
 
     print(f'Logged in as {bot.user.name}')
 
