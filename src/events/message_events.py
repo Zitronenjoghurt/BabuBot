@@ -13,6 +13,13 @@ class MessageEvents(commands.Cog):
     async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
+        
+        # Check if message channel is an ignored channel
+        channel_id = message.channel.id
+        if channel_id:
+            if int(channel_id) in CONFIG.IGNORED_CHANNEL_IDS:
+                return
+
         user: User = User.load(userid=str(message.author.id))
 
         user.message_statistics.process_message(message=message.content)

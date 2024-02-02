@@ -1,5 +1,5 @@
 from src.utils.file_operations import construct_path, file_to_dict
-from src.utils.validator import validate_of_type
+from src.utils.validator import validate_of_type, validate_all_in_of_type
 
 CONFIG_FILE_PATH = construct_path("src/config.json")
 
@@ -15,13 +15,15 @@ class Config():
         self.BOT_TOKEN = config_data.get("token", None)
         self.PREFIX = config_data.get("prefix", None)
         self.COUNTED_WORDS = config_data.get("counted_words", [])
+        self.IGNORED_CHANNEL_IDS = config_data.get("ignored_channel_ids", [])
 
         try:
             validate_of_type(self.BOT_TOKEN, str, "token")
             validate_of_type(self.PREFIX, str, "prefix")
             validate_of_type(self.COUNTED_WORDS, list, "counted_words")
-            for word in self.COUNTED_WORDS:
-                validate_of_type(word, str, "{word} in COUNTED_WORDS")
+            validate_all_in_of_type(self.COUNTED_WORDS, str, "word", "counted_words")
+            validate_of_type(self.IGNORED_CHANNEL_IDS, list, "ignored_channel_ids")
+            validate_all_in_of_type(self.IGNORED_CHANNEL_IDS, int, "channel_id", "ignored_channel_ids")
         except ValueError as e:
             raise RuntimeError(f"An error occured while initializing config: {e}")
 

@@ -1,5 +1,6 @@
 {
     "prefix": "%",
     "token": "BOT_TOKEN",
-    "counted_words": []
+    "counted_words": [],
+    "ignored_channel_ids": []
 }
