@@ -14,12 +14,14 @@ class Config():
         
         self.BOT_TOKEN = config_data.get("token", None)
         self.PREFIX = config_data.get("prefix", None)
+        self.GUILD_ID = config_data.get("guild_id", None)
         self.COUNTED_WORDS = config_data.get("counted_words", [])
         self.IGNORED_CHANNEL_IDS = config_data.get("ignored_channel_ids", [])
 
         try:
             validate_of_type(self.BOT_TOKEN, str, "token")
             validate_of_type(self.PREFIX, str, "prefix")
+            validate_of_type(self.GUILD_ID, int, "guild_id")
             validate_of_type(self.COUNTED_WORDS, list, "counted_words")
             validate_all_in_of_type(self.COUNTED_WORDS, str, "word", "counted_words")
             validate_of_type(self.IGNORED_CHANNEL_IDS, list, "ignored_channel_ids")

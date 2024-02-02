@@ -20,6 +20,6 @@ async def on_ready():
     # Set activity
     await bot.change_presence(activity=discord.Game(name="MUDA MUDA MUDA"))
 
-    print(f'Logged in as {bot.user.name}')
+    print("Bot online")
 
 bot.run(CONFIG.BOT_TOKEN)
