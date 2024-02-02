@@ -1,9 +1,6 @@
 from typing import Optional
-from src.constants.config import Config
 from src.entities.abstract_serializable_entity import AbstractSerializableEntity
 from src.utils.validator import validate_of_type
-
-CONFIG = Config.get_instance()
 
 class WordCounter(AbstractSerializableEntity):
     SERIALIZED_PROPERTIES = ["words"]
