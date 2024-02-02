@@ -1,3 +1,4 @@
+import json
 from src.utils.dict_operations import retrieve_data
 
 class AbstractSerializableEntity():
@@ -27,3 +28,8 @@ class AbstractSerializableEntity():
                     value = {}
                 data[property] = serialize_class.from_dict(value)
         return cls(**data)
+    
+    def to_json_string(self) -> str:
+        data = self.to_dict()
+        json_string = json.dumps(data, indent=4)
+        return json_string
