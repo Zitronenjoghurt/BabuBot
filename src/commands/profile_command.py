@@ -20,7 +20,7 @@ class ProfileCommand(commands.Cog):
     async def profile_show(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if isinstance(member, discord.Member):
             user_id = member.id
-            count_view = True
+            count_view = user_id != interaction.user.id
         else:
             user_id = interaction.user.id
             guild = await self.bot.fetch_guild(CONFIG.GUILD_ID)
