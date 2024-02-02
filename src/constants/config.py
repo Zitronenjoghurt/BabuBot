@@ -17,6 +17,7 @@ class Config():
         self.GUILD_ID = config_data.get("guild_id", None)
         self.COUNTED_WORDS = config_data.get("counted_words", [])
         self.IGNORED_CHANNEL_IDS = config_data.get("ignored_channel_ids", [])
+        self.DECIMAL_DIGITS = config_data.get("decimal_digits", 2)
 
         try:
             validate_of_type(self.BOT_TOKEN, str, "token")
@@ -26,6 +27,7 @@ class Config():
             validate_all_in_of_type(self.COUNTED_WORDS, str, "word", "counted_words")
             validate_of_type(self.IGNORED_CHANNEL_IDS, list, "ignored_channel_ids")
             validate_all_in_of_type(self.IGNORED_CHANNEL_IDS, int, "channel_id", "ignored_channel_ids")
+            validate_of_type(self.DECIMAL_DIGITS, int, "decimal_digits")
         except ValueError as e:
             raise RuntimeError(f"An error occured while initializing config: {e}")
 

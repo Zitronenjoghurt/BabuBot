@@ -64,6 +64,9 @@ class Database():
             conditions.append(f"json_extract(data, '$.{key}') = ?")
             values.append(value)
         
-        query = " AND ".join(conditions)
-        self.cursor.execute(f"SELECT id, data FROM {table_name} WHERE {query}", values)
+        if conditions:
+            query = " AND ".join(conditions)
+            self.cursor.execute(f"SELECT id, data FROM {table_name} WHERE {query}", values)
+        else:
+            self.cursor.execute(f"SELECT id, data FROM {table_name}")
         return self.cursor.fetchall()

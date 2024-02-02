@@ -3,5 +3,6 @@
     "token": "BOT_TOKEN",
     "guild_id": "GUILD_ID",
     "counted_words": [],
-    "ignored_channel_ids": []
+    "ignored_channel_ids": [],
+    "decimal_digits": 2
 }

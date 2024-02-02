@@ -5,7 +5,9 @@ from typing import Optional
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.message_statistics import MessageStatistics
 from src.entities.profile import Profile
+from src.entities.word_counter_toplist import WordCounterToplist
 from src.entities.word_counter import WordCounter
+from src.utils.dict_operations import sort_simple
 from src.utils.validator import validate_of_type
 
 class User(AbstractDatabaseEntity):
@@ -45,6 +47,31 @@ class User(AbstractDatabaseEntity):
         self.word_counter: WordCounter = word_counter
         self.profile: Profile = profile
 
+    @staticmethod
+    def global_word_count() -> dict[str, int]:
+        users: list[User] = User.findall()
+        word_count = WordCounter.accumulate([user.word_counter for user in users if isinstance(user.word_counter, WordCounter)])
+        return word_count.words
+    
+    @staticmethod
+    def global_word_toplist() -> WordCounterToplist:
+        users: list[User] = User.findall()
+        toplist: dict[str, dict[str, int]] = {}
+        for user in users:
+            for word, count in user.word_counter.words.items():
+                if word not in toplist:
+                    toplist[word] = {}
+                toplist[word][user.userid] = count
+        
+        sorted_toplist: dict[str, dict[str, int]] = {}
+        for word, data in toplist.items():
+            sorted_toplist[word] = sort_simple(data=data, descending=True)
+
+        return WordCounterToplist(sorted_toplist)
+
     async def fetch_discord_user(self, bot: commands.Bot) -> Optional[discord.User]:
         user = await bot.fetch_user(int(self.userid))
         return user
+    
+    def get_created_time(self) -> datetime:
+        return datetime.fromtimestamp(self.created_stamp)

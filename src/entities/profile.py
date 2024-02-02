@@ -37,6 +37,13 @@ class Profile(AbstractSerializableEntity):
         self.about_me = str(about_me)
         self.views = int(views)
 
+    def clear(self) -> None:
+        self.name = ""
+        self.age = ""
+        self.pronouns = ""
+        self.location = ""
+        self.about_me = ""
+
     def count_view(self) -> None:
         self.views += 1
 

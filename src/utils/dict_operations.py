@@ -14,3 +14,6 @@ def retrieve_data_safely(data: dict, key_types: dict) -> dict:
         validate_of_type(value, key_type, key)
         result[key] = value
     return result
+
+def sort_simple(data: dict, descending: bool) -> dict:
+    return dict(sorted(data.items(), key=lambda item: item[1], reverse=descending))
