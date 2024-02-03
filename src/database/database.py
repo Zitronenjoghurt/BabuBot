@@ -2,7 +2,7 @@ import json
 import sqlite3
 from typing import Any, Optional
 
-TABLE_NAMES = ["users"]
+TABLE_NAMES = ["feedback", "users"]
 
 class Database():
     _instance = None

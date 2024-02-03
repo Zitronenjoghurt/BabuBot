@@ -18,7 +18,7 @@ async def on_ready():
         await bot.load_extension(extension)
 
     # Set activity
-    await bot.change_presence(activity=discord.Game(name="MUDA MUDA MUDA"))
+    await bot.change_presence(activity=discord.Game(name="send ideas: /feedback"))
 
     print("Bot online")
 

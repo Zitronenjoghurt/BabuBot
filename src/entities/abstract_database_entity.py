@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 from typing import Any, Optional
 from src.database.database import Database
@@ -7,11 +8,19 @@ DB = Database.get_instance()
 
 class AbstractDatabaseEntity(AbstractSerializableEntity):
     TABLE_NAME = ""
-    SERIALIZED_PROPERTIES = ["id"]
-    SAVED_PROPERTIES = []
+    SERIALIZED_PROPERTIES = ["id", "created_stamp"]
+    SAVED_PROPERTIES = ["created_stamp"]
 
-    def __init__(self, id: Optional[int] = None) -> None:
+    def __init__(
+            self, 
+            id: Optional[int] = None,
+            created_stamp: Optional[float] = None
+        ) -> None:
+        if created_stamp is None:
+            created_stamp = datetime.now().timestamp()
+
         self.id = id
+        self.created_stamp = created_stamp
 
     def save(self) -> None:
         data = self.to_dict()

@@ -18,18 +18,16 @@ class User(AbstractDatabaseEntity):
 
     def __init__(
             self, 
-            id: Optional[int] = None, 
-            userid: Optional[str] = None, 
+            id: Optional[int] = None,
             created_stamp: Optional[float] = None,
+            userid: Optional[str] = None,
             message_statistics: Optional[MessageStatistics] = None,
             word_counter: Optional[WordCounter] = None,
             profile: Optional[Profile] = None
         ) -> None:
-        super().__init__(id=id)
+        super().__init__(id=id, created_stamp=created_stamp)
         if userid is None:
             userid = ""
-        if created_stamp is None:
-            created_stamp = datetime.now().timestamp()
         if message_statistics is None:
             message_statistics = MessageStatistics()
         if word_counter is None:
@@ -42,7 +40,6 @@ class User(AbstractDatabaseEntity):
         validate_of_type(profile, Profile, "profile")
 
         self.userid = str(userid)
-        self.created_stamp = float(created_stamp)
         self.message_statistics: MessageStatistics = message_statistics
         self.word_counter: WordCounter = word_counter
         self.profile: Profile = profile
