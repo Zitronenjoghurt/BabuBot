@@ -2,6 +2,7 @@ import discord
 from discord import ui
 from src.constants.custom_embeds import SuccessEmbed
 from src.entities.user import User
+from src.utils.string_operations import limit_length
 
 class ProfileModal(ui.Modal):
     def __init__(self, member: discord.User | discord.Member) -> None:
@@ -22,7 +23,7 @@ class ProfileModal(ui.Modal):
         self.location = ui.TextInput(label="Location", placeholder=self.user.profile.location, required=False, min_length=0, max_length=100, style=discord.TextStyle.short)
         self.add_item(self.location)
 
-        self.about_me = ui.TextInput(label="About Me", placeholder=self.user.profile.about_me, required=False, min_length=0, max_length=1000, style=discord.TextStyle.paragraph)
+        self.about_me = ui.TextInput(label="About Me", placeholder=limit_length(self.user.profile.about_me, 100), required=False, min_length=0, max_length=1000, style=discord.TextStyle.paragraph)
         self.add_item(self.about_me)
 
     async def on_submit(self, interaction: discord.Interaction):
