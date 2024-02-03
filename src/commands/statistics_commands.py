@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from typing import Optional
 from src.constants.config import Config
+from src.constants.custom_embeds import ErrorEmbed
 from src.entities.user import User
 from src.utils.discord_time import relative_time
 
@@ -49,7 +50,7 @@ class StatisticsCommands(commands.Cog):
             member = await guild.fetch_member(user_id)
         
         user: User = User.load(userid=str(user_id))
-        toplist = user.global_word_toplist()
+        toplist = User.global_word_toplist()
         positions = toplist.get_positions(user_id=user.userid)
 
         embed = discord.Embed(title="WORD STATISTICS", color=discord.Color.from_str("#FFFFFF"))
@@ -64,6 +65,24 @@ class StatisticsCommands(commands.Cog):
 
         embed = discord.Embed(title="TOTAL WORD STATISTICS", color=discord.Color.from_str("#FFFFFF"))
         embed.description = str(word_count)
+        await interaction.response.send_message(embed=embed)
+
+    @profile_group.command(name="words-toplist", description="Provides a toplist about who said a certain tracked word the most")
+    @app_commands.describe(word="The word you want to see the toplist of")
+    async def words_toplist(self, interaction: discord.Interaction, word: str):
+        if not isinstance(word, str):
+            await interaction.response.send_message(embed=ErrorEmbed(title="INVALID WORD", message="Please provide a WORD, just a regular word..."), ephemeral=True)
+            return
+        
+        word = word.lower()
+        if word not in CONFIG.COUNTED_WORDS:
+            await interaction.response.send_message(embed=ErrorEmbed(title="WORD DOES NOT EXIST", message=f"The provided word is not in the list of tracked words."), ephemeral=True)
+            return
+        
+        toplist = User.global_word_toplist()
+
+        embed = discord.Embed(title="WORD TOPLIST", color=discord.Color.from_str("#FFFFFF"))
+        embed.description = toplist.get_word_positions_string(word=word, maximum=20)
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot):

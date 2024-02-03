@@ -9,3 +9,16 @@ class WordCounterToplist():
                 continue
             positions[word] = list(counts.keys()).index(user_id) + 1
         return positions
+    
+    def get_word_positions(self, word: str) -> dict[str, int]:
+        return self.toplist.get(word.lower(), dict())
+    
+    def get_word_positions_string(self, word: str, maximum: int = 20) -> str:
+        positions = self.get_word_positions(word=word)
+        position_strings = []
+        for i, (userid, count) in enumerate(positions.items()):
+            if i >= maximum:
+                break
+            position = i+1
+            position_strings.append(f"#**{position}** ❥ **`{count}`** | **<@{userid}>**")
+        return "\n".join(position_strings)
