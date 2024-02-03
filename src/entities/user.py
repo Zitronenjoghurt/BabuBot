@@ -46,7 +46,7 @@ class User(AbstractDatabaseEntity):
         self.message_statistics: MessageStatistics = message_statistics
         self.word_counter: WordCounter = word_counter
         self.profile: Profile = profile
-
+        
     @staticmethod
     def global_word_count() -> WordCounter:
         users: list[User] = User.findall()

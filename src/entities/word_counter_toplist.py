@@ -1,3 +1,5 @@
+import discord
+
 class WordCounterToplist():
     def __init__(self, toplist: dict[str, dict[str, int]]) -> None:
         self.toplist = toplist
@@ -13,12 +15,17 @@ class WordCounterToplist():
     def get_word_positions(self, word: str) -> dict[str, int]:
         return self.toplist.get(word.lower(), dict())
     
-    def get_word_positions_string(self, word: str, maximum: int = 20) -> str:
+    async def get_word_positions_string(self, guild: discord.Guild, word: str, maximum: int = 20) -> str:
         positions = self.get_word_positions(word=word)
         position_strings = []
         for i, (userid, count) in enumerate(positions.items()):
             if i >= maximum:
                 break
+            try:
+                member: discord.Member = await guild.fetch_member(int(userid))
+                name = member.display_name
+            except discord.NotFound:
+                name = "LEFT SERVER"
             position = i+1
-            position_strings.append(f"#**{position}** ❥ **`{count}`** | **<@{userid}>**")
+            position_strings.append(f"#**{position}** ❥ **`{count}`** | **{name}**")
         return "\n".join(position_strings)
