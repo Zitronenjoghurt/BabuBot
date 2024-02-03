@@ -58,5 +58,13 @@ class StatisticsCommands(commands.Cog):
         embed.add_field(name="Analyzed since", value=relative_time(int(user.created_stamp)))
         await interaction.response.send_message(embed=embed)
 
+    @profile_group.command(name="words-total", description="Provides statistics about the total count of all tracked words")
+    async def words_total(self, interaction: discord.Interaction):
+        word_count = User.global_word_count()
+
+        embed = discord.Embed(title="TOTAL WORD STATISTICS", color=discord.Color.from_str("#FFFFFF"))
+        embed.description = str(word_count)
+        await interaction.response.send_message(embed=embed)
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(StatisticsCommands(bot))

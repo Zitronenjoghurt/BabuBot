@@ -48,10 +48,10 @@ class User(AbstractDatabaseEntity):
         self.profile: Profile = profile
 
     @staticmethod
-    def global_word_count() -> dict[str, int]:
+    def global_word_count() -> WordCounter:
         users: list[User] = User.findall()
-        word_count = WordCounter.accumulate([user.word_counter for user in users if isinstance(user.word_counter, WordCounter)])
-        return word_count.words
+        word_counter = WordCounter.accumulate([user.word_counter for user in users if isinstance(user.word_counter, WordCounter)])
+        return word_counter
     
     @staticmethod
     def global_word_toplist() -> WordCounterToplist:

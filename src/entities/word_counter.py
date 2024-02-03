@@ -14,7 +14,7 @@ class WordCounter(AbstractSerializableEntity):
         self.words: dict[str, int] = sort_simple(words, descending=True)
 
     def __str__(self) -> str:
-        return "\n".join([f"{word}: {count}" for word, count in self.words.items()])
+        return "\n".join([f"**{word}**: `{count}`" for word, count in self.words.items()])
     
     def to_string_with_positions(self, positions: dict[str, int]) -> str:
         word_strings = []
