@@ -6,6 +6,7 @@ from src.constants.config import Config
 from src.entities.user import User
 from typing import Optional
 from src.ui.profile_modal import ProfileModal
+from src.utils.bot_operations import retrieve_guild
 
 CONFIG = Config.get_instance()
 
@@ -23,7 +24,9 @@ class ProfileCommand(commands.Cog):
             count_view = user_id != interaction.user.id
         else:
             user_id = interaction.user.id
-            guild = await self.bot.fetch_guild(CONFIG.GUILD_ID)
+            guild = await retrieve_guild(self.bot, CONFIG.GUILD_ID)
+            if not guild:
+                raise RuntimeError(f"Unable to retrieve guild")
             member = await guild.fetch_member(user_id)
             count_view = False
         

@@ -8,10 +8,15 @@ CONFIG = Config.get_instance()
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
+intents.presences = True
 bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents)
 
 @bot.event
 async def on_ready():
+    # Cache guilds
+    for guild in bot.guilds:
+        await guild.chunk()
+
     # Load extensions
     extensions = get_extensions()
     for extension in extensions:

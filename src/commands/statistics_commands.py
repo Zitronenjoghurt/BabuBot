@@ -5,6 +5,7 @@ from typing import Optional
 from src.constants.config import Config
 from src.constants.custom_embeds import ErrorEmbed
 from src.entities.user import User
+from src.utils.bot_operations import retrieve_guild
 from src.utils.discord_time import relative_time
 
 CONFIG = Config.get_instance()
@@ -22,7 +23,9 @@ class StatisticsCommands(commands.Cog):
             user_id = member.id
         else:
             user_id = interaction.user.id
-            guild = await self.bot.fetch_guild(CONFIG.GUILD_ID)
+            guild = await retrieve_guild(self.bot, CONFIG.GUILD_ID)
+            if not guild:
+                raise RuntimeError(f"Unable to retrieve guild")
             member = await guild.fetch_member(user_id)
         
         user: User = User.load(userid=str(user_id))
@@ -46,7 +49,9 @@ class StatisticsCommands(commands.Cog):
             user_id = member.id
         else:
             user_id = interaction.user.id
-            guild = await self.bot.fetch_guild(CONFIG.GUILD_ID)
+            guild = await retrieve_guild(self.bot, CONFIG.GUILD_ID)
+            if not guild:
+                raise RuntimeError(f"Unable to retrieve guild")
             member = await guild.fetch_member(user_id)
         
         user: User = User.load(userid=str(user_id))
@@ -82,7 +87,9 @@ class StatisticsCommands(commands.Cog):
         # Since this command may take longer than 3 seconds, defer it before replying
         await interaction.response.defer()
         
-        guild = await self.bot.fetch_guild(CONFIG.GUILD_ID)
+        guild = await retrieve_guild(self.bot, CONFIG.GUILD_ID)
+        if not guild:
+            raise RuntimeError(f"Unable to retrieve guild")
         
         toplist = User.global_word_toplist()
 

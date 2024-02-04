@@ -1,6 +1,6 @@
 import discord
 from typing import Optional
-from src.utils.guild_operations import retrieve_member
+from src.utils.guild_operations import retrieve_members
 
 class WordCounterToplist():
     def __init__(self, toplist: dict[str, dict[str, int]]) -> None:
@@ -20,11 +20,15 @@ class WordCounterToplist():
     async def get_word_positions_string(self, guild: discord.Guild, word: str, maximum: int = 20) -> str:
         positions = self.get_word_positions(word=word)
         position_strings = []
+
+        member_ids = [int(userid) for userid in list(positions.keys())]
+        members: dict[int, discord.Member] = await retrieve_members(guild=guild, member_ids=member_ids)
+
         for i, (userid, count) in enumerate(positions.items()):
             if i >= maximum:
                 break
 
-            member: Optional[discord.Member] = await retrieve_member(guild=guild, member_id=int(userid))
+            member: Optional[discord.Member] = members.get(int(userid), None)
             if not member:
                 name = "NOT FOUND"
             else:
