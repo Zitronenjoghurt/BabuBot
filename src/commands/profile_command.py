@@ -21,7 +21,7 @@ class ProfileCommand(commands.Cog):
     @profile_group.command(name="show", description="Will show you your server profile")
     @app_commands.describe(member="The user you want to see the profile of")
     async def profile_show(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
-        BOTLOGGER.command_execution(interaction)
+        BOTLOGGER.command_execution(interaction, member="None" if not isinstance(member, discord.Member) else member.name)
 
         if isinstance(member, discord.Member):
             user_id = member.id

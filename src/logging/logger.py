@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 import logging
 import logging.handlers
 
@@ -56,13 +57,13 @@ class BotLogger:
         self.logger.addHandler(file_handler)
         self.logger.addHandler(stream_handler)
 
-    def command_execution(self, interaction: discord.Interaction):
+    def command_execution(self, interaction: discord.Interaction, **kwargs):
         command = interaction.command
-        if not command:
+        if not isinstance(command, app_commands.Command):
             command_name = "UNKNOWN"
         else:
             command_name = command.name
-        self.logger.debug(f"Command {command_name} executed by {interaction.user.name} ({interaction.user.id})")
+        self.logger.debug(f"Command {command_name} executed by {interaction.user.name} ({interaction.user.id}) with args {str(kwargs)}")
 
     def get_logger(self):
         return self.logger

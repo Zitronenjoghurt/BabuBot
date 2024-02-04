@@ -20,7 +20,7 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="messages", description="Provides message statistics")
     @app_commands.describe(member="The user you want to see the message statistics of")
     async def messages(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
-        BOTLOGGER.command_execution(interaction)
+        BOTLOGGER.command_execution(interaction, member="None" if not isinstance(member, discord.Member) else member.name)
 
         if isinstance(member, discord.Member):
             user_id = member.id
@@ -46,7 +46,7 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="words", description="Provides statistics about said words")
     @app_commands.describe(member="The user you want to see the word statistics of")
     async def words(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
-        BOTLOGGER.command_execution(interaction)
+        BOTLOGGER.command_execution(interaction, member="None" if not isinstance(member, discord.Member) else member.name)
 
         if isinstance(member, discord.Member):
             user_id = member.id
@@ -78,7 +78,7 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="words-toplist", description="Provides a toplist about who said a certain tracked word the most")
     @app_commands.describe(word="The word you want to see the toplist of")
     async def words_toplist(self, interaction: discord.Interaction, word: str):
-        BOTLOGGER.command_execution(interaction)
+        BOTLOGGER.command_execution(interaction, word=word)
 
         if not isinstance(word, str):
             await interaction.response.send_message(embed=ErrorEmbed(title="INVALID WORD", message="Please provide a WORD, just a regular word..."), ephemeral=True)

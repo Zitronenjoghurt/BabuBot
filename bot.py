@@ -15,6 +15,10 @@ bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents)
 LOGGER.info("Initialized Bot")
 
 @bot.event
+async def on_connect():
+    LOGGER.info("Bot connected!")
+
+@bot.event
 async def on_ready():
     # Cache guilds
     for guild in bot.guilds:
@@ -28,6 +32,10 @@ async def on_ready():
     # Set activity
     await bot.change_presence(activity=discord.Game(name="send ideas: /feedback"))
 
-    LOGGER.info("Bot online!")
+    LOGGER.info("Bot ready!")
+
+@bot.event
+async def on_disconnect():
+    LOGGER.info("Bot disconnected!")
 
 bot.run(CONFIG.BOT_TOKEN)

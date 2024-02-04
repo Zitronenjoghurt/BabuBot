@@ -15,7 +15,7 @@ class MiscCommands(commands.Cog):
     @app_commands.command(name="say", description="Will just repeat whatever you want to say")
     @app_commands.describe(message="Whatever message you want the bot to say")
     async def say(self, interaction: discord.Interaction, message: str):
-        BOTLOGGER.command_execution(interaction)
+        BOTLOGGER.command_execution(interaction, message=message)
         await interaction.response.send_message(f"{message}")
 
 async def setup(bot):
