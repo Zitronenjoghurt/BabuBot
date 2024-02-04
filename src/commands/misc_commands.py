@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from src.logging.logger import BOTLOGGER
 
 class MiscCommands(commands.Cog):
     def __init__(self, bot):
@@ -14,6 +15,7 @@ class MiscCommands(commands.Cog):
     @app_commands.command(name="say", description="Will just repeat whatever you want to say")
     @app_commands.describe(message="Whatever message you want the bot to say")
     async def say(self, interaction: discord.Interaction, message: str):
+        BOTLOGGER.command_execution(interaction)
         await interaction.response.send_message(f"{message}")
 
 async def setup(bot):

@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from src.constants.custom_embeds import ErrorEmbed
+from src.logging.logger import BOTLOGGER
 from src.ui.feedback_modal import FeedbackModal
 
 class FeedbackCommand(commands.Cog):
@@ -10,10 +11,11 @@ class FeedbackCommand(commands.Cog):
 
     @app_commands.command(name="feedback", description="If you want to provide feedback (5 minute cooldown)")
     @app_commands.checks.cooldown(1, 300)
-    async def profile_show(self, interaction: discord.Interaction):
+    async def feedback(self, interaction: discord.Interaction):
+        BOTLOGGER.command_execution(interaction)
         await interaction.response.send_modal(FeedbackModal(interaction.user))
     
-    @profile_show.error
+    @feedback.error
     async def on_feedback_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         await interaction.response.send_message(embed=ErrorEmbed(title="ERROR", message=str(error)), ephemeral=True)
 

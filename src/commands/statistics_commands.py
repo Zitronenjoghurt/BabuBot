@@ -5,7 +5,8 @@ from typing import Optional
 from src.constants.config import Config
 from src.constants.custom_embeds import ErrorEmbed
 from src.entities.user import User
-from src.utils.bot_operations import retrieve_guild
+from src.logging.logger import BOTLOGGER
+from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.discord_time import relative_time
 
 CONFIG = Config.get_instance()
@@ -19,13 +20,13 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="messages", description="Provides message statistics")
     @app_commands.describe(member="The user you want to see the message statistics of")
     async def messages(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
+        BOTLOGGER.command_execution(interaction)
+
         if isinstance(member, discord.Member):
             user_id = member.id
         else:
             user_id = interaction.user.id
-            guild = await retrieve_guild(self.bot, CONFIG.GUILD_ID)
-            if not guild:
-                raise RuntimeError(f"Unable to retrieve guild")
+            guild = await retrieve_guild_strict(self.bot, CONFIG.GUILD_ID)
             member = await guild.fetch_member(user_id)
         
         user: User = User.load(userid=str(user_id))
@@ -45,13 +46,13 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="words", description="Provides statistics about said words")
     @app_commands.describe(member="The user you want to see the word statistics of")
     async def words(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
+        BOTLOGGER.command_execution(interaction)
+
         if isinstance(member, discord.Member):
             user_id = member.id
         else:
             user_id = interaction.user.id
-            guild = await retrieve_guild(self.bot, CONFIG.GUILD_ID)
-            if not guild:
-                raise RuntimeError(f"Unable to retrieve guild")
+            guild = await retrieve_guild_strict(self.bot, CONFIG.GUILD_ID)
             member = await guild.fetch_member(user_id)
         
         user: User = User.load(userid=str(user_id))
@@ -66,6 +67,8 @@ class StatisticsCommands(commands.Cog):
 
     @profile_group.command(name="words-total", description="Provides statistics about the total count of all tracked words")
     async def words_total(self, interaction: discord.Interaction):
+        BOTLOGGER.command_execution(interaction)
+
         word_count = User.global_word_count()
 
         embed = discord.Embed(title="TOTAL WORD STATISTICS", color=discord.Color.from_str("#FFFFFF"))
@@ -75,6 +78,8 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="words-toplist", description="Provides a toplist about who said a certain tracked word the most")
     @app_commands.describe(word="The word you want to see the toplist of")
     async def words_toplist(self, interaction: discord.Interaction, word: str):
+        BOTLOGGER.command_execution(interaction)
+
         if not isinstance(word, str):
             await interaction.response.send_message(embed=ErrorEmbed(title="INVALID WORD", message="Please provide a WORD, just a regular word..."), ephemeral=True)
             return
@@ -87,9 +92,7 @@ class StatisticsCommands(commands.Cog):
         # Since this command may take longer than 3 seconds, defer it before replying
         await interaction.response.defer()
         
-        guild = await retrieve_guild(self.bot, CONFIG.GUILD_ID)
-        if not guild:
-            raise RuntimeError(f"Unable to retrieve guild")
+        guild = await retrieve_guild_strict(self.bot, CONFIG.GUILD_ID)
         
         toplist = User.global_word_toplist()
 
