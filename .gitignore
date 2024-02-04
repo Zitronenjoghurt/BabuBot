@@ -2,6 +2,7 @@
 .vscode
 bot.db
 config.json
+config_test.json
 test.py
 
 # Byte-compiled / optimized / DLL files
