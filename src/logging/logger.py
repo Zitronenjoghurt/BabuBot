@@ -62,14 +62,6 @@ class BotLogger:
         discord_logger.setLevel(logging.DEBUG)
         discord_logger.addHandler(file_handler)
 
-    def command_execution(self, interaction: discord.Interaction, **kwargs):
-        command = interaction.command
-        if not isinstance(command, app_commands.Command):
-            command_name = "UNKNOWN"
-        else:
-            command_name = command.name
-        self.logger.debug(f"Command {command_name} executed by {interaction.user.name} ({interaction.user.id}) with args {str(kwargs)}")
-
     def get_logger(self):
         return self.logger
 

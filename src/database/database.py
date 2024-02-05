@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from typing import Any, Optional
+from src.logging.logger import LOGGER
 
 TABLE_NAMES = ["feedback", "users"]
 
@@ -13,6 +14,8 @@ class Database():
         self.connection = sqlite3.connect("bot.db")
         self.cursor = self.connection.cursor()
         self._setup()
+
+        LOGGER.info("Database initialized")
 
     def _setup(self) -> None:
         for table_name in TABLE_NAMES:

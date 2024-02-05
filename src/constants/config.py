@@ -1,4 +1,5 @@
 from src.utils.file_operations import construct_path, file_to_dict
+from src.logging.logger import LOGGER
 from src.utils.validator import validate_of_type, validate_all_in_of_type
 
 CONFIG_FILE_PATH = construct_path("src/config.json")
@@ -30,6 +31,8 @@ class Config():
             validate_of_type(self.DECIMAL_DIGITS, int, "decimal_digits")
         except ValueError as e:
             raise RuntimeError(f"An error occured while initializing config: {e}")
+        
+        LOGGER.info("Config initialized")
 
     @staticmethod
     def get_instance() -> 'Config':

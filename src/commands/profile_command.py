@@ -5,7 +5,6 @@ from discord.ext import commands
 from src.constants.config import Config
 from src.entities.user import User
 from typing import Optional
-from src.logging.logger import BOTLOGGER
 from src.ui.profile_modal import ProfileModal
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.guild_operations import retrieve_member_strict
@@ -21,8 +20,6 @@ class ProfileCommand(commands.Cog):
     @profile_group.command(name="show", description="Will show you your server profile")
     @app_commands.describe(member="The user you want to see the profile of")
     async def profile_show(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
-        BOTLOGGER.command_execution(interaction, member="None" if not isinstance(member, discord.Member) else member.name)
-
         if isinstance(member, discord.Member):
             user_id = member.id
             count_view = user_id != interaction.user.id
@@ -43,7 +40,6 @@ class ProfileCommand(commands.Cog):
 
     @profile_group.command(name="change", description="Opens a pop-up for changing your server profile")
     async def profile_change(self, interaction: discord.Interaction):
-        BOTLOGGER.command_execution(interaction)
         await interaction.response.send_modal(ProfileModal(interaction.user))
     
 def generate_profile_embed(user: User, member: discord.Member) -> discord.Embed:

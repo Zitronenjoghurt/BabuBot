@@ -5,7 +5,6 @@ from typing import Optional
 from src.constants.config import Config
 from src.constants.custom_embeds import ErrorEmbed
 from src.entities.user import User
-from src.logging.logger import BOTLOGGER
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.discord_time import relative_time
 
@@ -20,8 +19,6 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="messages", description="Provides message statistics")
     @app_commands.describe(member="The user you want to see the message statistics of")
     async def messages(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
-        BOTLOGGER.command_execution(interaction, member="None" if not isinstance(member, discord.Member) else member.name)
-
         if isinstance(member, discord.Member):
             user_id = member.id
         else:
@@ -46,8 +43,6 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="words", description="Provides statistics about said words")
     @app_commands.describe(member="The user you want to see the word statistics of")
     async def words(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
-        BOTLOGGER.command_execution(interaction, member="None" if not isinstance(member, discord.Member) else member.name)
-
         if isinstance(member, discord.Member):
             user_id = member.id
         else:
@@ -67,8 +62,6 @@ class StatisticsCommands(commands.Cog):
 
     @profile_group.command(name="words-total", description="Provides statistics about the total count of all tracked words")
     async def words_total(self, interaction: discord.Interaction):
-        BOTLOGGER.command_execution(interaction)
-
         word_count = User.global_word_count()
 
         embed = discord.Embed(title="TOTAL WORD STATISTICS", color=discord.Color.from_str("#FFFFFF"))
@@ -78,8 +71,6 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="words-toplist", description="Provides a toplist about who said a certain tracked word the most")
     @app_commands.describe(word="The word you want to see the toplist of")
     async def words_toplist(self, interaction: discord.Interaction, word: str):
-        BOTLOGGER.command_execution(interaction, word=word)
-
         if not isinstance(word, str):
             await interaction.response.send_message(embed=ErrorEmbed(title="INVALID WORD", message="Please provide a WORD, just a regular word..."), ephemeral=True)
             return
@@ -89,9 +80,6 @@ class StatisticsCommands(commands.Cog):
             await interaction.response.send_message(embed=ErrorEmbed(title="WORD DOES NOT EXIST", message=f"The provided word is not in the list of tracked words."), ephemeral=True)
             return
         
-        # Since this command may take longer than 3 seconds, defer it before replying
-        await interaction.response.defer()
-        
         guild = await retrieve_guild_strict(self.bot, CONFIG.GUILD_ID)
         
         toplist = User.global_word_toplist()
@@ -99,7 +87,7 @@ class StatisticsCommands(commands.Cog):
         embed = discord.Embed(title=f"{word.upper()} TOPLIST", color=discord.Color.from_str("#FFFFFF"))
         embed.description = await toplist.get_word_positions_string(guild=guild, word=word, maximum=20)
         
-        await interaction.followup.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(StatisticsCommands(bot))

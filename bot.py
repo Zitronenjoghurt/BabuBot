@@ -12,11 +12,11 @@ intents.message_content = True
 intents.presences = True
 bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents)
 
-LOGGER.info("Initialized Bot")
+LOGGER.info("Bot initialized")
 
 @bot.event
 async def on_connect():
-    LOGGER.info("Bot connected!")
+    LOGGER.info("Bot connected")
 
 @bot.event
 async def on_ready():
@@ -32,10 +32,10 @@ async def on_ready():
     # Set activity
     await bot.change_presence(activity=discord.Game(name="send ideas: /feedback"))
 
-    LOGGER.info("Bot ready!")
+    LOGGER.info("Bot ready")
 
 @bot.event
 async def on_disconnect():
-    LOGGER.info("Bot disconnected!")
+    LOGGER.info("Bot disconnected")
 
 bot.run(CONFIG.BOT_TOKEN)
