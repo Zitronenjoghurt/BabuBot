@@ -14,11 +14,11 @@ class LC:
 
 class FileFormatter(logging.Formatter):
     FORMATS = {
-        logging.DEBUG: f"%(asctime)s %(levelname)s    %(message)s",
-        logging.INFO: f"%(asctime)s %(levelname)s     %(message)s",
-        logging.WARNING: f"%(asctime)s %(levelname)s  %(message)s",
-        logging.ERROR: f"%(asctime)s %(levelname)s    %(message)s",
-        logging.CRITICAL: f"%(asctime)s %(levelname)s %(message)s"
+        logging.DEBUG: f"%(asctime)s %(levelname)s    %(name)s %(message)s",
+        logging.INFO: f"%(asctime)s %(levelname)s     %(name)s %(message)s",
+        logging.WARNING: f"%(asctime)s %(levelname)s  %(name)s %(message)s",
+        logging.ERROR: f"%(asctime)s %(levelname)s    %(name)s %(message)s",
+        logging.CRITICAL: f"%(asctime)s %(levelname)s %(name)s %(message)s"
     }
 
     def format(self, record):
@@ -28,11 +28,11 @@ class FileFormatter(logging.Formatter):
 
 class ColoredFormatter(logging.Formatter):
     FORMATS = {
-        logging.DEBUG: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.CYAN}{LC.BOLD}%(levelname)s{LC.ENDC}    %(message)s",
-        logging.INFO: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.BLUE}{LC.BOLD}%(levelname)s{LC.ENDC}     {LC.BLUE}%(message)s",
-        logging.WARNING: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.YELLOW}{LC.BOLD}%(levelname)s{LC.ENDC}  {LC.YELLOW}%(message)s",
-        logging.ERROR: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.RED}{LC.BOLD}%(levelname)s{LC.ENDC}    {LC.RED}%(message)s",
-        logging.CRITICAL: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.RED}{LC.BOLD}%(levelname)s %(message)s"
+        logging.DEBUG: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.CYAN}{LC.BOLD}%(levelname)s{LC.ENDC}    %(name)s %(message)s",
+        logging.INFO: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.BLUE}{LC.BOLD}%(levelname)s{LC.ENDC}     %(name)s {LC.BLUE}%(message)s",
+        logging.WARNING: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.YELLOW}{LC.BOLD}%(levelname)s{LC.ENDC}  %(name)s {LC.YELLOW}%(message)s",
+        logging.ERROR: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.RED}{LC.BOLD}%(levelname)s{LC.ENDC}    %(name)s {LC.RED}%(message)s",
+        logging.CRITICAL: f"{LC.GREY}{LC.BOLD}%(asctime)s{LC.ENDC} {LC.RED}{LC.BOLD}%(levelname)s %(name)s %(message)s"
     }
 
     def format(self, record):
@@ -56,6 +56,11 @@ class BotLogger:
 
         self.logger.addHandler(file_handler)
         self.logger.addHandler(stream_handler)
+
+        # Setup discord file logger
+        discord_logger = logging.getLogger('discord')
+        discord_logger.setLevel(logging.DEBUG)
+        discord_logger.addHandler(file_handler)
 
     def command_execution(self, interaction: discord.Interaction, **kwargs):
         command = interaction.command
