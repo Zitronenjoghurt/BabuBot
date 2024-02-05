@@ -21,6 +21,7 @@ class Config():
         # If the message event encounters this word, it will not process the message
         self.IGNORED_MESSAGE_WORDS = config_data.get("ignored_message_words", [])
         self.DECIMAL_DIGITS = config_data.get("decimal_digits", 2)
+        self.CURRENCY = config_data.get("currency", "$")
 
         try:
             validate_of_type(self.BOT_TOKEN, str, "token")
@@ -33,6 +34,7 @@ class Config():
             validate_of_type(self.IGNORED_MESSAGE_WORDS, list, "ignored_message_words")
             validate_all_in_of_type(self.IGNORED_MESSAGE_WORDS, str, "word", "ignored_message_words")
             validate_of_type(self.DECIMAL_DIGITS, int, "decimal_digits")
+            validate_of_type(self.CURRENCY, str, "currency")
         except ValueError as e:
             raise RuntimeError(f"An error occured while initializing config: {e}")
         

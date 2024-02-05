@@ -4,5 +4,7 @@
     "guild_id": "GUILD_ID",
     "counted_words": [],
     "ignored_channel_ids": [],
-    "decimal_digits": 2
+    "ignored_message_words": [],
+    "decimal_digits": 2,
+    "currency": "$"
 }
