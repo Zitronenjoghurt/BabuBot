@@ -3,7 +3,7 @@ import sqlite3
 from typing import Any, Optional
 from src.logging.logger import LOGGER
 
-TABLE_NAMES = ["feedback", "users"]
+TABLE_NAMES = ["feedback", "users", "word_analyzer"]
 
 class Database():
     _instance = None

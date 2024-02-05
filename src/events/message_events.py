@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from src.constants.config import Config
 from src.entities.user import User
+from src.entities.word_analyzer import WordAnalyzer
 
 CONFIG = Config.get_instance()
 
@@ -14,21 +15,34 @@ class MessageEvents(commands.Cog):
         if message.author.bot:
             return
         
+        content = message.content
+        if len(content) == 0:
+            return
+        
+        for word in content:
+            if word.lower() in CONFIG.IGNORED_MESSAGE_WORDS:
+                return
+        
         # Check if message channel is an ignored channel
         channel_id = message.channel.id
         if channel_id:
             if int(channel_id) in CONFIG.IGNORED_CHANNEL_IDS:
                 return
 
-        user: User = User.load(userid=str(message.author.id))
+        author_id = str(message.author.id)
+        user: User = User.load(userid=author_id)
+        word_analyzer: WordAnalyzer = WordAnalyzer.load(userid=author_id)
 
-        user.message_statistics.process_message(message=message.content)
+        user.message_statistics.process_message(message=content)
 
-        counted_words = CONFIG.countable_words_in_message(message=message.content)
-        for word in counted_words:
-            user.word_counter.count_word(word=word)
+        for word in content.split(" "):
+            word = word.lower().strip()
+            if word in CONFIG.COUNTED_WORDS:
+                user.word_counter.count_word(word=word)
+            word_analyzer.process_word(word=word)
 
         user.save()
+        word_analyzer.save()
 
 async def setup(bot):
     await bot.add_cog(MessageEvents(bot))
