@@ -80,16 +80,12 @@ class StatisticsCommands(commands.Cog):
             await interaction.response.send_message(embed=ErrorEmbed(title="WORD DOES NOT EXIST", message=f"The provided word is not in the list of tracked words."), ephemeral=True)
             return
         
-        await interaction.response.defer()
-        
-        guild = await retrieve_guild_strict(self.bot, CONFIG.GUILD_ID)
-        
         toplist = User.global_word_toplist()
 
         embed = discord.Embed(title=f"{word.upper()} TOPLIST", color=discord.Color.from_str("#FFFFFF"))
-        embed.description = await toplist.get_word_positions_string(guild=guild, word=word, maximum=20)
+        embed.description = toplist.get_word_positions_string(word=word, maximum=20)
         
-        await interaction.followup.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(StatisticsCommands(bot))

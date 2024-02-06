@@ -46,7 +46,7 @@ class AbstractDatabaseEntity(AbstractSerializableEntity):
     def findall(cls, sort_key: Optional[str] = None, descending: bool = True, limit: Optional[int] = None, page: int = 1, **kwargs) -> Any:
         results = DB.findall(table_name=cls.TABLE_NAME, sort_key=sort_key, descending=descending, limit=limit, page=page, **kwargs)
         if not results:
-            return None
+            return []
         
         entities = []
         for result in results:

@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from src.constants.config import Config
+from src.entities.user import User
 from src.logging.logger import LOGGER
 from src.utils.command_operations import get_extensions
 
@@ -23,6 +24,13 @@ async def on_ready():
     # Cache guilds
     for guild in bot.guilds:
         await guild.chunk()
+
+    # Cache member data in database
+    for user in User.findall():
+        print(user.userid)
+        await user.cache_member_data(bot)
+        user.save()
+    LOGGER.info("Cached available member data of all users in database")
 
     # Load extensions
     extensions = get_extensions()

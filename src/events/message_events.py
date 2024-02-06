@@ -41,6 +41,8 @@ class MessageEvents(commands.Cog):
                 user.word_counter.count_word(word=word)
             word_analyzer.process_word(word=word)
 
+        await user.cache_member_data(bot=self.bot)
+
         user.save()
         word_analyzer.save()
 

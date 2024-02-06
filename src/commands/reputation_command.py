@@ -15,6 +15,11 @@ class ReputationCommand(commands.Cog):
             embed = ErrorEmbed("You cant rep a bot!", "Please only rep actual users! c:")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
+        
+        if member.id == interaction.user.id:
+            embed = ErrorEmbed("You cant rep yourself!", "Wow thats pretty sad... please rep someone else wth.")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
 
         user: User = User.load(userid=str(interaction.user.id))
         if not user.reputation.can_do_rep():

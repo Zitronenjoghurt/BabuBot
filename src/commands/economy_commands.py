@@ -67,19 +67,17 @@ class EconomyCommands(commands.Cog):
     @app_commands.command(name="money-toplist", description=f"Display the people with the most {CONFIG.CURRENCY} on the server")
     async def money_toplist(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        toplist = await build_money_toplist(self.bot, page=1)
+        toplist = await build_money_toplist(page=1)
         
         embed = discord.Embed(title="MONEY TOPLIST", description=toplist, color=discord.Color.from_str("#FFFFFF"))
         await interaction.followup.send(embed=embed)
 
-async def build_money_toplist(bot: commands.Bot, page: int = 1) -> str:
+async def build_money_toplist(page: int = 1) -> str:
     users: list[User] = User.findall(sort_key="economy.currency", limit=20, page=page)
-    guild = await retrieve_guild_strict(bot=bot, guild_id=CONFIG.GUILD_ID)
-    members = await retrieve_members(guild=guild, member_ids=[int(user.userid) for user in users])
 
     user_positions = []
     for i, user in enumerate(users):
-        user_positions.append(f"#**{i+1}** ❥ **`{user.economy.currency}{CONFIG.CURRENCY}`** | **{members.get(int(user.userid), "UNKNOWN")}**")
+        user_positions.append(f"#**{i+1}** ❥ **`{user.economy.currency}{CONFIG.CURRENCY}`** | **{user.get_display_name()}**")
     return "\n".join(user_positions)
 
 async def setup(bot: commands.Bot):
