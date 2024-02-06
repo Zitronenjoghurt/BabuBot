@@ -8,7 +8,7 @@ from src.entities.economy import STREAK_THRESHOLD_DAYS
 from src.entities.user import User
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.discord_time import relative_time
-from src.utils.guild_operations import retrieve_member_strict
+from src.utils.guild_operations import retrieve_member_strict, retrieve_members
 
 CONFIG = Config.get_instance()
 
@@ -63,6 +63,24 @@ class EconomyCommands(commands.Cog):
         embed.add_field(name="DAILY STREAK", value=f"**`{user.economy.daily_streak}`**")
         embed.add_field(name="NEXT DAILY", value=user.economy.next_daily_discord_stamp())
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="money-toplist", description=f"Display the people with the most {CONFIG.CURRENCY} on the server")
+    async def money_toplist(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        toplist = await build_money_toplist(self.bot, page=1)
+        
+        embed = discord.Embed(title="MONEY TOPLIST", description=toplist, color=discord.Color.from_str("#FFFFFF"))
+        await interaction.followup.send(embed=embed)
+
+async def build_money_toplist(bot: commands.Bot, page: int = 1) -> str:
+    users: list[User] = User.findall(sort_key="economy.currency", limit=20, page=page)
+    guild = await retrieve_guild_strict(bot=bot, guild_id=CONFIG.GUILD_ID)
+    members = await retrieve_members(guild=guild, member_ids=[int(user.userid) for user in users])
+
+    user_positions = []
+    for i, user in enumerate(users):
+        user_positions.append(f"#**{i+1}** ❥ **`{user.economy.currency}{CONFIG.CURRENCY}`** | **{members.get(int(user.userid), "UNKNOWN")}**")
+    return "\n".join(user_positions)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(EconomyCommands(bot))
