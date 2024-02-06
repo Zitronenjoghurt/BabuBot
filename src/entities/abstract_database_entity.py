@@ -43,8 +43,8 @@ class AbstractDatabaseEntity(AbstractSerializableEntity):
         return cls.from_dict(data=data)
 
     @classmethod
-    def findall(cls, **kwargs) -> Any:
-        results = DB.findall(table_name=cls.TABLE_NAME, **kwargs)
+    def findall(cls, sort_key: Optional[str] = None, descending: bool = True, **kwargs) -> Any:
+        results = DB.findall(table_name=cls.TABLE_NAME, sort_key=sort_key, descending=descending, **kwargs)
         if not results:
             return None
         
