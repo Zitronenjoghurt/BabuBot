@@ -11,7 +11,7 @@ from src.utils.guild_operations import retrieve_member_strict
 
 CONFIG = Config.get_instance()
 
-class ProfileCommand(commands.Cog):
+class ProfileCommands(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
     
@@ -59,4 +59,4 @@ def generate_profile_embed(user: User, member: discord.Member) -> discord.Embed:
     return embed
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(ProfileCommand(bot))
+    await bot.add_cog(ProfileCommands(bot))
