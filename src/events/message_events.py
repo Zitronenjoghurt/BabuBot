@@ -19,7 +19,7 @@ class MessageEvents(commands.Cog):
         if len(content) == 0:
             return
         
-        for word in content:
+        for word in content.split(" "):
             if word.lower() in CONFIG.IGNORED_MESSAGE_WORDS:
                 return
         

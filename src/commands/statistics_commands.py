@@ -52,7 +52,7 @@ class StatisticsCommands(commands.Cog):
         
         user: User = User.load(userid=str(user_id))
         toplist = User.global_word_toplist()
-        positions = toplist.get_positions(user_id=user.userid)
+        positions = toplist.get_positions(user_display_name=user.get_display_name())
 
         embed = discord.Embed(title="WORD STATISTICS", color=discord.Color.from_str("#FFFFFF"))
         embed.description = user.word_counter.to_string_with_positions(positions=positions)
