@@ -49,12 +49,16 @@ def generate_profile_embed(user: User, member: discord.Member) -> discord.Embed:
     embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
     embed.set_footer(text=f"views: {str(user.profile.views)}")
 
+    # Add profile fields
     fields = user.profile.generate_fields()
     if len(fields) == 0:
         embed.description = "*This user has not set their profile yet.*"
     else:
         for field in fields:
             embed.add_field(**field)
+
+    # Add other fields
+    embed.add_field(name="REP RECEIVED/GIVEN", value=f"**`{user.reputation.points_received}/{user.reputation.points_given}`**")
 
     return embed
 

@@ -47,9 +47,11 @@ def get_command_name_and_args(interaction: discord.Interaction) -> tuple[str, di
     command_args = {}
 
     options = interaction.data.get('options', [])
+    LOGGER.debug(f"COMMAND OPTIONS: {options}")
 
     for option in options:
         if option.get('type') not in (1, 2):
+            command_args[option.get("name", "no name")] = option.get("value", "no value")
             continue
 
         command_name += f" {option['name']}"

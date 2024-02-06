@@ -6,6 +6,7 @@ from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.economy import Economy
 from src.entities.message_statistics import MessageStatistics
 from src.entities.profile import Profile
+from src.entities.reputation import Reputation
 from src.entities.word_counter_toplist import WordCounterToplist
 from src.entities.word_counter import WordCounter
 from src.utils.dict_operations import sort_simple
@@ -13,9 +14,9 @@ from src.utils.validator import validate_of_type
 
 class User(AbstractDatabaseEntity):
     TABLE_NAME = "users"
-    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "message_statistics", "word_counter", "profile", "economy"]
-    SERIALIZE_CLASSES = {"word_counter": WordCounter, "message_statistics": MessageStatistics, "profile": Profile, "economy": Economy}
-    SAVED_PROPERTIES = ["userid", "created_stamp", "message_statistics", "word_counter", "profile", "economy"]
+    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "message_statistics", "word_counter", "profile", "economy", "reputation"]
+    SERIALIZE_CLASSES = {"word_counter": WordCounter, "message_statistics": MessageStatistics, "profile": Profile, "economy": Economy, "reputation": Reputation}
+    SAVED_PROPERTIES = ["userid", "created_stamp", "message_statistics", "word_counter", "profile", "economy", "reputation"]
 
     def __init__(
             self, 
@@ -25,7 +26,8 @@ class User(AbstractDatabaseEntity):
             message_statistics: Optional[MessageStatistics] = None,
             word_counter: Optional[WordCounter] = None,
             profile: Optional[Profile] = None,
-            economy: Optional[Economy] = None
+            economy: Optional[Economy] = None,
+            reputation: Optional[Reputation] = None
         ) -> None:
         super().__init__(id=id, created_stamp=created_stamp)
         if userid is None:
@@ -38,17 +40,21 @@ class User(AbstractDatabaseEntity):
             profile = Profile()
         if economy is None:
             economy = Economy()
+        if reputation is None:
+            reputation = Reputation()
 
         validate_of_type(message_statistics, MessageStatistics, "message_statistics")
         validate_of_type(word_counter, WordCounter, "word_counter")
         validate_of_type(profile, Profile, "profile")
         validate_of_type(economy, Economy, "economy")
+        validate_of_type(reputation, Reputation, "reputation")
 
         self.userid = str(userid)
         self.message_statistics: MessageStatistics = message_statistics
         self.word_counter: WordCounter = word_counter
         self.profile: Profile = profile
         self.economy: Economy = economy
+        self.reputation: Reputation = reputation
         
     @staticmethod
     def global_word_count() -> WordCounter:
@@ -78,3 +84,12 @@ class User(AbstractDatabaseEntity):
     
     def get_created_time(self) -> datetime:
         return datetime.fromtimestamp(self.created_stamp)
+    
+    def rep_user(self, user: 'User|str') -> None:
+        if isinstance(user, str):
+            user = User.load(userid=user)
+        if not isinstance(user, User):
+            return
+        
+        self.reputation.rep_to(user.userid)
+        user.reputation.rep_from(self.userid)
