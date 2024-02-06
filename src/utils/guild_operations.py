@@ -6,10 +6,10 @@ from src.logging.logger import LOGGER
 async def retrieve_member(guild: discord.Guild, member_id: int) -> Optional[discord.Member]:
     member = guild.get_member(member_id)
     if isinstance(member, discord.Member):
-        LOGGER.debug(f"retrieve_member {member_id} cache hit")
+        #LOGGER.debug(f"retrieve_member {member_id} cache hit")
         return member
     try:
-        LOGGER.debug(f"retrieve_member {member_id} cache miss")
+        #LOGGER.debug(f"retrieve_member {member_id} cache miss")
         member: Optional[discord.Member] = await guild.fetch_member(member_id)
         return member
     except Exception as e:

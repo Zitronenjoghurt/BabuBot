@@ -6,10 +6,10 @@ from src.logging.logger import LOGGER
 async def retrieve_guild(bot: commands.Bot, guild_id: int) -> Optional[discord.Guild]:
     guild = bot.get_guild(guild_id)
     if isinstance(guild, discord.Guild):
-        LOGGER.debug(f"retrieve_guild {guild_id} cache hit")
+        #LOGGER.debug(f"retrieve_guild {guild_id} cache hit")
         return guild
     try:
-        LOGGER.debug(f"retrieve_guild {guild_id} cache miss")
+        #LOGGER.debug(f"retrieve_guild {guild_id} cache miss")
         guild: Optional[discord.Guild] = await bot.fetch_guild(guild_id)
         return guild
     except Exception as e:
