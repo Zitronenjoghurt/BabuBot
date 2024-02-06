@@ -41,26 +41,47 @@ class ColoredFormatter(logging.Formatter):
         return formatter.format(record)
 
 class BotLogger:
-    def __init__(self, log_file='bot.log'):
+    def __init__(self):
         self.logger = logging.getLogger("BOT")
         self.logger.setLevel(logging.DEBUG)
 
-        file_handler = logging.FileHandler(log_file)
+        bot_file_handler = logging.FileHandler('bot.log')
+        discord_file_handler = logging.FileHandler('discord.log')
         stream_handler = logging.StreamHandler()
 
-        file_handler.setLevel(logging.DEBUG)
+        bot_file_handler.setLevel(logging.DEBUG)
+        discord_file_handler.setLevel(logging.DEBUG)
         stream_handler.setLevel(logging.INFO)
 
-        file_handler.setFormatter(FileFormatter())
+        bot_file_handler.setFormatter(FileFormatter())
+        discord_file_handler.setFormatter(FileFormatter())
         stream_handler.setFormatter(ColoredFormatter())
 
-        self.logger.addHandler(file_handler)
+        self.logger.addHandler(bot_file_handler)
         self.logger.addHandler(stream_handler)
 
-        # Setup discord file logger
+        # TODO: DOES NOT LOG DEBUG STUFF TO FILE
+
+        # Setup discord file loggers
         discord_logger = logging.getLogger('discord')
         discord_logger.setLevel(logging.DEBUG)
-        discord_logger.addHandler(file_handler)
+        discord_logger.addHandler(discord_file_handler)
+
+        discord_http_logger = logging.getLogger('discord.http')
+        discord_http_logger.setLevel(logging.DEBUG)
+        discord_http_logger.addHandler(discord_file_handler)
+
+        discord_gateway_logger = logging.getLogger('discord.gateway')
+        discord_gateway_logger.setLevel(logging.DEBUG)
+        discord_gateway_logger.addHandler(discord_file_handler)
+
+        discord_client_logger = logging.getLogger('discord.client')
+        discord_client_logger.setLevel(logging.DEBUG)
+        discord_client_logger.addHandler(discord_file_handler)
+
+        discord_commands_logger = logging.getLogger('discord.ext.commands')
+        discord_commands_logger.setLevel(logging.DEBUG)
+        discord_commands_logger.addHandler(discord_file_handler)
 
     def get_logger(self):
         return self.logger
