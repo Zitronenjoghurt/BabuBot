@@ -22,3 +22,6 @@ class FeedbackModal(ui.Modal):
         await feedback.save()
         embed = SuccessEmbed(title="FEEDBACK SUBMITTED", message="Your feedback was successfully submitted and I will review it as soon as I can!")
         await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        self.user.sent_feedback = True
+        await self.user.save()

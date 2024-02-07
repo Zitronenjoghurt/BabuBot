@@ -20,9 +20,9 @@ CONFIG = Config.get_instance()
 
 class User(AbstractDatabaseEntity):
     TABLE_NAME = "users"
-    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "name", "display_name", "message_statistics", "word_counter", "profile", "economy", "reputation"]
+    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "name", "display_name", "sent_feedback", "message_statistics", "word_counter", "profile", "economy", "reputation"]
     SERIALIZE_CLASSES = {"word_counter": WordCounter, "message_statistics": MessageStatistics, "profile": Profile, "economy": Economy, "reputation": Reputation}
-    SAVED_PROPERTIES = ["userid", "created_stamp", "name", "display_name", "message_statistics", "word_counter", "profile", "economy", "reputation"]
+    SAVED_PROPERTIES = ["userid", "created_stamp", "name", "display_name", "sent_feedback", "message_statistics", "word_counter", "profile", "economy", "reputation"]
 
     def __init__(
             self, 
@@ -31,6 +31,7 @@ class User(AbstractDatabaseEntity):
             userid: Optional[str] = None,
             name: Optional[str] = None,
             display_name: Optional[str] = None,
+            sent_feedback: Optional[bool] = None,
             message_statistics: Optional[MessageStatistics] = None,
             word_counter: Optional[WordCounter] = None,
             profile: Optional[Profile] = None,
@@ -44,6 +45,8 @@ class User(AbstractDatabaseEntity):
             name = ""
         if display_name is None:
             display_name = ""
+        if sent_feedback is None:
+            sent_feedback = False
         if message_statistics is None:
             message_statistics = MessageStatistics()
         if word_counter is None:
@@ -64,6 +67,7 @@ class User(AbstractDatabaseEntity):
         self.userid = str(userid)
         self.name = name
         self.display_name = display_name
+        self.sent_feedback = sent_feedback
         self.message_statistics: MessageStatistics = message_statistics
         self.word_counter: WordCounter = word_counter
         self.profile: Profile = profile
@@ -131,3 +135,22 @@ class User(AbstractDatabaseEntity):
         if self.display_name == "":
             return "UNKNOWN"
         return self.display_name
+    
+    def get_tasks(self) -> list[str]:
+        tasks = []
+        if self.profile.is_empty():
+            tasks.append("Set your profile with /profile change")
+        if not self.sent_feedback:
+            tasks.append("Submit feedback/ideas with /feedback")
+        if self.economy.last_daily_stamp == 0:
+            tasks.append("Collect your daily for the 1st time with /daily")
+        if self.reputation.points_given == 0:
+            tasks.append("Give someone a reputation point for the 1st time with /rep @user")
+        return tasks
+    
+    def get_daily_tasks(self) -> list[tuple[str, bool]]:
+        tasks = [
+            ("Do your daily with /daily", not self.economy.can_do_daily()),
+            ("Give someone a reputation point with /rep @user", not self.reputation.can_do_rep())
+        ]
+        return tasks

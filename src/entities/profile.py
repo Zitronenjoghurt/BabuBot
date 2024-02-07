@@ -37,6 +37,16 @@ class Profile(AbstractSerializableEntity):
         self.about_me = str(about_me)
         self.views = int(views)
 
+    def is_empty(self) -> bool:
+        checks = [
+            self.name == "",
+            self.age == "",
+            self.pronouns == "",
+            self.location == "",
+            self.about_me == ""
+        ]
+        return all(checks)
+
     def clear(self) -> None:
         self.name = ""
         self.age = ""
