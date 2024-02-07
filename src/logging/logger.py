@@ -62,26 +62,22 @@ class BotLogger:
 
         # TODO: DOES NOT LOG DEBUG STUFF TO FILE
 
-        # Setup discord file loggers
+        # Setup discord loggers
         discord_logger = logging.getLogger('discord')
         discord_logger.setLevel(logging.DEBUG)
         discord_logger.addHandler(discord_file_handler)
 
         discord_http_logger = logging.getLogger('discord.http')
         discord_http_logger.setLevel(logging.DEBUG)
-        discord_http_logger.addHandler(discord_file_handler)
 
         discord_gateway_logger = logging.getLogger('discord.gateway')
         discord_gateway_logger.setLevel(logging.DEBUG)
-        discord_gateway_logger.addHandler(discord_file_handler)
 
         discord_client_logger = logging.getLogger('discord.client')
         discord_client_logger.setLevel(logging.DEBUG)
-        discord_client_logger.addHandler(discord_file_handler)
 
         discord_commands_logger = logging.getLogger('discord.ext.commands')
         discord_commands_logger.setLevel(logging.DEBUG)
-        discord_commands_logger.addHandler(discord_file_handler)
 
     def get_logger(self):
         return self.logger
