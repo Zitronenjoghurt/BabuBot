@@ -16,10 +16,6 @@ bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents)
 LOGGER.info("Bot initialized")
 
 @bot.event
-async def on_connect():
-    LOGGER.info("Bot connected")
-
-@bot.event
 async def on_ready():
     # Cache guilds
     for guild in bot.guilds:
@@ -42,8 +38,17 @@ async def on_ready():
 
     LOGGER.info("Bot ready")
 
+# Connection events
+@bot.event
+async def on_connect():
+    LOGGER.info("Bot connected")
+
 @bot.event
 async def on_disconnect():
-    LOGGER.info("Bot disconnected")
+    LOGGER.warn("Bot disconnected")
+
+@bot.event
+async def on_resumed():
+    LOGGER.info("Bot reconnected")
 
 bot.run(CONFIG.BOT_TOKEN)
