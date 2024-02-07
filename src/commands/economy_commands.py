@@ -97,12 +97,14 @@ class EconomyCommands(commands.Cog):
         confirm_embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
         confirm_embed.set_footer(text="If you dont react within 3 minutes, this transaction will time out.")
         
-        confirm_view = ConfirmView(user_id=interaction.user.id, timeout=5)
+        confirm_view = ConfirmView(user_id=interaction.user.id)
         await interaction.response.send_message(embed=confirm_embed, view=confirm_view)
         confirm_view.message = await interaction.original_response()
         timed_out = await confirm_view.wait()
 
         if confirm_view.confirmed:
+            # Reload user because in between they couldve already spent currency elsewhere
+            user: User = await User.load(userid=str(interaction.user.id))
             target: User = await User.load(userid=str(member.id))
             success = user.economy.send_money(amount, target.userid)
             if success:
@@ -114,6 +116,7 @@ class EconomyCommands(commands.Cog):
                 confirm_embed.color = discord.Color.green()
             else:
                 confirm_embed.title = "AN ERROR OCCURED"
+                confirm_embed.description = f"It seems like you have made another transaction in between and now you don't have enough money for this one."
                 confirm_embed.color = discord.Color.red()
         elif timed_out:
             confirm_embed.title = "TRANSACTION TIMED OUT"
