@@ -1,4 +1,5 @@
 import discord
+import json
 from discord.ext import commands
 from src.constants.config import Config
 from src.entities.user import User
@@ -53,7 +54,17 @@ async def on_resumed():
 
 @bot.event
 async def on_socket_raw_receive(msg):
-    if isinstance(msg, dict) and msg.get('op') == 7:
-        LOGGER.info('Received opcode 7: Reconnect requested by Discord')
-
+    try:
+        data = json.loads(msg)
+    except Exception:
+        return
+    if not isinstance(data, dict):
+        return
+    opcode = data.get('op', None)
+    match opcode:
+        case 7:
+            LOGGER.info('Received opcode 7: Reconnect requested by Discord')
+        case 9:
+            LOGGER.error('Received opcode 9: Session has been invalidated')
+        
 bot.run(CONFIG.BOT_TOKEN)
