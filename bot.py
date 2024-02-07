@@ -34,7 +34,7 @@ async def on_ready():
         await bot.load_extension(extension)
 
     # Set activity
-    await bot.change_presence(activity=discord.Game(name="send ideas: /feedback"))
+    await bot.change_presence(activity=discord.Game(name="try: /tasks"))
 
     LOGGER.info("Bot ready")
 
