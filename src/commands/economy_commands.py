@@ -75,7 +75,7 @@ class EconomyCommands(commands.Cog):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="money-give", description=f"Display the people with the most {CONFIG.CURRENCY} on the server")
-    @app_commands.describe(member="The user you want to give mone")
+    @app_commands.describe(member="The user you want to give money")
     @app_commands.describe(member="The amount of money you want to give")
     @app_commands.checks.cooldown(5, 300)
     async def money_give(self, interaction: discord.Interaction, member: discord.Member, amount: int):
