@@ -21,16 +21,16 @@ class ReputationCommand(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        user: User = User.load(userid=str(interaction.user.id))
+        user: User = await User.load(userid=str(interaction.user.id))
         if not user.reputation.can_do_rep():
             embed = ErrorEmbed("You already gave reputation today!", f"You can give your next reputation point {user.reputation.next_rep_discord_stamp()}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        target: User = User.load(userid=str(member.id))
-        user.rep_user(target)
-        user.save()
-        target.save()
+        target: User = await User.load(userid=str(member.id))
+        await user.rep_user(target)
+        await user.save()
+        await target.save()
 
         embed = discord.Embed(
             title="REPUTATION RECEIVED", 

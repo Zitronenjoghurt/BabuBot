@@ -22,10 +22,10 @@ async def on_ready():
         await guild.chunk()
 
     # Cache member data in database
-    for user in User.findall():
+    for user in await User.findall():
         print(user.userid)
         await user.cache_member_data(bot)
-        user.save()
+        await user.save()
     LOGGER.info("Cached available member data of all users in database")
 
     # Load extensions

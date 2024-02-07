@@ -71,14 +71,20 @@ class User(AbstractDatabaseEntity):
         self.reputation: Reputation = reputation
         
     @staticmethod
-    def global_word_count() -> WordCounter:
-        users: list[User] = User.findall()
+    async def global_word_count() -> WordCounter:
+        users: list[User] = await User.findall()
         word_counter = WordCounter.accumulate([user.word_counter for user in users if isinstance(user.word_counter, WordCounter)])
         return word_counter
     
     @staticmethod
-    def global_word_toplist() -> WordCounterToplist:
-        users: list[User] = User.findall()
+    async def global_message_count() -> MessageStatistics:
+        users: list[User] = await User.findall()
+        message_statistics = MessageStatistics.accumulate([user.message_statistics for user in users if isinstance(user.message_statistics, MessageStatistics)])
+        return message_statistics
+    
+    @staticmethod
+    async def global_word_toplist() -> WordCounterToplist:
+        users: list[User] = await User.findall()
         toplist: dict[str, dict[str, int]] = {}
         for user in users:
             for word, count in user.word_counter.words.items():
@@ -95,9 +101,9 @@ class User(AbstractDatabaseEntity):
     def get_created_time(self) -> datetime:
         return datetime.fromtimestamp(self.created_stamp)
     
-    def rep_user(self, user: 'User|str') -> None:
+    async def rep_user(self, user: 'User|str') -> None:
         if isinstance(user, str):
-            user = User.load(userid=user)
+            user = await User.load(userid=user)
         if not isinstance(user, User):
             return
         

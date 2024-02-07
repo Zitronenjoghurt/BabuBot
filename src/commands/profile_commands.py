@@ -1,6 +1,5 @@
 import discord
 from discord import app_commands
-from discord import ui
 from discord.ext import commands
 from src.constants.config import Config
 from src.entities.user import User
@@ -29,10 +28,10 @@ class ProfileCommands(commands.Cog):
             member = await retrieve_member_strict(guild=guild, member_id=user_id)
             count_view = False
         
-        user: User = User.load(userid=str(user_id))
+        user: User = await User.load(userid=str(user_id))
         if count_view:
             user.profile.count_view()
-            user.save()
+            await user.save()
 
         embed = generate_profile_embed(user=user, member=member)
 
@@ -40,7 +39,8 @@ class ProfileCommands(commands.Cog):
 
     @profile_group.command(name="change", description="Opens a pop-up for changing your server profile")
     async def profile_change(self, interaction: discord.Interaction):
-        await interaction.response.send_modal(ProfileModal(interaction.user))
+        user: User = await User.load(userid=str(interaction.user.id))
+        await interaction.response.send_modal(ProfileModal(user))
     
 def generate_profile_embed(user: User, member: discord.Member) -> discord.Embed:
     embed = discord.Embed(

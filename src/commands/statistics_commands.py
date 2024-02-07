@@ -26,7 +26,7 @@ class StatisticsCommands(commands.Cog):
             guild = await retrieve_guild_strict(self.bot, CONFIG.GUILD_ID)
             member = await guild.fetch_member(user_id)
         
-        user: User = User.load(userid=str(user_id))
+        user: User = await User.load(userid=str(user_id))
 
         message_count = user.message_statistics.message_count
         total_characters = user.message_statistics.total_characters
@@ -50,8 +50,8 @@ class StatisticsCommands(commands.Cog):
             guild = await retrieve_guild_strict(self.bot, CONFIG.GUILD_ID)
             member = await guild.fetch_member(user_id)
         
-        user: User = User.load(userid=str(user_id))
-        toplist = User.global_word_toplist()
+        user: User = await User.load(userid=str(user_id))
+        toplist = await User.global_word_toplist()
         positions = toplist.get_positions(user_display_name=user.get_display_name())
 
         embed = discord.Embed(title="WORD STATISTICS", color=discord.Color.from_str("#FFFFFF"))
@@ -62,10 +62,29 @@ class StatisticsCommands(commands.Cog):
 
     @profile_group.command(name="words-total", description="Provides statistics about the total count of all tracked words")
     async def words_total(self, interaction: discord.Interaction):
-        word_count = User.global_word_count()
+        word_count = await User.global_word_count()
 
         embed = discord.Embed(title="TOTAL WORD STATISTICS", color=discord.Color.from_str("#FFFFFF"))
         embed.description = str(word_count)
+        await interaction.response.send_message(embed=embed)
+
+    @profile_group.command(name="messages-total", description="Provides statistics about the total count of messages and characters since analyzation")
+    async def messages_total(self, interaction: discord.Interaction):
+        message_statistics = await User.global_message_count()
+        message_count = message_statistics.message_count
+        total_characters = message_statistics.total_characters
+
+        earliest_stamp = await User.get_earliest_created_stamp()
+        if earliest_stamp:
+            analyzed_since = relative_time(int(earliest_stamp))
+        else:
+            analyzed_since = "UNKNOWN"
+
+        embed = discord.Embed(title="TOTAL MESSAGES STATISTICS", color=discord.Color.from_str("#FFFFFF"))
+        embed.add_field(name="MESSAGES", value=f"**`{str(message_count)}`**", inline=False)
+        embed.add_field(name="CHARACTERS", value=f"**`{str(total_characters)}`**", inline=False)
+        embed.add_field(name="AVERAGE MESSAGE LENGTH", value=f"**`{str(round(total_characters/message_count, CONFIG.DECIMAL_DIGITS))}`**", inline=False)
+        embed.add_field(name="ANALYZED SINCE", value=f"{analyzed_since}", inline=False)
         await interaction.response.send_message(embed=embed)
 
     @profile_group.command(name="words-toplist", description="Provides a toplist about who said a certain tracked word the most")
@@ -80,7 +99,7 @@ class StatisticsCommands(commands.Cog):
             await interaction.response.send_message(embed=ErrorEmbed(title="WORD DOES NOT EXIST", message=f"The provided word is not in the list of tracked words."), ephemeral=True)
             return
         
-        toplist = User.global_word_toplist()
+        toplist = await User.global_word_toplist()
 
         embed = discord.Embed(title=f"{word.upper()} TOPLIST", color=discord.Color.from_str("#FFFFFF"))
         embed.description = toplist.get_word_positions_string(word=word, maximum=20)

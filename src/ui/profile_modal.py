@@ -5,11 +5,11 @@ from src.entities.user import User
 from src.utils.string_operations import limit_length
 
 class ProfileModal(ui.Modal):
-    def __init__(self, member: discord.User | discord.Member) -> None:
+    def __init__(self, user: User) -> None:
         super().__init__(
             title="Customize Profile"
         )
-        self.user: User = User.load(userid=str(member.id))
+        self.user = user
 
         self.name = ui.TextInput(label="Name", placeholder=self.user.profile.name, required=False, min_length=0, max_length=100, style=discord.TextStyle.short)
         self.add_item(self.name)
@@ -37,7 +37,7 @@ class ProfileModal(ui.Modal):
             self.user.profile.location = self.location.value
         if len(self.about_me.value) > 0:
             self.user.profile.about_me = self.about_me.value
-        self.user.save()
+        await self.user.save()
 
         embed = SuccessEmbed(title="PROFILE CHANGED", message="Your profile was successfully changed c:")
         await interaction.response.send_message(embed=embed, ephemeral=True)

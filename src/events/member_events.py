@@ -17,9 +17,9 @@ class MemberEvents(commands.Cog):
         
         LOGGER.debug(f"Detected member update ({after.id}), syncing database member cache")
 
-        user: User = User.find(userid=str(before.id))
+        user: User = await User.find(userid=str(before.id))
         await user.cache_member_data(self.bot, after)
-        user.save()
+        await user.save()
 
 async def setup(bot):
     await bot.add_cog(MemberEvents(bot))

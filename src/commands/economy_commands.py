@@ -20,7 +20,7 @@ class EconomyCommands(commands.Cog):
     async def daily(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
 
-        user: User = User.load(userid=user_id)
+        user: User = await User.load(userid=user_id)
 
         loses_streak = user.economy.will_lose_streak()
         last_daily_stamp = relative_time(int(user.economy.last_daily_stamp))
@@ -34,7 +34,7 @@ class EconomyCommands(commands.Cog):
             await interaction.response.send_message(embed=embed)
             return
         
-        user.save()
+        await user.save()
         
         embed = discord.Embed(title="DAILY COLLECTED", description=f"You have received **`{amount}{CONFIG.CURRENCY}`**", color=discord.Color.from_str("#f2ad46"))
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
@@ -56,7 +56,7 @@ class EconomyCommands(commands.Cog):
             guild = await retrieve_guild_strict(self.bot, CONFIG.GUILD_ID)
             member = await retrieve_member_strict(guild=guild, member_id=user_id)
 
-        user: User = User.load(userid=str(user_id))
+        user: User = await User.load(userid=str(user_id))
         
         embed = discord.Embed(title="MONEY", description=f"**`{user.economy.currency}{CONFIG.CURRENCY}`**", color=discord.Color.from_str("#f2ad46"))
         embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
@@ -73,7 +73,7 @@ class EconomyCommands(commands.Cog):
         await interaction.followup.send(embed=embed)
 
 async def build_money_toplist(page: int = 1) -> str:
-    users: list[User] = User.findall(sort_key="economy.currency", limit=20, page=page)
+    users: list[User] = await User.findall(sort_key="economy.currency", limit=20, page=page)
 
     user_positions = []
     for i, user in enumerate(users):

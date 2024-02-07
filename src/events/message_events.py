@@ -30,8 +30,8 @@ class MessageEvents(commands.Cog):
                 return
 
         author_id = str(message.author.id)
-        user: User = User.load(userid=author_id)
-        word_analyzer: WordAnalyzer = WordAnalyzer.load(userid=author_id)
+        user: User = await User.load(userid=author_id)
+        word_analyzer: WordAnalyzer = await WordAnalyzer.load(userid=author_id)
 
         user.message_statistics.process_message(message=content)
 
@@ -43,8 +43,8 @@ class MessageEvents(commands.Cog):
 
         await user.cache_member_data(bot=self.bot)
 
-        user.save()
-        word_analyzer.save()
+        await user.save()
+        await word_analyzer.save()
 
 async def setup(bot):
     await bot.add_cog(MessageEvents(bot))

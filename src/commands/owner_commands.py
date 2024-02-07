@@ -16,7 +16,7 @@ class OwnerCommands(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def entry(self, ctx: commands.Context, id: str):
-        user = User.find(userid=id)
+        user = await User.find(userid=id)
         if not isinstance(user, User):
             await ctx.send("User not found.")
         message = f"```json\n{user.to_json_string()}\n```"
@@ -26,11 +26,11 @@ class OwnerCommands(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def reset_user_profile(self, ctx: commands.Context, id: str):
-        user = User.find(userid=id)
+        user = await User.find(userid=id)
         if not isinstance(user, User):
             await ctx.send("User not found.")
         user.profile.clear()
-        user.save()
+        await user.save()
         await ctx.reply("User profile cleared.")
         LOGGER.info("Cleared user profile of {id}")
 
