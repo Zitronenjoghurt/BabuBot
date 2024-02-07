@@ -11,13 +11,15 @@ STREAK_MULTIPLIER = 0.025
 STREAK_THRESHOLD_DAYS = 3 
 
 class Economy(AbstractSerializableEntity):
-    SERIALIZED_PROPERTIES = ["currency", "last_daily_stamp", "daily_streak"]
+    SERIALIZED_PROPERTIES = ["currency", "last_daily_stamp", "daily_streak", "received_log", "sent_log"]
 
     def __init__(
             self, 
             currency: Optional[int] = None,
             last_daily_stamp: Optional[float] = None,
-            daily_streak: Optional[int] = None
+            daily_streak: Optional[int] = None,
+            received_log: Optional[list] = None,
+            sent_log: Optional[list] = None
         ) -> None:
         if currency is None:
             currency = 0
@@ -25,10 +27,18 @@ class Economy(AbstractSerializableEntity):
             last_daily_stamp = 0
         if daily_streak is None:
             daily_streak = 0
+        if received_log is None:
+            received_log = []
+        if sent_log is None:
+            sent_log = []
 
         self.currency = currency
         self.last_daily_stamp = last_daily_stamp
         self.daily_streak = daily_streak
+
+        # A list of tuple[userid, amount, timestamp]
+        self.received_log: list[tuple[str, int, float]] = received_log
+        self.sent_log: list[tuple[str, int, float]] = sent_log
 
     def add_currency(self, amount: int) -> None:
         self.currency += amount
@@ -83,3 +93,15 @@ class Economy(AbstractSerializableEntity):
     def next_daily_discord_stamp(self) -> str:
         next_daily = self.when_next_daily()
         return relative_time(int(next_daily.timestamp()))
+    
+    def send_money(self, amount: int, receiver_id: str) -> bool:
+        if amount > self.currency:
+            return False
+        
+        self.remove_currency(amount=amount)
+        self.sent_log.append((receiver_id, amount, datetime.now().timestamp()))
+        return True
+    
+    def receive_money(self, amount: int, sender_id: str) -> None:
+        self.add_currency(amount=amount)
+        self.received_log.append((sender_id, amount, datetime.now().timestamp()))
