@@ -28,16 +28,12 @@ class StatisticsCommands(commands.Cog):
         
         user: User = await User.load(userid=str(user_id))
 
-        message_count = user.message_statistics.message_count
-        total_characters = user.message_statistics.total_characters
-        average_length = round(total_characters/message_count, CONFIG.DECIMAL_DIGITS)
-
         embed = discord.Embed(title="MESSAGE STATISTICS", color=discord.Color.from_str("#FFFFFF"))
         embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
         embed.add_field(name="Analyzed since", value=relative_time(int(user.created_stamp)))
-        embed.add_field(name="Total message count", value=f"`{message_count}`", inline=True)
-        embed.add_field(name="Total character count", value=f"`{total_characters}`", inline=True)
-        embed.add_field(name="Average message length", value=f"`{average_length}`", inline=True)
+        embed.add_field(name="Total message count", value=f"`{user.message_statistics.message_count}`", inline=True)
+        embed.add_field(name="Total character count", value=f"`{user.message_statistics.total_characters}`", inline=True)
+        embed.add_field(name="Average message length", value=f"`{user.message_statistics.get_average()}`", inline=True)
         await interaction.response.send_message(embed=embed)
 
     @profile_group.command(name="words", description="Provides statistics about said words")
@@ -71,8 +67,6 @@ class StatisticsCommands(commands.Cog):
     @profile_group.command(name="messages-total", description="Provides statistics about the total count of messages and characters since analyzation")
     async def messages_total(self, interaction: discord.Interaction):
         message_statistics = await User.global_message_count()
-        message_count = message_statistics.message_count
-        total_characters = message_statistics.total_characters
 
         earliest_stamp = await User.get_earliest_created_stamp()
         if earliest_stamp:
@@ -81,9 +75,9 @@ class StatisticsCommands(commands.Cog):
             analyzed_since = "UNKNOWN"
 
         embed = discord.Embed(title="TOTAL MESSAGES STATISTICS", color=discord.Color.from_str("#FFFFFF"))
-        embed.add_field(name="MESSAGES", value=f"**`{str(message_count)}`**", inline=False)
-        embed.add_field(name="CHARACTERS", value=f"**`{str(total_characters)}`**", inline=False)
-        embed.add_field(name="AVERAGE MESSAGE LENGTH", value=f"**`{str(round(total_characters/message_count, CONFIG.DECIMAL_DIGITS))}`**", inline=False)
+        embed.add_field(name="MESSAGES", value=f"**`{str(message_statistics.message_count)}`**", inline=False)
+        embed.add_field(name="CHARACTERS", value=f"**`{str(message_statistics.total_characters)}`**", inline=False)
+        embed.add_field(name="AVERAGE MESSAGE LENGTH", value=f"**`{message_statistics.get_average()}`**", inline=False)
         embed.add_field(name="ANALYZED SINCE", value=f"{analyzed_since}", inline=False)
         await interaction.response.send_message(embed=embed)
 

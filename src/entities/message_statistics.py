@@ -1,6 +1,9 @@
 from typing import Optional
+from src.constants.config import Config
 from src.entities.abstract_serializable_entity import AbstractSerializableEntity
 from src.utils.validator import validate_of_type
+
+CONFIG = Config.get_instance()
 
 class MessageStatistics(AbstractSerializableEntity):
     SERIALIZED_PROPERTIES = ["message_count", "total_characters"]
@@ -31,3 +34,8 @@ class MessageStatistics(AbstractSerializableEntity):
         validate_of_type(message, str, "message")
         self.message_count += 1
         self.total_characters += len(message)
+
+    def get_average(self) -> float:
+        if self.message_count == 0:
+            return 0
+        return round(self.total_characters/self.message_count, CONFIG.DECIMAL_DIGITS)
