@@ -11,7 +11,7 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 intents.presences = True
-bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents)
+bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents, enable_debug_events=True)
 
 LOGGER.info("Bot initialized")
 
@@ -50,5 +50,10 @@ async def on_disconnect():
 @bot.event
 async def on_resumed():
     LOGGER.info("Bot reconnected")
+
+@bot.event
+async def on_socket_raw_receive(msg):
+    if isinstance(msg, dict) and msg.get('op') == 7:
+        LOGGER.info('Received opcode 7: Reconnect requested by Discord')
 
 bot.run(CONFIG.BOT_TOKEN)
