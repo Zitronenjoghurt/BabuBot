@@ -105,15 +105,16 @@ class EconomyCommands(commands.Cog):
         if confirm_view.confirmed:
             target: User = await User.load(userid=str(member.id))
             success = user.economy.send_money(amount, target.userid)
-            if not success:
+            if success:
+                target.economy.receive_money(amount, user.userid)
+                await user.save()
+                await target.save()
+                confirm_embed.title = "TRANSACTION SUCCESSFUL"
+                confirm_embed.description = f"**{interaction.user.display_name}** sent **`{amount}{CONFIG.CURRENCY}`** to **{member.display_name}**!"
+                confirm_embed.color = discord.Color.green()
+            else:
                 confirm_embed.title = "AN ERROR OCCURED"
                 confirm_embed.color = discord.Color.red()
-            target.economy.receive_money(amount, user.userid)
-            await user.save()
-            await target.save()
-            confirm_embed.title = "TRANSACTION SUCCESSFUL"
-            confirm_embed.description = f"**{interaction.user.display_name}** sent **`{amount}{CONFIG.CURRENCY}`** to **{member.display_name}**!"
-            confirm_embed.color = discord.Color.green()
         elif timed_out:
             confirm_embed.title = "TRANSACTION TIMED OUT"
             confirm_embed.color = discord.Color.darker_grey()
