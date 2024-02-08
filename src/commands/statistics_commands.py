@@ -74,7 +74,7 @@ class StatisticsCommands(commands.Cog):
         else:
             analyzed_since = "UNKNOWN"
 
-        embed = discord.Embed(title="TOTAL MESSAGES STATISTICS", color=discord.Color.from_str("#FFFFFF"))
+        embed = discord.Embed(title="SERVER MESSAGES STATISTICS", color=discord.Color.from_str("#FFFFFF"))
         embed.add_field(name="MESSAGES", value=f"**`{str(message_statistics.message_count)}`**", inline=False)
         embed.add_field(name="CHARACTERS", value=f"**`{str(message_statistics.total_characters)}`**", inline=False)
         embed.add_field(name="AVERAGE MESSAGE LENGTH", value=f"**`{message_statistics.get_average()}`**", inline=False)
