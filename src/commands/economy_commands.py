@@ -10,7 +10,8 @@ from src.entities.user import User
 from src.ui.confirm_view import ConfirmView
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.discord_time import relative_time
-from src.utils.guild_operations import retrieve_member_strict, retrieve_members
+from src.utils.guild_operations import retrieve_member_strict
+from src.utils.interaction_operations import send_in_channel
 
 CONFIG = Config.get_instance()
 
@@ -118,6 +119,7 @@ class EconomyCommands(commands.Cog):
                 confirm_embed.title = "TRANSACTION SUCCESSFUL"
                 confirm_embed.description = f"**{interaction.user.display_name}** sent **`{amount}{CONFIG.CURRENCY}`** to **{member.display_name}**!"
                 confirm_embed.color = discord.Color.green()
+                await send_in_channel(interaction, f"<@{member.id}> look, someone gave you a lil treat :o")
             else:
                 confirm_embed.title = "AN ERROR OCCURED"
                 confirm_embed.description = f"It seems like you have made another transaction in between and now you don't have enough money for this one."
