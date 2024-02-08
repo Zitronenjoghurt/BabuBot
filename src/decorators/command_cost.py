@@ -2,6 +2,7 @@ import discord
 from functools import wraps
 from src.constants.config import Config
 from src.entities.user import User
+from src.logging.logger import LOGGER
 from src.ui.confirm_view import ConfirmView
 
 CONFIG = Config.get_instance()
@@ -38,11 +39,13 @@ def command_cost(amount: int, command_name: str):
                     return await interaction.response.send_message(embed=generate_not_enoug_money_embed(cost=amount), ephemeral=True)
                 await user.save()
 
+                LOGGER.info(f"Withdrew {amount} from {user.get_name()} ({user.userid}) while executing {command_name}")
+
                 # Proceed with the original command
-                await func(self, interaction, *args, **kwargs)
+                await func(self, interaction=interaction, *args, **kwargs)
 
                 # Send a followup stating how much money was withdrawn
-                return await interaction.followup.send(content=f"**`{amount}{CONFIG.CURRENCY}`** were withdrawn.", ephemeral=True)
+                return await interaction.followup.send(content=f"**`{amount}{CONFIG.CURRENCY}`** were withdrawn.\nIf the command failed it will be automatically refunded.", ephemeral=True)
             else:
                 # Notify the user of insufficient currency
                 return await interaction.response.send_message(embed=generate_not_enoug_money_embed(cost=amount), ephemeral=True)
@@ -50,17 +53,20 @@ def command_cost(amount: int, command_name: str):
         return wrapper
     return decorator
 
-async def refund(user: User, amount: int, interaction: discord.Interaction, reason: str):
+async def refund(user: User, amount: int, interaction: discord.Interaction, reason: str, send_message: bool = True):
     user.economy.add_currency(amount=amount)
+    LOGGER.info(f"Refunded {amount} to {user.get_name()} ({user.userid}) because of: {reason}, send_message = {str(send_message)}")
     await user.save()
-    await interaction.followup.send(f"<@{interaction.user.id}> **`{amount}{CONFIG.CURRENCY}`** were refunded.\nReason: `{reason}`", ephemeral=True)
+    if send_message:
+        await interaction.followup.send(f"<@{interaction.user.id}> **`{amount}{CONFIG.CURRENCY}`** were refunded.\nReason: `{reason}`", ephemeral=True)
 
 def generate_not_enoug_money_embed(cost: int) -> discord.Embed:
-    return discord.Embed(
+    embed = discord.Embed(
         title="NOT ENOUGH MONEY",
         description=f"This command costs **`{cost}{CONFIG.CURRENCY}`**",
         color=discord.Color.red()
     )
+    return embed.set_footer(text="Try /daily for a little daily money!")
 
 def generate_cost_notice_embed(cost: int) -> discord.Embed:
     embed = discord.Embed(

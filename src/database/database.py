@@ -5,7 +5,7 @@ from typing import Any, Optional
 from src.logging.logger import LOGGER
 from src.utils.validator import validate_of_type
 
-TABLE_NAMES = ["feedback", "users", "word_analyzer"]
+TABLE_NAMES = ["feedback", "users", "word_analyzer", "relationships"]
 
 class Database():
     _instance = None
@@ -65,7 +65,21 @@ class Database():
         query = " AND ".join(conditions)
         self.cursor.execute(f"SELECT id, data FROM {table_name} WHERE {query}", values)
         return self.cursor.fetchone()
+    
+    def find_containing(self, table_name: str, key: str, values: list) -> Any:
+        validate_table_name(table_name=table_name)
         
+        query = f"SELECT t.id, t.data FROM {table_name} AS t, json_each(t.data, '$.{key}') WHERE json_each.value IN ({", ".join([f"'{value}'" for value in values])}) GROUP BY t.id HAVING Count(DISTINCT json_each.value) = {len(values)};"
+        self.cursor.execute(query)
+        return self.cursor.fetchone()
+    
+    def findall_containing(self, table_name: str, key: str, values: list) -> Any:
+        validate_table_name(table_name=table_name)
+        
+        query = f"SELECT t.id, t.data FROM {table_name} AS t, json_each(t.data, '$.{key}') WHERE json_each.value IN ({", ".join([f"'{value}'" for value in values])}) GROUP BY t.id HAVING Count(DISTINCT json_each.value) = {len(values)};"
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
     def findall(
             self,
             table_name: str, 

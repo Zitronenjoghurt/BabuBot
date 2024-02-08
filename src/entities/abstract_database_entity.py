@@ -35,12 +35,9 @@ class AbstractDatabaseEntity(AbstractSerializableEntity):
         result = DB.find(table_name=cls.TABLE_NAME, **kwargs)
         if not result:
             return None
-        
-        id = int(result[0])
-        data = json.loads(result[1])
-        data["id"] = id
-        
-        return cls.from_dict(data=data)
+        if not result:
+            return None
+        return map_entity_from_result(cls=cls, result=result)
 
     @classmethod
     async def findall(cls, sort_key: Optional[str] = None, descending: bool = True, limit: Optional[int] = None, page: int = 1, **kwargs) -> Any:
@@ -50,10 +47,29 @@ class AbstractDatabaseEntity(AbstractSerializableEntity):
         
         entities = []
         for result in results:
-            id = int(result[0])
-            data = json.loads(result[1])
-            data["id"] = id
-            entities.append(cls.from_dict(data=data))
+            entity = map_entity_from_result(cls=cls, result=result)
+            if entity:
+                entities.append(entity)
+        return entities
+    
+    @classmethod
+    async def find_containing(cls, key: str, values: list) -> Any:
+        result = DB.find_containing(table_name=cls.TABLE_NAME, key=key, values=values)
+        if not result:
+            return None
+        return map_entity_from_result(cls=cls, result=result)
+    
+    @classmethod
+    async def findall_containing(cls, key: str, values: list) -> Any:
+        results = DB.findall_containing(table_name=cls.TABLE_NAME, key=key, values=values)
+        if not results:
+            return []
+        
+        entities = []
+        for result in results:
+            entity = map_entity_from_result(cls=cls, result=result)
+            if entity:
+                entities.append(entity)
         return entities
     
     # Return entity if exists, otherwise create a new one
@@ -74,3 +90,9 @@ class AbstractDatabaseEntity(AbstractSerializableEntity):
         if not entities:
             return None
         return entities[0].created_stamp
+    
+def map_entity_from_result(cls, result: tuple[int, str]) -> Any:
+    id = int(result[0])
+    data = json.loads(result[1])
+    data["id"] = id
+    return cls.from_dict(data=data)

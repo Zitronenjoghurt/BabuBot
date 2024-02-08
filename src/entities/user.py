@@ -7,6 +7,7 @@ from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.economy import Economy
 from src.entities.message_statistics import MessageStatistics
 from src.entities.profile import Profile
+from src.entities.relationship import Relationship
 from src.entities.reputation import Reputation
 from src.entities.word_counter_toplist import WordCounterToplist
 from src.entities.word_counter import WordCounter
@@ -140,7 +141,7 @@ class User(AbstractDatabaseEntity):
             return "UNKNOWN"
         return self.display_name
     
-    def get_tasks(self) -> list[str]:
+    async def get_tasks(self) -> list[str]:
         tasks = []
         if self.profile.is_empty():
             tasks.append("Set your profile with /profile change")
@@ -150,6 +151,11 @@ class User(AbstractDatabaseEntity):
             tasks.append("Collect your daily for the 1st time with /daily")
         if self.reputation.points_given == 0:
             tasks.append("Give someone a reputation point for the 1st time with /rep @user")
+
+        all_relationships = await self.get_all_relationships()
+        if len(all_relationships) == 0:
+            tasks.append("Try starting a relationship with someone using /relationship greet @user")
+
         return tasks
     
     def get_daily_tasks(self) -> list[tuple[str, bool]]:
@@ -167,3 +173,13 @@ class User(AbstractDatabaseEntity):
     def has_accepted_command_cost(self, command_name: str) -> bool:
         command_name = command_name.lower()
         return command_name in self.accepted_command_cost
+    
+    async def get_all_relationships(self) -> list[Relationship]:
+        return await Relationship.findall_containing("user_ids", [self.userid])
+    
+    async def get_relationship_with_user(self, user_id: str) -> Optional[Relationship]:
+        return await Relationship.find_containing("user_ids", [self.userid, user_id])
+    
+    # Will create a new relationship if both users have none yet
+    async def load_relationship_with_user(self, user_id: str) -> Relationship:
+        return await Relationship.load([self.userid, user_id])
