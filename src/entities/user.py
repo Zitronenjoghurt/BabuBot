@@ -20,9 +20,9 @@ CONFIG = Config.get_instance()
 
 class User(AbstractDatabaseEntity):
     TABLE_NAME = "users"
-    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "name", "display_name", "sent_feedback", "message_statistics", "word_counter", "profile", "economy", "reputation"]
+    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation"]
     SERIALIZE_CLASSES = {"word_counter": WordCounter, "message_statistics": MessageStatistics, "profile": Profile, "economy": Economy, "reputation": Reputation}
-    SAVED_PROPERTIES = ["userid", "created_stamp", "name", "display_name", "sent_feedback", "message_statistics", "word_counter", "profile", "economy", "reputation"]
+    SAVED_PROPERTIES = ["userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation"]
 
     def __init__(
             self, 
@@ -32,6 +32,7 @@ class User(AbstractDatabaseEntity):
             name: Optional[str] = None,
             display_name: Optional[str] = None,
             sent_feedback: Optional[bool] = None,
+            accepted_command_cost: Optional[list[str]] = None,
             message_statistics: Optional[MessageStatistics] = None,
             word_counter: Optional[WordCounter] = None,
             profile: Optional[Profile] = None,
@@ -47,6 +48,8 @@ class User(AbstractDatabaseEntity):
             display_name = ""
         if sent_feedback is None:
             sent_feedback = False
+        if accepted_command_cost is None:
+            accepted_command_cost = []
         if message_statistics is None:
             message_statistics = MessageStatistics()
         if word_counter is None:
@@ -68,6 +71,7 @@ class User(AbstractDatabaseEntity):
         self.name = name
         self.display_name = display_name
         self.sent_feedback = sent_feedback
+        self.accepted_command_cost = accepted_command_cost
         self.message_statistics: MessageStatistics = message_statistics
         self.word_counter: WordCounter = word_counter
         self.profile: Profile = profile
@@ -154,3 +158,12 @@ class User(AbstractDatabaseEntity):
             ("Give someone a reputation point with /rep @user", not self.reputation.can_do_rep())
         ]
         return tasks
+    
+    def add_accepted_command_cost(self, command_name: str) -> None:
+        command_name = command_name.lower()
+        if command_name not in self.accepted_command_cost:
+            self.accepted_command_cost.append(command_name)
+    
+    def has_accepted_command_cost(self, command_name: str) -> bool:
+        command_name = command_name.lower()
+        return command_name in self.accepted_command_cost
