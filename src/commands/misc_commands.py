@@ -4,6 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 from typing import Optional
 from src.constants.config import Config
+from src.decorators.command_cost import command_cost, refund
 from src.entities.user import User
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.guild_operations import retrieve_member_strict
@@ -18,11 +19,6 @@ class MiscCommands(commands.Cog):
     async def ping(self, ctx):
         latency_ms = round(self.bot.latency * 1000)
         await ctx.send(f"**Pong!** {latency_ms}ms\n")
-
-    @app_commands.command(name="say", description="Will just repeat whatever you want to say")
-    @app_commands.describe(message="Whatever message you want the bot to say")
-    async def say(self, interaction: discord.Interaction, message: str):
-        await interaction.response.send_message(f"{message}")
 
     @app_commands.command(name="tasks", description="Will show you your daily and overall tasks")
     @app_commands.describe(member="The user you want to see the tasks of")
