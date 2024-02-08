@@ -45,7 +45,7 @@ def command_cost(amount: int, command_name: str):
                 await func(self, interaction=interaction, *args, **kwargs)
 
                 # Send a followup stating how much money was withdrawn
-                return await interaction.followup.send(content=f"**`{amount}{CONFIG.CURRENCY}`** were withdrawn.\nIf the command failed it will be automatically refunded.", ephemeral=True)
+                return await interaction.followup.send(content=f"**`{amount}{CONFIG.CURRENCY}`** were withdrawn.\nIf the command failed it will be automatically refunded.\n*If you think you wrongfully lost money just contact the developer, all transactions are logged.*", ephemeral=True)
             else:
                 # Notify the user of insufficient currency
                 return await interaction.response.send_message(embed=generate_not_enoug_money_embed(cost=amount), ephemeral=True)
@@ -78,7 +78,7 @@ def generate_cost_notice_embed(cost: int) -> discord.Embed:
 
 def edit_cost_notice_confirmed(embed: discord.Embed) -> None:
     embed.title = "COMMAND COSTS CONFIRMED"
-    embed.description = "You can now use the command again."
+    embed.description = "You can now use the command again.\n*You might want to do `/daily` if you did not collect any money yet.*"
     embed.color = discord.Color.green()
     embed.remove_footer()
 
