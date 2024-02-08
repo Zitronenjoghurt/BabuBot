@@ -79,6 +79,10 @@ class EconomyCommands(commands.Cog):
     @app_commands.describe(member="The amount of money you want to give")
     @app_commands.checks.cooldown(5, 300)
     async def money_give(self, interaction: discord.Interaction, member: discord.Member, amount: int):
+        if interaction.user.id == member.id:
+            await interaction.response.send_message(embed=ErrorEmbed(title="Now thats really sad...", message=f"You cant send yourself money. Do you not have any friends you want to share some of your fortune with?"))
+            return
+
         if amount < 1:
             await interaction.response.send_message(embed=ErrorEmbed(title="Thats too little!", message=f"You have to send at least **`1{CONFIG.CURRENCY}`**!"))
             return
