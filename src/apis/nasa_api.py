@@ -30,7 +30,6 @@ class NasaApi(AbstractApiController):
     
     # Retrieves a random "Astronomy Picture Of The Day" (APOD)
     # Will always request 50 pictures at once and save them in a queue
-    @rate_limit(class_scope=True)
     async def random_apod(self) -> 'APOD':
         if self.apod_queue.empty():
             await self.cache_new_apod()
@@ -39,7 +38,8 @@ class NasaApi(AbstractApiController):
         apod: APOD = await self.apod_queue.get()
         LOGGER.debug(f"Successfully retrieved an APOD from cache, {self.apod_queue.qsize()} entries left.")
         return apod
-
+    
+    @rate_limit(class_scope=True)
     async def cache_new_apod(self) -> None:
         try:
             results = await self.request(endpoint="planetary/apod", expected_codes=[200], api_key=CONFIG.NASA_API_KEY, count=50)
