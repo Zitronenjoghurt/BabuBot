@@ -7,11 +7,42 @@ from src.constants.custom_embeds import ErrorEmbed
 from src.decorators.command_cost import command_cost, refund
 from src.entities.relationship import Relationship, RelationshipAction
 from src.entities.user import User
+from src.scrollables.relationship_scrollable import RelationshipScrollable
+from src.ui.scrollable_embed import ScrollableEmbed
+from src.ui.scrollable_view import ScrollableView
 
 class RelationshipCommands(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
     
+    @app_commands.command(name="relationships", description="Display all relationships of yourself or a user")
+    @app_commands.describe(member="The user you want to see the relationships of")
+    @app_commands.checks.cooldown(1, 120)
+    async def relationships(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
+        if isinstance(member, discord.Member):
+            user: discord.User|discord.Member = member
+        else:
+            user: discord.User|discord.Member = interaction.user
+
+        scrollable = await RelationshipScrollable.create(user_ids=[str(user.id)])
+        scrollable.set_user_id(str(user.id))
+        embed = ScrollableEmbed(
+            scrollable=scrollable,
+            title="RELATIONSHIPS",
+            color=discord.Color.pink(),
+            author=user.display_name,
+            icon_url=user.display_avatar.url
+        )
+        await embed.initialize()
+
+        if scrollable.is_scrollable():
+            scrollable_view = ScrollableView(embed=embed, user_id=user.id)
+            await interaction.response.send_message(embed=embed, view=scrollable_view)
+            scrollable_view.message = await interaction.original_response()
+            await scrollable_view.timeout_after(120)
+        else:
+            await interaction.response.send_message(embed=embed)
+
     relationship_group = app_commands.Group(name="relationship", description="All commands about relationships")
 
     @relationship_group.command(name="greet", description="Greet someone c:")

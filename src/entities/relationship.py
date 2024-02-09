@@ -202,6 +202,18 @@ class Relationship(AbstractDatabaseEntity):
         
         return True, f"**YAY! Now wait for your partner to {action.value} you back :3**\n*After that your relationship will advance!*"
     
+    def get_pending_status(self) -> str:
+        if len(self.user_ids) != 2:
+            return ""
+        
+        available_actions = self.get_unlocked_actions()
+        for action in available_actions:
+            a_pending, _ = self.can_do_action(action=action, user_id=self.user_ids[0])
+            b_pending, _ = self.can_do_action(action=action, user_id=self.user_ids[1])
+            if a_pending or b_pending:
+                return "PENDING"
+        return "DONE"
+    
     def get_pending(self, user_id: str) -> str:
         if user_id not in self.user_ids:
             return ""

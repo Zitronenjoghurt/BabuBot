@@ -60,8 +60,8 @@ class AbstractDatabaseEntity(AbstractSerializableEntity):
         return map_entity_from_result(cls=cls, result=result)
     
     @classmethod
-    async def findall_containing(cls, key: str, values: list) -> Any:
-        results = DB.findall_containing(table_name=cls.TABLE_NAME, key=key, values=values)
+    async def findall_containing(cls, key: str, values: list, sort_key: Optional[str] = None, descending: bool = True, limit: Optional[int] = None, page: int = 1) -> Any:
+        results = DB.findall_containing(table_name=cls.TABLE_NAME, key=key, values=values, sort_key=sort_key, descending=descending, limit=limit, page=page)
         if not results:
             return []
         

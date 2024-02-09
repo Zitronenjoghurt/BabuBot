@@ -74,11 +74,35 @@ class Database():
         self.cursor.execute(query)
         return self.cursor.fetchone()
     
-    def findall_containing(self, table_name: str, key: str, values: list) -> Any:
+    def findall_containing(self, table_name: str, key: str, values: list, sort_key: Optional[str] = None, descending: bool = True, limit: Optional[int] = None, page: int = 1) -> Any:
+        validate_of_type(table_name, str, "table_name")
+        validate_of_type(descending, bool, "descending")
+        validate_of_type(page, Number, "page")
+        if sort_key:
+            validate_of_type(sort_key, str, "sort_key")
+        if limit:
+            validate_of_type(limit, Number, "limit")
         validate_table_name(table_name=table_name)
+
+        order_clause = ""
+        if sort_key:
+            direction = "DESC" if descending else "ASC"
+            order_clause = f" ORDER BY json_extract(data, '$.{sort_key}') {direction}"
+
+        limit_clause = ""
+        if limit:
+            offset = (page - 1) * limit
+            limit_clause = f" LIMIT {limit} OFFSET {offset}"
         
         values_part = ", ".join([f"'{value}'" for value in values])
-        query = f"SELECT t.id, t.data FROM {table_name} AS t, json_each(t.data, '$.{key}') WHERE json_each.value IN ({values_part}) GROUP BY t.id HAVING Count(DISTINCT json_each.value) = {len(values)};"
+        query = f"""
+                SELECT t.id, t.data 
+                FROM {table_name} AS t, json_each(t.data, '$.{key}') 
+                WHERE json_each.value IN ({values_part}) 
+                GROUP BY t.id HAVING Count(DISTINCT json_each.value) = {len(values)}
+                {order_clause}
+                {limit_clause};
+                """
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
