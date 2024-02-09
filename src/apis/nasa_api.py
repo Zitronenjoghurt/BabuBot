@@ -21,6 +21,7 @@ class NasaApi(AbstractApiController):
             raise RuntimeError("Tried to initialize multiple instances of ApodApi.")
         super().__init__()
         self.apod_queue = asyncio.Queue()
+        self.fetching = False
 
     @staticmethod
     def get_instance() -> 'NasaApi':
@@ -41,6 +42,9 @@ class NasaApi(AbstractApiController):
     
     @rate_limit(class_scope=True)
     async def cache_new_apod(self) -> None:
+        if self.fetching:
+            raise ApiError("The bot is currently fetching more entries, please wait a few seconds.")
+        self.fetching = True
         try:
             results = await self.request(endpoint="planetary/apod", expected_codes=[200], api_key=CONFIG.NASA_API_KEY, count=50)
             if isinstance(results, list):
@@ -49,6 +53,7 @@ class NasaApi(AbstractApiController):
                 LOGGER.info(f"Successfully collected 50 new APOD from the NASA API.")
             else:
                 LOGGER.error(f"No list was returned while trying to cache new APOD.")
+            self.fetching = False
         except UnexpectedResponseCodeError as e:
             LOGGER.error(f"An unexpected response code was returned while trying to cache new APOD: {e}")
         except asyncio.TimeoutError as e:
