@@ -30,14 +30,19 @@ class NasaApi(AbstractApiController):
         return NasaApi._instance
     
     # Retrieves a random "Astronomy Picture Of The Day" (APOD)
-    # Will always request 50 pictures at once and save them in a queue
+    # Will always request 100 pictures at once and save them in a queue
     async def random_apod(self) -> 'APOD':
         if self.apod_queue.empty():
             await self.cache_new_apod()
         if self.apod_queue.empty():
             raise ApiError("The bot was unable to retrieve new APOD images, please contact the developer.")
+        
         apod: APOD = await self.apod_queue.get()
         LOGGER.debug(f"Successfully retrieved an APOD from cache, {self.apod_queue.qsize()} entries left.")
+
+        # Preemptively refill cache if close to being empty
+        if self.apod_queue.qsize() <= 10:
+            asyncio.create_task(self.cache_new_apod())
         return apod
     
     @rate_limit(class_scope=True)
@@ -46,11 +51,11 @@ class NasaApi(AbstractApiController):
             raise ApiError("The bot is currently fetching more entries, please wait a few seconds.")
         self.fetching = True
         try:
-            results = await self.request(endpoint="planetary/apod", expected_codes=[200], api_key=CONFIG.NASA_API_KEY, count=50)
+            results = await self.request(endpoint="planetary/apod", expected_codes=[200], api_key=CONFIG.NASA_API_KEY, count=100)
             if isinstance(results, list):
                 for apod_data in results:
                     await self.apod_queue.put(APOD.from_dict(apod_data))
-                LOGGER.info(f"Successfully collected 50 new APOD from the NASA API.")
+                LOGGER.info(f"Successfully collected 100 new APOD from the NASA API.")
             else:
                 LOGGER.error(f"No list was returned while trying to cache new APOD.")
             self.fetching = False
