@@ -14,6 +14,7 @@ class Config():
         config_data = file_to_dict(CONFIG_FILE_PATH)
         
         self.BOT_TOKEN = config_data.get("token", None)
+        self.NASA_API_KEY = config_data.get("nasa_key", "")
         self.PREFIX = config_data.get("prefix", None)
         self.GUILD_ID = config_data.get("guild_id", None)
         self.COUNTED_WORDS = config_data.get("counted_words", [])
@@ -25,6 +26,7 @@ class Config():
 
         try:
             validate_of_type(self.BOT_TOKEN, str, "token")
+            validate_of_type(self.NASA_API_KEY, str, "nasa_key")
             validate_of_type(self.PREFIX, str, "prefix")
             validate_of_type(self.GUILD_ID, int, "guild_id")
             validate_of_type(self.COUNTED_WORDS, list, "counted_words")

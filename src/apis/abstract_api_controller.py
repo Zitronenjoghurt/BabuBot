@@ -17,7 +17,7 @@ class AbstractApiController():
         arguments = "&".join([f"{key}={value}" for key, value in kwargs.items()])
         return f"{self.BASE_URL}/{endpoint}?{arguments}"
     
-    async def request(self, endpoint: str, expected_codes: list[int], **params) -> dict:
+    async def request(self, endpoint: str, expected_codes: list[int], **params) -> dict|list:
         url = self.generate_url(endpoint, **params)
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
@@ -26,6 +26,11 @@ class AbstractApiController():
                     raise UnexpectedResponseCodeError(url, response.status, data)
                 else:
                     return await response.json()
+                
+class ApiError(Exception):
+    """Exception raised when an error happened in one of the api controllers and has to be propagated to the frontend."""
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
 
 class UnexpectedResponseCodeError(Exception):
     """Exception raised for unexpected response codes."""

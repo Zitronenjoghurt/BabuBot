@@ -29,7 +29,9 @@ class QuizApi(AbstractApiController):
             return
         try:
             result = await self.request(endpoint="api_token.php", expected_codes=[200], command="request")
-            token = result.get("token", None)
+            token = None
+            if isinstance(result, dict):
+                token = result.get("token", None)
             if not token:
                 LOGGER.error("The token request returned OK but still unable to retrieve session token for Quiz API (opentdb.com), proceeding without a token.")
                 return
