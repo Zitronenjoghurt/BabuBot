@@ -71,7 +71,7 @@ class EconomyCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="money-toplist", description=f"Display the people with the most {CONFIG.CURRENCY} on the server")
-    @app_commands.checks.cooldown(1, 30)
+    @app_commands.checks.cooldown(1, 120)
     async def money_toplist(self, interaction: discord.Interaction):
         scrollable = await MoneyTopScrollable.create()
         embed = ScrollableEmbed(
@@ -149,6 +149,10 @@ class EconomyCommands(commands.Cog):
 
     @money_give.error
     async def on_money_give_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        await interaction.response.send_message(embed=ErrorEmbed(title="ERROR", message=str(error)), ephemeral=True)
+
+    @money_toplist.error
+    async def on_money_toplist_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         await interaction.response.send_message(embed=ErrorEmbed(title="ERROR", message=str(error)), ephemeral=True)
 
 async def setup(bot: commands.Bot):
