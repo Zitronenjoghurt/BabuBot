@@ -133,12 +133,12 @@ class User(AbstractDatabaseEntity):
 
     def get_name(self) -> str:
         if self.name == "":
-            return "UNKNOWN"
+            return f"<{self.userid}>"
         return self.name
     
     def get_display_name(self) -> str:
         if self.display_name == "":
-            return "UNKNOWN"
+            return f"<{self.userid}>"
         return self.display_name
     
     async def get_tasks(self) -> list[str]:

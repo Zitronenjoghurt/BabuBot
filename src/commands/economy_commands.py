@@ -7,7 +7,10 @@ from src.constants.config import Config
 from src.constants.custom_embeds import ErrorEmbed
 from src.entities.economy import STREAK_THRESHOLD_DAYS
 from src.entities.user import User
+from src.scrollables.money_top_scrollable import MoneyTopScrollable
 from src.ui.confirm_view import ConfirmView
+from src.ui.scrollable_embed import ScrollableEmbed
+from src.ui.scrollable_view import ScrollableView
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.discord_time import relative_time
 from src.utils.guild_operations import retrieve_member_strict
@@ -68,12 +71,23 @@ class EconomyCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="money-toplist", description=f"Display the people with the most {CONFIG.CURRENCY} on the server")
+    @app_commands.checks.cooldown(1, 30)
     async def money_toplist(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        toplist = await build_money_toplist(page=1)
-        
-        embed = discord.Embed(title="MONEY TOPLIST", description=toplist, color=discord.Color.from_str("#FFFFFF"))
-        await interaction.followup.send(embed=embed)
+        scrollable = await MoneyTopScrollable.create()
+        embed = ScrollableEmbed(
+            scrollable=scrollable,
+            title="MONEY TOPLIST",
+            color=discord.Color.yellow()
+        )
+        await embed.initialize()
+
+        if scrollable.is_scrollable():
+            scrollable_view = ScrollableView(embed=embed, user_id=interaction.user.id)
+            await interaction.response.send_message(embed=embed, view=scrollable_view)
+            scrollable_view.message = await interaction.original_response()
+            await scrollable_view.timeout_after(120)
+        else:
+            await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="money-give", description=f"Display the people with the most {CONFIG.CURRENCY} on the server")
     @app_commands.describe(member="The user you want to give money")
@@ -136,14 +150,6 @@ class EconomyCommands(commands.Cog):
     @money_give.error
     async def on_money_give_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         await interaction.response.send_message(embed=ErrorEmbed(title="ERROR", message=str(error)), ephemeral=True)
-
-async def build_money_toplist(page: int = 1) -> str:
-    users: list[User] = await User.findall(sort_key="economy.currency", limit=20, page=page)
-
-    user_positions = []
-    for i, user in enumerate(users):
-        user_positions.append(f"#**{i+1}** ❥ **`{user.economy.currency}{CONFIG.CURRENCY}`** | **{user.get_display_name()}**")
-    return "\n".join(user_positions)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(EconomyCommands(bot))

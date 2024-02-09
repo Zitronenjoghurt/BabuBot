@@ -17,7 +17,7 @@ class RelationshipCommands(commands.Cog):
     
     @app_commands.command(name="relationships", description="Display all relationships of yourself or a user")
     @app_commands.describe(member="The user you want to see the relationships of")
-    @app_commands.checks.cooldown(1, 120)
+    @app_commands.checks.cooldown(1, 30)
     async def relationships(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if isinstance(member, discord.Member):
             user: discord.User|discord.Member = member
