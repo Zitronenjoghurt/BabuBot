@@ -81,6 +81,8 @@ class ShopCommands(commands.Cog):
                 confirm_embed.description = f"You successfully bought {buy_item.get_emoji()} **`{amount}x {buy_item.display_name}`**"
                 confirm_embed.color = discord.Color.green()
                 confirm_embed.set_footer(text="Check your inventory with /inventory")
+                if buy_item.buy_message:
+                    confirm_embed.add_field(name="Important!", value=buy_item.buy_message)
             else:
                 confirm_embed.title = "PURCHASE FAILED"
                 confirm_embed.description = message

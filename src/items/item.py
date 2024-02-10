@@ -22,6 +22,7 @@ class Item():
             max_count: int,
             data: dict,
             requirements: list[str],
+            buy_message: Optional[str] = None,
             needs_item: Optional[str] = None
         ) -> None:
         self.name = name
@@ -37,6 +38,7 @@ class Item():
         self.max_count = max_count
         self.data = data
         self.requirements = requirements
+        self.buy_message = buy_message
         self.needs_item = needs_item
 
     def has_requirements(self) -> bool:

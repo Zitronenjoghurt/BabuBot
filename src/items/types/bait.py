@@ -17,6 +17,7 @@ class Bait(Item):
             max_count: int, 
             data: dict,
             requirements: list[str],
+            buy_message: Optional[str] = None,
             needs_item: Optional[str] = None
         ) -> None:
         super().__init__(
@@ -33,4 +34,5 @@ class Bait(Item):
             max_count=max_count, 
             data=data,
             requirements=requirements,
+            buy_message=buy_message,
             needs_item=needs_item)
