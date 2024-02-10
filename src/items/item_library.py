@@ -12,6 +12,7 @@ class ItemLibrary():
         if ItemLibrary._instance is not None:
             raise RuntimeError("Tried to initialize multiple instances of ItemLibrary.")
         self.items_by_name = {}
+        self.items_by_display_name = {}
         self.items_by_id = {}
         self.items_by_category = {}
         self._initialize_items()
@@ -20,9 +21,10 @@ class ItemLibrary():
         item_data = file_to_dict(DATA_FILE_PATH)
         for name, data in item_data.items():
             data["name"] = name
-            item = create_item(data=data)
+            item: Item = create_item(data=data)
             self.items_by_name[name] = item
-            self.items_by_id[item.id] = item
+            self.items_by_display_name[item.display_name.lower()] = item
+            self.items_by_id[item.id.lower()] = item
 
             if item.category not in self.items_by_category:
                 self.items_by_category[item.category] = []
@@ -37,7 +39,17 @@ class ItemLibrary():
     def get_categories(self) -> list[str]:
         return list(self.items_by_category.keys())
     
+    def find(self, identifier: str) -> Optional[Item]:
+        if identifier.lower() in self.items_by_id:
+            return self.items_by_id[identifier.lower()]
+        if identifier.lower() in self.items_by_display_name:
+            return self.items_by_display_name[identifier.lower()]
+        if identifier in self.items_by_name:
+            return self.items_by_name[identifier]
+        return None
+    
     def get_item_by_id(self, id: str) -> Optional[Item]:
+        id = id.lower()
         if id not in self.items_by_id:
             return None
         return self.items_by_id[id]

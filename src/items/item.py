@@ -36,6 +36,9 @@ class Item():
             data=self.data.copy()
         )
     
+    def get_emoji(self) -> str:
+        return f"<:{self.name}:{self.emoji_id}>"
+    
     def can_buy(self, user: User, amount: int) -> tuple[bool, str]:
         item_count = user.inventory.item_count(self.id)
         if item_count + amount > self.max_count:

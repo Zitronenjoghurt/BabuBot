@@ -23,6 +23,6 @@ class ShopScrollable(AbstractScrollable):
 
         strings = []
         for item in items:
-            string = f"**`{item.id}`** ❥ <:{item.name}:{item.emoji_id}> **{item.display_name}** | `({item.price}{CONFIG.CURRENCY})`"
+            string = f"**`{item.id}`** ❥ {item.get_emoji()} **{item.display_name}** | `({item.price}{CONFIG.CURRENCY})`"
             strings.append(string)
         return "\n".join(strings)
