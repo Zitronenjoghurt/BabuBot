@@ -3,6 +3,7 @@ from src.entities.inventory_item import InventoryItem
 from src.entities.user import User
 
 CONFIG = Config.get_instance()
+IMAGE_PATH = "src/assets/{category}/{name}.png"
 
 class Item():
     def __init__(
@@ -11,7 +12,9 @@ class Item():
             unique: bool,
             id: str,
             display_name: str,
+            color: str,
             description: str,
+            use: str,
             category: str,
             emoji_id: str,
             price: int,
@@ -22,6 +25,8 @@ class Item():
         self.unique = unique
         self.id = id
         self.display_name = display_name
+        self.use = use
+        self.color = color
         self.description = description
         self.category = category
         self.emoji_id = emoji_id
@@ -39,6 +44,16 @@ class Item():
     def get_emoji(self) -> str:
         return f"<:{self.name}:{self.emoji_id}>"
     
+    def get_image_path(self) -> str:
+        return IMAGE_PATH.format(category=self.category, name=self.name)
+    
+    def get_image_file_name(self) -> str:
+        return f"{self.name}.png"
+    
+    def get_image_url(self) -> str:
+        image_file_name = self.get_image_file_name()
+        return f"attachment://{image_file_name}"
+
     def can_buy(self, user: User, amount: int) -> tuple[bool, str]:
         item_count = user.inventory.item_count(self.id)
         if item_count + amount > self.max_count:
