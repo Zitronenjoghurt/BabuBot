@@ -23,7 +23,12 @@ class ShopCommands(commands.Cog):
     
     @app_commands.command(name="shop", description="Look up available items for sale")
     @app_commands.describe(category="The category of items you want to look at")
+    @app_commands.checks.cooldown(1, 5)
     async def shop(self, interaction: discord.Interaction, category: str):
+        if category not in SHOP_CATEGORIES:
+            categories = ", ".join(SHOP_CATEGORIES)
+            return await interaction.response.send_message(embed=ErrorEmbed(title="CATEGORY NOT FOUND", message=f"Category **`{category}`** does not exist.\nAvailable categories are: {categories}."), ephemeral=True)
+        
         items = ITEM_LIBRARY.get_items_by_category(category=category)
         scrollable = await ShopScrollable.create(items=items)
 
@@ -38,6 +43,7 @@ class ShopCommands(commands.Cog):
 
     @app_commands.command(name="buy", description="If you want to buy an item you saw in /shop")
     @app_commands.describe(item="The name/id of the item you want to buy")
+    @app_commands.checks.cooldown(1, 5)
     async def buy(self, interaction: discord.Interaction, item: str, amount: Optional[int] = None):
         if amount is None or amount < 1:
             amount = 1

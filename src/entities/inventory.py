@@ -64,3 +64,12 @@ class Inventory(AbstractSerializableEntity):
                 return False, f"You only have `{item_count}x`"
             self.remove_item(id=id)
             return True, ""
+        
+    def map_items_by_id_and_count(self) -> dict[str, int]:
+        data = {}
+        for item in self.items:
+            if item.id not in data:
+                data[item.id] = 0
+            count = item.data.get("count", 1)
+            data[item.id] += count
+        return data
