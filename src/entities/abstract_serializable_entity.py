@@ -9,8 +9,17 @@ class AbstractSerializableEntity():
         data = {}
         for property in self.SERIALIZED_PROPERTIES:
             value = getattr(self, property)
+            # Allows for serialization of value is a list of serializable entities
+            if isinstance(value, list):
+                new_value = []
+                for list_value in value:
+                    if hasattr(list_value, "to_dict"):
+                        new_value.append(list_value.to_dict())
+                    else:
+                        new_value.append(list_value)
+                value = new_value
             # Allows for nested serialization
-            if hasattr(value, "to_dict"):
+            elif hasattr(value, "to_dict"):
                 value = value.to_dict()
             data[property] = value
         return data
@@ -26,7 +35,13 @@ class AbstractSerializableEntity():
                 value = data[property]
                 if value is None:
                     value = {}
-                data[property] = serialize_class.from_dict(value)
+                # If its a list of deserializable entities, handle it properly
+                if isinstance(value, list):
+                    data[property] = []
+                    for list_value in value:
+                        data[property].append(serialize_class.from_dict(list_value))
+                else:
+                    data[property] = serialize_class.from_dict(value)
         return cls(**data)
     
     def to_json_string(self) -> str:
