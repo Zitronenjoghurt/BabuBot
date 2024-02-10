@@ -1,5 +1,6 @@
 .DS_Store
 .vscode
+assets
 bot.db
 config.json
 config_test.json
