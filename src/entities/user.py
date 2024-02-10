@@ -5,6 +5,7 @@ from typing import Optional
 from src.constants.config import Config
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.economy import Economy
+from src.entities.inventory import Inventory
 from src.entities.message_statistics import MessageStatistics
 from src.entities.profile import Profile
 from src.entities.relationship import Relationship
@@ -21,9 +22,9 @@ CONFIG = Config.get_instance()
 
 class User(AbstractDatabaseEntity):
     TABLE_NAME = "users"
-    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation"]
-    SERIALIZE_CLASSES = {"word_counter": WordCounter, "message_statistics": MessageStatistics, "profile": Profile, "economy": Economy, "reputation": Reputation}
-    SAVED_PROPERTIES = ["userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation"]
+    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation", "inventory"]
+    SERIALIZE_CLASSES = {"word_counter": WordCounter, "message_statistics": MessageStatistics, "profile": Profile, "economy": Economy, "reputation": Reputation, "inventory": Inventory}
+    SAVED_PROPERTIES = ["userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation", "inventory"]
 
     def __init__(
             self, 
@@ -38,7 +39,8 @@ class User(AbstractDatabaseEntity):
             word_counter: Optional[WordCounter] = None,
             profile: Optional[Profile] = None,
             economy: Optional[Economy] = None,
-            reputation: Optional[Reputation] = None
+            reputation: Optional[Reputation] = None,
+            inventory: Optional[Inventory] = None
         ) -> None:
         super().__init__(id=id, created_stamp=created_stamp)
         if userid is None:
@@ -61,12 +63,15 @@ class User(AbstractDatabaseEntity):
             economy = Economy()
         if reputation is None:
             reputation = Reputation()
+        if inventory is None:
+            inventory = Inventory()
 
         validate_of_type(message_statistics, MessageStatistics, "message_statistics")
         validate_of_type(word_counter, WordCounter, "word_counter")
         validate_of_type(profile, Profile, "profile")
         validate_of_type(economy, Economy, "economy")
         validate_of_type(reputation, Reputation, "reputation")
+        validate_of_type(inventory, Inventory, "inventory")
 
         self.userid = str(userid)
         self.name = name
@@ -78,6 +83,7 @@ class User(AbstractDatabaseEntity):
         self.profile: Profile = profile
         self.economy: Economy = economy
         self.reputation: Reputation = reputation
+        self.inventory: Inventory = inventory
         
     @staticmethod
     async def global_word_count() -> WordCounter:
