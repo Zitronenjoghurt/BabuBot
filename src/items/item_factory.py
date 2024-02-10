@@ -1,6 +1,7 @@
 import src.items.types as TYPES
 
 TYPE_REGISTRY = {
+    "bait": TYPES.Bait,
     "rods": TYPES.FishingRod
 }
 

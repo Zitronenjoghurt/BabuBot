@@ -10,5 +10,16 @@
         "max_count": 1,
         "data": {},
         "fish_count_till_available": 0
+    },
+    "earthworm_bait": {
+        "id": "B1",
+        "unique": false,
+        "display_name": "Worm Bait",
+        "description": "Just a regular worm put on a hook. Won't do crazy things but still better than nothing.",
+        "category": "bait",
+        "emoji_id": "1205919749759045692",
+        "price": 5,
+        "max_count": 100,
+        "data": {}
     }
 }

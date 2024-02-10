@@ -10,11 +10,10 @@ from src.entities.user import User
 from src.scrollables.money_top_scrollable import MoneyTopScrollable
 from src.ui.confirm_view import ConfirmView
 from src.ui.scrollable_embed import ScrollableEmbed
-from src.ui.scrollable_view import ScrollableView
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.discord_time import relative_time
 from src.utils.guild_operations import retrieve_member_strict
-from src.utils.interaction_operations import send_in_channel
+from src.utils.interaction_operations import send_in_channel, send_scrollable
 
 CONFIG = Config.get_instance()
 
@@ -81,13 +80,7 @@ class EconomyCommands(commands.Cog):
         )
         await embed.initialize()
 
-        if scrollable.is_scrollable():
-            scrollable_view = ScrollableView(embed=embed, user_id=interaction.user.id)
-            await interaction.response.send_message(embed=embed, view=scrollable_view)
-            scrollable_view.message = await interaction.original_response()
-            await scrollable_view.timeout_after(120)
-        else:
-            await interaction.response.send_message(embed=embed)
+        await send_scrollable(interaction=interaction, embed=embed)
 
     @app_commands.command(name="money-give", description=f"Display the people with the most {CONFIG.CURRENCY} on the server")
     @app_commands.describe(member="The user you want to give money")

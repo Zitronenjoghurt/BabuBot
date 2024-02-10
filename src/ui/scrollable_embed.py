@@ -1,6 +1,6 @@
 import discord
 from typing import Optional
-from src.scrollables.abstract_scrollable_query import AbstractScrollableQuery
+from src.scrollables.abstract_scrollable import AbstractScrollable
 
 class ScrollableEmbed(discord.Embed):
     def __init__(
@@ -11,7 +11,7 @@ class ScrollableEmbed(discord.Embed):
             author: Optional[str] = None,
             icon_url: Optional[str] = None
         ) -> None:
-        if not isinstance(scrollable, AbstractScrollableQuery):
+        if not isinstance(scrollable, AbstractScrollable):
             raise RuntimeError(f"Tried to initialize scrollable embed but given scrollable is invalid.")
         super().__init__(title=title, color=color)
         

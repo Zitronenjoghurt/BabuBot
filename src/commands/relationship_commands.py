@@ -9,7 +9,7 @@ from src.entities.relationship import Relationship, RelationshipAction
 from src.entities.user import User
 from src.scrollables.relationship_scrollable import RelationshipScrollable
 from src.ui.scrollable_embed import ScrollableEmbed
-from src.ui.scrollable_view import ScrollableView
+from src.utils.interaction_operations import send_scrollable
 
 class RelationshipCommands(commands.Cog):
     def __init__(self, bot):
@@ -35,13 +35,7 @@ class RelationshipCommands(commands.Cog):
         )
         await embed.initialize()
 
-        if scrollable.is_scrollable():
-            scrollable_view = ScrollableView(embed=embed, user_id=user.id)
-            await interaction.response.send_message(embed=embed, view=scrollable_view)
-            scrollable_view.message = await interaction.original_response()
-            await scrollable_view.timeout_after(120)
-        else:
-            await interaction.response.send_message(embed=embed)
+        await send_scrollable(interaction=interaction, embed=embed)
 
     relationship_group = app_commands.Group(name="relationship", description="All commands about relationships")
 
