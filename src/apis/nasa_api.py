@@ -83,7 +83,11 @@ class APOD():
 
         # Limit title and description so they fit in a discord embed
         self.title = limit_length(self.title, 250)
-        self.description = limit_length(self.description, 2000)
+        self.description = limit_length(self.description, 1900)
+
+        apod_web_url = self.get_apod_website_url()
+        if apod_web_url is not None:
+            self.description += f"\n\n*Click [here]({apod_web_url}) to get to this entry.*"
 
     @staticmethod
     def from_dict(data: dict) -> 'APOD':
@@ -103,3 +107,9 @@ class APOD():
             copyright=copyright,
             url=url
         )
+    
+    def get_apod_website_url(self) -> Optional[str]:
+        if len(self.date) == 0:
+            return None
+        time = datetime.fromisoformat(self.date)
+        return f"https://apod.nasa.gov/apod/ap{time.strftime('%y%m%d')}.html"
