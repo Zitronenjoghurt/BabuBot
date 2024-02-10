@@ -27,12 +27,6 @@ class InventoryCommands(commands.Cog):
         
         user: User = await User.load(userid=str(interaction.user.id))
         count = user.inventory.item_count(entry.id)
-        if count == 0:
-            ownership = "❌ **`You don't own this item`**"
-        elif count == 1:
-            ownership = "✅ **`You OWN this item`**"
-        else:
-            ownership = f"✅ **`You have {count} of this.`**"
 
         embed = discord.Embed(
             title=entry.display_name.upper(),
@@ -41,7 +35,24 @@ class InventoryCommands(commands.Cog):
         )
         embed.set_author(name=f"Category: {entry.category.upper()}")
         embed.add_field(name="Use", value=entry.use, inline=False)
-        embed.add_field(name="Inventory", value=ownership, inline=False)
+
+        # Set requirements or inventory field depending on prerequisites
+        if (entry.needs_item or entry.has_requirements()) and count == 0:
+            requirements = entry.get_requirements()
+            if entry.needs_item:
+                required_item = ITEM_LIBRARY.get_item_by_id(id=entry.needs_item)
+                if required_item:
+                    requirements += f"\n- acquire **`{required_item.display_name}`**"
+            embed.add_field(name="Requirements", value=requirements, inline=False)
+        else:
+            if count == 0:
+                ownership = "❌ **`You don't own this item`**"
+            elif count == 1:
+                ownership = "✅ **`You OWN this item`**"
+            else:
+                ownership = f"✅ **`You have {count} of this.`**"
+            embed.add_field(name="Inventory", value=ownership, inline=False)
+        
         embed.add_field(name="Price", value=f"**`{entry.price}{CONFIG.CURRENCY}`**")
         embed.add_field(name="Item Cap", value=f"**`{entry.max_count}`**")
         embed.add_field(name="ID", value=f"**`{entry.id}`**")

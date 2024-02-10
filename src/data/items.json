@@ -5,13 +5,31 @@
         "display_name": "Regular Rod",
         "color": "#8C5B3D",
         "description": "Just a regular fishing rod made from softwood. Its your first rod so don't expect anything special.",
-        "use": "Will allow you to start fishing for common fish!\nJust use `/fish` to fish, the highest available rod will be used.",
+        "use": "Will allow you to start fishing for **COMMON** fish!\nJust use `/fish` to fish, the highest available rod will be used.",
         "category": "rods",
         "emoji_id": "1205874083275874375",
         "price": 50,
         "max_count": 1,
+        "requirements": [],
+        "needs_item": null,
         "data": {},
         "fish_count_till_available": 0
+    },
+    "hardwood_rod": {
+        "id": "R2",
+        "unique": true,
+        "display_name": "Hardwood Rod",
+        "color": "#4F352F",
+        "description": "A slightly more enhanced version of the Regular Rod but made from stronger wood! Its able to withstand the pull of even beefier fish.",
+        "use": "Will allow you to start fishing for **UNCOMMON** fish!\nJust use `/fish` to fish, the highest available rod will be used.",
+        "category": "rods",
+        "emoji_id": "1205874081669447762",
+        "price": 250,
+        "max_count": 1,
+        "requirements": ["- catch at least **`25`** fish"],
+        "needs_item": "R1",
+        "data": {},
+        "fish_count_till_available": 25
     },
     "earthworm_bait": {
         "id": "B1",
@@ -24,6 +42,8 @@
         "emoji_id": "1205919749759045692",
         "price": 10,
         "max_count": 100,
+        "requirements": [],
+        "needs_item": "R2",
         "data": {}
     }
 }
