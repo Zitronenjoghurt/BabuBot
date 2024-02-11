@@ -56,7 +56,7 @@ class FishingRod(Item):
     def on_buy(self, user: User) -> None:
         if not user.fishing.unlocked:
             user.fishing.unlock()
-            LOGGER.debug(f"FISH: User {user.get_display_name()} ({user.userid}) has unlocked the fishing game")
+            LOGGER.debug(f"FISH: User {user.get_name()} ({user.userid}) has unlocked the fishing game")
         if self.rod_level > user.fishing.rod_level:
-            LOGGER.debug(f"FISH: User {user.get_display_name()} ({user.userid}) has gained a new rod level: {self.rod_level}")
+            LOGGER.debug(f"FISH: User {user.get_name()} ({user.userid}) has gained a new rod level: {self.rod_level}")
             user.fishing.rod_level = self.rod_level

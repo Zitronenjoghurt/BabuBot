@@ -59,12 +59,12 @@ class FishingCommands(commands.Cog):
         await user.save()
 
         if first_catch:
-            LOGGER.debug(f"FISH: User {interaction.user.display_name} ({interaction.user.id}) has caught fish {fish_entry.id} for the first time")
+            LOGGER.debug(f"FISH: User {interaction.user.name} ({interaction.user.id}) has caught fish '{fish_entry.id}' for the first time")
             await send_first_catch_embed(interaction=interaction, fish_entry=fish_entry, size=size_str)
         else:
             total_count = user.fishing.get_total_count(fish_entry.id)
             current_count = user.fishing.get_current_count(fish_entry.id)
-            LOGGER.debug(f"FISH: User {interaction.user.display_name} ({interaction.user.id}) has caught fish {fish_entry.id}")
+            LOGGER.debug(f"FISH: User {interaction.user.name} ({interaction.user.id}) has caught fish '{fish_entry.id}'")
             await send_catch_embed(interaction=interaction, fish_entry=fish_entry, size=size_str, record_size=record_size, current=current_count, total=total_count)
 
     @fish.autocomplete("bait")
