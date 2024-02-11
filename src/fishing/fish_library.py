@@ -15,7 +15,8 @@ class FishLibrary():
     def __init__(self) -> None:
         if FishLibrary._instance is not None:
             raise RuntimeError("Tried to initialize multiple instances of FishLibrary.")
-        self.fish = {}
+        self.fish_by_id = {}
+        self.fish_by_name = {}
         self.fish_by_rarity = {i: [] for i in range(1, 6)}
         # Probabilities mapped to bait_levels[rod_level][bait_level]
         self.probabilities: list[list[WeightedSelector]] = []
@@ -27,7 +28,8 @@ class FishLibrary():
         for id, data in fish_data.items():
             data["id"] = id
             entry = FishEntry.from_dict(data=data)
-            self.fish[id] = entry
+            self.fish_by_id[id] = entry
+            self.fish_by_name[entry.name.lower()] = entry
             self.fish_by_rarity[entry.rarity.value].append(entry)
 
     def _initialize_bait_levels(self) -> None:
@@ -56,11 +58,26 @@ class FishLibrary():
             FishLibrary._instance = FishLibrary()
         return FishLibrary._instance
     
-    def get_by_id(self, id: str) -> Optional[FishEntry]:
-        if id not in self.fish:
-            return None
-        return self.fish[id]
+    def find(self, identifier: str) -> Optional[FishEntry]:
+        entry = self.get_by_name(identifier)
+        if entry:
+            return entry
+        entry = self.get_by_id(identifier)
+        if entry:
+            return entry
+        return None
     
+    def get_by_id(self, id: str) -> Optional[FishEntry]:
+        if id not in self.fish_by_id:
+            return None
+        return self.fish_by_id[id]
+    
+    def get_by_name(self, name: str) -> Optional[FishEntry]:
+        name = name.lower()
+        if name not in self.fish_by_name:
+            return None
+        return self.fish_by_name[name]
+
     def random_fish_entry(self, rod_level: int, bait_level: int) -> Optional[FishEntry]:
         probability = self.probabilities[rod_level][bait_level]
         rarity_level = probability.select()

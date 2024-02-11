@@ -12,6 +12,7 @@ from src.fishing.fish_library import FishEntry, FishLibrary
 from src.logging.logger import LOGGER
 from src.scrollables.fish_basket_scrollable import FishBasketScrollable
 from src.ui.scrollable_embed import ScrollableEmbed
+from src.utils.discord_time import relative_time, long_date_time
 from src.utils.interaction_operations import send_scrollable
 
 CONFIG = Config.get_instance()
@@ -125,6 +126,42 @@ class FishingCommands(commands.Cog):
         )
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="fish-info", description="Retrieve information about a fish")
+    @app_commands.describe(fish="The fish you want to know more about")
+    async def fish_info(self, interaction: discord.Interaction, fish: str):
+        user: User = await User.load(userid=str(interaction.user.id))
+
+        fish_entry = FISH_LIBRARY.find(fish)
+        if not isinstance(fish_entry, FishEntry) or not user.fishing.has_caught(fish_entry.id):
+            return await interaction.response.send_message(embed=ErrorEmbed(title="NO INFORMATION AVAILABLE", message=f"Either you did not catch `{fish}` yet, or it does not exist.\nUse `/fish-dex` to check that you made no typo."), ephemeral=True)
+
+        embed = discord.Embed(
+            title=f"{fish_entry.get_emoji()} {fish_entry.name} ({fish_entry.scientific})",
+            description=f"*{fish_entry.description}*",
+            color=discord.Color.from_str(fish_entry.color)
+        )
+
+        min_size = round(user.fishing.get_min_size(fish_entry.id), CONFIG.DECIMAL_DIGITS)
+        max_size = round(user.fishing.get_max_size(fish_entry.id), CONFIG.DECIMAL_DIGITS)
+
+        smallest = f"{min_size}cm ({fish_entry.size_classification(min_size)})"
+        biggest = f"{max_size}cm ({fish_entry.size_classification(max_size)})"
+
+        embed.add_field(name="Price", value=f"**`{fish_entry.price}{CONFIG.CURRENCY}`**")
+        embed.add_field(name="Type", value=f"**`{fish_entry.type.name.capitalize()}`**")
+        embed.add_field(name="Rarity", value=f"**`{fish_entry.rarity.name.capitalize()}`**")
+        embed.add_field(name="Size Range", value=f"**`{fish_entry.get_size_range()}`**")
+        embed.add_field(name="Caught Total", value=f"**`{user.fishing.get_total_count(fish_entry.id)}`**")
+        embed.add_field(name="In Inventory", value=f"**`{user.fishing.get_current_count(fish_entry.id)}`**")
+        embed.add_field(name="Smallest Caught", value=f"**`{smallest}`**")
+        embed.add_field(name="Biggest Caught", value=f"**`{biggest}`**")
+        embed.add_field(name="Last Caught", value=f"{relative_time(int(user.fishing.get_first_catch_stamp(fish_entry.id)))}")
+        embed.add_field(name="First Caught", value=f"{long_date_time(int(user.fishing.get_first_catch_stamp(fish_entry.id)))}")
+
+        file = discord.File(fish_entry.get_image_path(), filename=fish_entry.get_image_file_name())
+        embed.set_image(url=fish_entry.get_image_url())
+        await interaction.response.send_message(embed=embed, file=file)
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(

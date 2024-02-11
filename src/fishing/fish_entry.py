@@ -97,6 +97,9 @@ class FishEntry():
         image_file_name = self.get_image_file_name()
         return f"attachment://{image_file_name}"
     
+    def get_size_range(self) -> str:
+        return f"{self.min_size}-{self.max_size}cm"
+    
     def size_classification(self, size: float) -> str:
         size_labels = ['XXXS', 'XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
         total_range = self.max_size - self.min_size
