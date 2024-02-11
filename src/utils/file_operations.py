@@ -15,6 +15,13 @@ def file_to_dict(file_path: str) -> dict:
         raise RuntimeError("Deserialized data is not a dictionary.")
     return data
 
+def file_to_list(file_path: str) -> list:
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    if not isinstance(data, list):
+        raise RuntimeError("Deserialized data is not a list.")
+    return data
+
 def construct_path(relative_path: str) -> str:
     path_parts = relative_path.split("/")
     absolute_path = os.path.join(ROOT_DIR, *path_parts)

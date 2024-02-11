@@ -17,6 +17,7 @@ class Bait(Item):
             max_count: int, 
             data: dict,
             requirements: list[str],
+            bait_level: int,
             buy_message: Optional[str] = None,
             needs_item: Optional[str] = None
         ) -> None:
@@ -36,3 +37,4 @@ class Bait(Item):
             requirements=requirements,
             buy_message=buy_message,
             needs_item=needs_item)
+        self.bait_level = bait_level

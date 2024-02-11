@@ -1,5 +1,6 @@
 from src.fishing.fish_rarity import FishRarity
 from src.fishing.fish_type import FishType
+from src.utils.maths import bell_curve_random
 
 # An entry in the fish library of src/data/fish.json
 class FishEntry():
@@ -62,3 +63,6 @@ class FishEntry():
             min_size=min_size,
             max_size=max_size
         )
+    
+    def get_random_size(self) -> float:
+        return bell_curve_random(self.min_size, self.max_size)

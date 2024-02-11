@@ -18,6 +18,7 @@ class FishingRod(Item):
             max_count: int, 
             data: dict,
             fish_count_till_available: int,
+            rod_level: int,
             requirements: list[str],
             buy_message: Optional[str] = None,
             needs_item: Optional[str] = None
@@ -39,6 +40,7 @@ class FishingRod(Item):
             buy_message=buy_message,
             needs_item=needs_item)
         self.fish_count_till_unlock = fish_count_till_available
+        self.rod_level = rod_level
 
     def can_buy(self, user: User, amount: int) -> tuple[bool, str]:
         status, message =  super().can_buy(user, amount)
@@ -52,3 +54,5 @@ class FishingRod(Item):
     def on_buy(self, user: User) -> None:
         if not user.fishing.unlocked:
             user.fishing.unlock()
+        if self.rod_level > user.fishing.rod_level:
+            user.fishing.rod_level = self.rod_level
