@@ -126,5 +126,5 @@ class FishLibrary():
             else:
                 count_by_rarity[entry.rarity][1] += 1
             
-        result = "\n".join([f"**{rarity.name}**: **`{found_vs_total[0]}/{found_vs_total[1]}`**" for rarity, found_vs_total in count_by_rarity.items()])
+        result = "\n".join([f"**`{found_vs_total[0]}/{found_vs_total[1]}`** **{rarity.name}**" for rarity, found_vs_total in count_by_rarity.items()])
         return result
