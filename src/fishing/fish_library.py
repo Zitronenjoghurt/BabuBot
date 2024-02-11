@@ -16,7 +16,7 @@ class FishLibrary():
         if FishLibrary._instance is not None:
             raise RuntimeError("Tried to initialize multiple instances of FishLibrary.")
         self.fish = {}
-        self.fish_by_rarity = {}
+        self.fish_by_rarity = {i: [] for i in range(1, 6)}
         # Probabilities mapped to bait_levels[rod_level][bait_level]
         self.probabilities: list[list[WeightedSelector]] = []
         self._initialize_entries()
@@ -28,7 +28,7 @@ class FishLibrary():
             data["id"] = id
             entry = FishEntry.from_dict(data=data)
             self.fish[id] = entry
-            self.fish[entry.rarity] = entry
+            self.fish_by_rarity[entry.rarity.value].append(entry)
 
     def _initialize_bait_levels(self) -> None:
         self.probabilities = []

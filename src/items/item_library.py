@@ -1,9 +1,11 @@
 from typing import Optional
 from src.items.item import Item
 from src.items.item_factory import create_item
+from src.items.types import Bait
 from src.utils.file_operations import construct_path, file_to_dict
 
 DATA_FILE_PATH = construct_path("src/data/items.json")
+IMAGE_PATH = "src/assets/{category}/{name}.png"
 
 class ItemLibrary():
     _instance = None
@@ -75,3 +77,14 @@ class ItemLibrary():
         if category not in self.items_by_category:
             return []
         return self.items_by_category[category]
+    
+    def get_available_bait(self) -> list[str]:
+        baits: list[Bait] = self.get_items_by_category("bait") # type: ignore
+        bait_by_level = []
+        for bait in baits:
+            bait_by_level.append((bait.bait_level, bait.display_name))
+
+        bait_by_level_sorted = sorted(bait_by_level, key=lambda x: x[0])
+
+        bait_names = [bait[1] for bait in bait_by_level_sorted]
+        return bait_names

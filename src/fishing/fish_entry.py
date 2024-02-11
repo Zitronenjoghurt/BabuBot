@@ -2,6 +2,16 @@ from src.fishing.fish_rarity import FishRarity
 from src.fishing.fish_type import FishType
 from src.utils.maths import bell_curve_random
 
+IMAGE_PATH = "src/assets/fishes/{id}.png"
+
+RARITY_COLORS = {
+    FishRarity.COMMON: "#41A85F",
+    FishRarity.UNCOMMON: "#2C82C9",
+    FishRarity.RARE: "#9365B8",
+    FishRarity.LEGENDARY: "#FAC51C",
+    FishRarity.MYTHICAL: "#E25041"
+}
+
 # An entry in the fish library of src/data/fish.json
 class FishEntry():
     def __init__(
@@ -15,7 +25,8 @@ class FishEntry():
             rarity: FishRarity,
             price: int,
             min_size: float,
-            max_size: float
+            max_size: float,
+            description: str
         ) -> None:
         self.id = id
         self.name = name
@@ -27,6 +38,7 @@ class FishEntry():
         self.price = price
         self.min_size = min_size
         self.max_size = max_size
+        self.description = description
 
     @staticmethod
     def from_dict(data: dict) -> 'FishEntry':
@@ -38,6 +50,7 @@ class FishEntry():
         price = data.get("price", 0)
         min_size = data.get("min_size", 0)
         max_size = data.get("max_size", 0)
+        description = data.get("description", 0)
 
         type = data.get("type", None)
         if type:
@@ -61,8 +74,35 @@ class FishEntry():
             rarity=rarity,
             price=price,
             min_size=min_size,
-            max_size=max_size
+            max_size=max_size,
+            description=description
         )
     
     def get_random_size(self) -> float:
         return bell_curve_random(self.min_size, self.max_size)
+    
+    def get_rarity_color(self) -> str:
+        return RARITY_COLORS[self.rarity]
+    
+    def get_emoji(self) -> str:
+        return f"<:{self.id}:{self.emoji_id}>"
+    
+    def get_image_path(self) -> str:
+        return IMAGE_PATH.format(id=self.id)
+    
+    def get_image_file_name(self) -> str:
+        return f"{self.id}.png"
+    
+    def get_image_url(self) -> str:
+        image_file_name = self.get_image_file_name()
+        return f"attachment://{image_file_name}"
+    
+    def size_classification(self, size: float) -> str:
+        size_labels = ['XXXS', 'XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
+        total_range = self.max_size - self.min_size
+        segment = total_range / (len(size_labels) - 1) 
+
+        index = int((size - self.min_size) / segment)
+        index = max(0, min(index, len(size_labels) - 1))
+
+        return size_labels[index]
