@@ -4,13 +4,12 @@ from src.entities.abstract_serializable_entity import AbstractSerializableEntity
 from src.fishing.fish_entry import FishEntry
 
 class Fishing(AbstractSerializableEntity):
-    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "total_fish_count", "rod_level", "caught_fish"]
+    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish"]
 
     def __init__(
             self,
             unlocked: Optional[bool] = None,
             started_at: Optional[float] = None,
-            total_fish_count: Optional[int] = None,
             rod_level: Optional[int] = None,
             caught_fish: Optional[dict] = None
         ) -> None:
@@ -18,8 +17,6 @@ class Fishing(AbstractSerializableEntity):
             unlocked = False
         if started_at is None:
             started_at = 0
-        if total_fish_count is None:
-            total_fish_count = 0
         if rod_level is None:
             rod_level = 0
         if caught_fish is None:
@@ -27,7 +24,6 @@ class Fishing(AbstractSerializableEntity):
         
         self.unlocked = unlocked
         self.started_at = started_at
-        self.total_fish_count = total_fish_count
         self.rod_level = rod_level
         self.caught_fish = caught_fish
 
@@ -45,7 +41,6 @@ class Fishing(AbstractSerializableEntity):
     def process_fish(self, fish_entry: FishEntry, size: float) -> tuple[bool, bool]:
         id = fish_entry.id
 
-        self.total_fish_count += 1
         if id not in self.caught_fish:
             self.caught_fish[id] = {
                 "total_count": 1,
@@ -112,8 +107,40 @@ class Fishing(AbstractSerializableEntity):
                 fishes.append((fish_id, count))
         return fishes
     
+    def get_fishes_with_total_count(self) -> list[tuple[str, int]]:
+        fishes = []
+        for fish_id, data in self.caught_fish.items():
+            count = data.get("total_count", 0)
+            if count > 0:
+                fishes.append((fish_id, count))
+        return fishes
+    
+    def get_fishes_with_total_count_difference(self) -> list[tuple[str, int]]:
+        fishes = []
+        for fish_id, data in self.caught_fish.items():
+            total_count = data.get("total_count", 0)
+            count = data.get("count", 0)
+            difference = total_count - count
+            if difference > 0:
+                fishes.append((fish_id, difference))
+        return fishes
+    
     def sell_all(self) -> None:
         for fish_id, data in self.caught_fish.items():
             count = data.get("count", 0)
             if count > 0:
                 self.caught_fish[fish_id]["count"] = 0
+
+    def get_total_fish_count(self) -> int:
+        total_count = 0
+        for entry in self.caught_fish.values():
+            count = entry.get("total_count", 0)
+            total_count += count
+        return total_count
+    
+    def get_basket_fish_count(self) -> int:
+        total_count = 0
+        for entry in self.caught_fish.values():
+            count = entry.get("count", 0)
+            total_count += count
+        return total_count

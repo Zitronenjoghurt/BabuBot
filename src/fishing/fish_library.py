@@ -1,6 +1,7 @@
 from numpy import random
 from typing import Optional
 from src.fishing.fish_entry import FishEntry
+from src.fishing.fish_rarity import FishRarity
 from src.utils.file_operations import construct_path, file_to_dict, file_to_list
 from src.utils.probability import WeightedSelector
 
@@ -106,3 +107,24 @@ class FishLibrary():
                 caught = True
             dex.append((entry, caught))
         return dex
+    
+    def calculate_cumulative_money(self, fishes: list[tuple[str, int]]) -> int:
+        money = 0
+        for fish_id, count in fishes:
+            entry = self.get_by_id(fish_id)
+            if not isinstance(entry, FishEntry):
+                continue
+            money += count * entry.price
+        return money
+    
+    def get_dex_stats(self, caught_ids: list[str]) -> str:
+        count_by_rarity: dict[FishRarity, list[int]] = {rarity: [0, 0] for rarity in FishRarity}
+        for entry in list(self.fish_by_id.values()):
+            if entry.id in caught_ids:
+                count_by_rarity[entry.rarity][0] += 1
+                count_by_rarity[entry.rarity][1] += 1
+            else:
+                count_by_rarity[entry.rarity][1] += 1
+            
+        result = "\n".join([f"**{rarity.name}**: **`{found_vs_total[0]}/{found_vs_total[1]}`**" for rarity, found_vs_total in count_by_rarity.items()])
+        return result

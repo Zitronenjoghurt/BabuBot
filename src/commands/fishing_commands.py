@@ -152,7 +152,7 @@ class FishingCommands(commands.Cog):
         embed.add_field(name="Rarity", value=f"**`{fish_entry.rarity.name.capitalize()}`**")
         embed.add_field(name="Size Range", value=f"**`{fish_entry.get_size_range()}`**")
         embed.add_field(name="Caught Total", value=f"**`{user.fishing.get_total_count(fish_entry.id)}`**")
-        embed.add_field(name="In Inventory", value=f"**`{user.fishing.get_current_count(fish_entry.id)}`**")
+        embed.add_field(name="In Basket", value=f"**`{user.fishing.get_current_count(fish_entry.id)}`**")
         embed.add_field(name="Smallest Caught", value=f"**`{smallest}`**")
         embed.add_field(name="Biggest Caught", value=f"**`{biggest}`**")
         embed.add_field(name="Last Caught", value=f"{relative_time(int(user.fishing.get_first_catch_stamp(fish_entry.id)))}")
@@ -180,6 +180,43 @@ class FishingCommands(commands.Cog):
         await embed.initialize()
 
         await send_scrollable(interaction=interaction, embed=embed)
+
+    @app_commands.command(name="fish-stats", description="Shows your overall stats about the fishing game")
+    @app_commands.describe(member="The user you want to check the stats of")
+    async def fish_stats(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
+        if member:
+            target = member
+            userid = str(member.id)
+        else:
+            target = interaction.user
+            userid = str(interaction.user.id)
+
+        user: User = await User.load(userid=userid)
+        if not user.fishing.unlocked:
+            return await interaction.response.send_message(embed=ErrorEmbed(title="NOT PARTICIPATING", message="The specified user did not start fishing yet, maybe you want to help them get into the game c:"), ephemeral=True)
+        
+        start_stamp = int(user.fishing.started_at)
+        total_count = user.fishing.get_total_fish_count()
+        basket_count = user.fishing.get_basket_fish_count()
+
+        fishes_with_total_count = user.fishing.get_fishes_with_total_count_difference()
+        cumulative_money = FISH_LIBRARY.calculate_cumulative_money(fishes_with_total_count)
+
+        caught_ids = user.fishing.get_fishes()
+        dex_stats = FISH_LIBRARY.get_dex_stats(caught_ids)
+
+        embed = discord.Embed(
+            title="FISHING STATS",
+            color=discord.Color.from_str("#FFFFFF"),
+            timestamp=datetime.now()
+        )
+        embed.set_author(name=target.display_name, icon_url=target.display_avatar.url)
+        embed.add_field(name="Started At", value=f"{long_date_time(start_stamp)}\n{relative_time(start_stamp)}", inline=False)
+        embed.add_field(name="Total Caught", value=f"**`{total_count}`**")
+        embed.add_field(name="In Basket", value=f"**`{basket_count}`**")
+        embed.add_field(name="Money Earned", value=f"**`{cumulative_money}{CONFIG.CURRENCY}`**")
+        embed.add_field(name="Dex", value=dex_stats)
+        await interaction.response.send_message(embed=embed)
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(
@@ -209,7 +246,7 @@ async def send_catch_embed(interaction: discord.Interaction, fish_entry: FishEnt
     if record_size:
         size_str += "\n**NEW RECORD!**"
     embed.add_field(name="Size", value=size_str)
-    embed.add_field(name="In Inventory", value=f"**`{current}`**")
+    embed.add_field(name="In Basket", value=f"**`{current}`**")
     embed.add_field(name="Caught Total", value=f"**`{total}`**")
 
     await interaction.response.send_message(embed=embed)

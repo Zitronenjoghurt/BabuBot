@@ -46,8 +46,9 @@ class FishingRod(Item):
         status, message =  super().can_buy(user, amount)
         if not status:
             return False, message
-        if user.fishing.total_fish_count < self.fish_count_till_unlock:
-            difference = self.fish_count_till_unlock - user.fishing.total_fish_count
+        total_fish_count = user.fishing.get_total_fish_count()
+        if total_fish_count < self.fish_count_till_unlock:
+            difference = self.fish_count_till_unlock - total_fish_count
             return False, f"You need to catch `{difference}` more fish before you can buy this rod."
         return True, ""
     
