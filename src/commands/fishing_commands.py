@@ -11,6 +11,7 @@ from src.items.types import Bait
 from src.fishing.fish_library import FishEntry, FishLibrary
 from src.logging.logger import LOGGER
 from src.scrollables.fish_basket_scrollable import FishBasketScrollable
+from src.scrollables.fish_dex_scrollable import FishDexScrollable
 from src.ui.scrollable_embed import ScrollableEmbed
 from src.utils.discord_time import relative_time, long_date_time
 from src.utils.interaction_operations import send_scrollable
@@ -85,11 +86,9 @@ class FishingCommands(commands.Cog):
         fishes = user.fishing.get_fishes_with_count()
         scrollable = await FishBasketScrollable.create(fishes=fishes)
 
-        title = "FISH BASKET"
-
         embed = ScrollableEmbed(
             scrollable=scrollable,
-            title=title,
+            title="FISH BASKET",
             color=target.color
         )
         embed.set_author(name=target.display_name, icon_url=target.display_avatar.url)
@@ -162,6 +161,25 @@ class FishingCommands(commands.Cog):
         file = discord.File(fish_entry.get_image_path(), filename=fish_entry.get_image_file_name())
         embed.set_image(url=fish_entry.get_image_url())
         await interaction.response.send_message(embed=embed, file=file)
+
+    @app_commands.command(name="fish-dex", description="Provides information about caught fish and which are still left")
+    async def fish_dex(self, interaction: discord.Interaction):
+        user: User = await User.load(userid=str(interaction.user.id))
+
+        caught_fish_ids = user.fishing.get_fishes()
+        fish_dex = FISH_LIBRARY.generate_fish_dex(caught_ids=caught_fish_ids)
+
+        scrollable = await FishDexScrollable.create(fish_dex=fish_dex)
+
+        embed = ScrollableEmbed(
+            scrollable=scrollable,
+            title="FISH DEX",
+            color=interaction.user.color
+        )
+        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
+        await embed.initialize()
+
+        await send_scrollable(interaction=interaction, embed=embed)
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(

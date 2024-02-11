@@ -25,11 +25,18 @@ class FishLibrary():
 
     def _initialize_entries(self) -> None:
         fish_data = file_to_dict(DATA_FILE_PATH)
+        fish_list = []
         for id, data in fish_data.items():
             data["id"] = id
             entry = FishEntry.from_dict(data=data)
-            self.fish_by_id[id] = entry
-            self.fish_by_name[entry.name.lower()] = entry
+            fish_list.append(entry)
+        
+        sorted_fish_list = sorted(fish_list, key=lambda entry: (entry.rarity.value, entry.name))
+
+        self.fish_by_id = {entry.id: entry for entry in sorted_fish_list}
+        self.fish_by_name = {entry.name: entry for entry in sorted_fish_list}
+
+        for entry in sorted_fish_list:
             self.fish_by_rarity[entry.rarity.value].append(entry)
 
     def _initialize_bait_levels(self) -> None:
@@ -88,3 +95,14 @@ class FishLibrary():
         
         entry = random.choice(entries, size=1)[0]
         return entry
+    
+    def generate_fish_dex(self, caught_ids: list[str]) -> list[tuple[FishEntry, bool]]:
+        entries = list(self.fish_by_id.values())
+
+        dex = []
+        for entry in entries:
+            caught = False
+            if entry.id in caught_ids:
+                caught = True
+            dex.append((entry, caught))
+        return dex
