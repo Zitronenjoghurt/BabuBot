@@ -91,7 +91,7 @@ class ListSelector(RandomSelector):
         return self.values == other.values
 
     def __str__(self) -> str:
-        return f"({", ".join([str(value) for value in self.values])})"
+        return f"({', '.join([str(value) for value in self.values])})"
     
     @staticmethod
     def create(data: list) -> 'ListSelector':
