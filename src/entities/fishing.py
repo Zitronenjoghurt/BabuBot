@@ -3,15 +3,18 @@ from typing import Optional
 from src.entities.abstract_serializable_entity import AbstractSerializableEntity
 from src.fishing.fish_entry import FishEntry
 
+FISHING_COOLDOWN = 300
+
 class Fishing(AbstractSerializableEntity):
-    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish"]
+    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish", "next_fishing_stamp"]
 
     def __init__(
             self,
             unlocked: Optional[bool] = None,
             started_at: Optional[float] = None,
             rod_level: Optional[int] = None,
-            caught_fish: Optional[dict] = None
+            caught_fish: Optional[dict] = None,
+            next_fishing_stamp: Optional[float] = None
         ) -> None:
         if unlocked is None:
             unlocked = False
@@ -21,11 +24,14 @@ class Fishing(AbstractSerializableEntity):
             rod_level = 0
         if caught_fish is None:
             caught_fish = {}
+        if next_fishing_stamp is None:
+            next_fishing_stamp = 0
         
         self.unlocked = unlocked
         self.started_at = started_at
         self.rod_level = rod_level
         self.caught_fish = caught_fish
+        self.next_fishing_stamp = next_fishing_stamp
 
     def unlock(self) -> None:
         if not self.unlocked:
@@ -36,10 +42,17 @@ class Fishing(AbstractSerializableEntity):
         if fish_id in self.caught_fish:
             return True
         return False
+    
+    def can_fish(self) -> bool:
+        if datetime.now().timestamp() > self.next_fishing_stamp:
+            return True
+        return False
 
     # returns first_catch, record_size
     def process_fish(self, fish_entry: FishEntry, size: float) -> tuple[bool, bool]:
         id = fish_entry.id
+
+        self.next_fishing_stamp = datetime.now().timestamp() + FISHING_COOLDOWN
 
         if id not in self.caught_fish:
             self.caught_fish[id] = {

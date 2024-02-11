@@ -28,12 +28,15 @@ class FishingCommands(commands.Cog):
 
     @app_commands.command(name="fish", description="Fish for some random fish of random rarity!")
     @app_commands.describe(bait="The bait you want to use for fishing")
-    @app_commands.checks.cooldown(1, 300)
+    @app_commands.checks.cooldown(1, 5)
     async def fish(self, interaction: discord.Interaction, bait: Optional[str] = None):
         user: User = await User.load(userid=str(interaction.user.id))
         if not user.fishing.unlocked:
             return await interaction.response.send_message(embed=ErrorEmbed(title="YOU HAVE NO FISHING ROD", message="Look in the shop at `/shop rods` or buy the regular rod directly via `/buy R1` or `/buy Regular Rod` to get going!"), ephemeral=True)
         
+        if not user.fishing.can_fish():
+            return await interaction.response.send_message(embed=ErrorEmbed(title="COOLDOWN", message=f"You can fish again {relative_time(int(user.fishing.next_fishing_stamp))}"), ephemeral=True)
+
         if bait and bait not in AVAILABLE_BAIT:
             return await interaction.response.send_message(embed=ErrorEmbed(title="BAIT DOES NOT EXIST", message=f"The bait {bait} you provided does not exist.\nCheck `/shop bait` or `/inventory bait`."), ephemeral=True)
 
@@ -158,8 +161,8 @@ class FishingCommands(commands.Cog):
         embed.add_field(name="Size Range", value=f"**`{fish_entry.get_size_range()}`**")
         embed.add_field(name="Caught Total", value=f"**`{user.fishing.get_total_count(fish_entry.id)}`**")
         embed.add_field(name="In Basket", value=f"**`{user.fishing.get_current_count(fish_entry.id)}`**")
-        embed.add_field(name="Smallest Caught", value=f"**`{smallest}`**")
-        embed.add_field(name="Biggest Caught", value=f"**`{biggest}`**")
+        embed.add_field(name="Smallest Catch", value=f"**`{smallest}`**")
+        embed.add_field(name="Biggest Catch", value=f"**`{biggest}`**")
         embed.add_field(name="Last Caught", value=f"{relative_time(int(user.fishing.get_first_catch_stamp(fish_entry.id)))}")
         embed.add_field(name="First Caught", value=f"{long_date_time(int(user.fishing.get_first_catch_stamp(fish_entry.id)))}")
 

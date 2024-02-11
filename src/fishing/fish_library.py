@@ -35,7 +35,7 @@ class FishLibrary():
         sorted_fish_list = sorted(fish_list, key=lambda entry: (entry.rarity.value, entry.name))
 
         self.fish_by_id = {entry.id: entry for entry in sorted_fish_list}
-        self.fish_by_name = {entry.name: entry for entry in sorted_fish_list}
+        self.fish_by_name = {entry.name.lower(): entry for entry in sorted_fish_list}
 
         for entry in sorted_fish_list:
             self.fish_by_rarity[entry.rarity.value].append(entry)
