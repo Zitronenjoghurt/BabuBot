@@ -163,6 +163,10 @@ class User(AbstractDatabaseEntity):
             tasks.append("Collect your daily for the 1st time with /daily")
         if self.reputation.points_given == 0:
             tasks.append("Give someone a reputation point for the 1st time with /rep @user")
+        if not self.fishing.unlocked:
+            tasks.append("Buy a fishing rod with /buy R1 and get fishing with /fish")
+        if self.fishing.get_basket_fish_count() > 0:
+            tasks.append("You currently have fish in your basket, sell them with /fish-sell to gain money")
 
         all_relationships = await self.get_all_relationships()
         if len(all_relationships) == 0:
