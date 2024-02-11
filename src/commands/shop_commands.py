@@ -7,6 +7,7 @@ from src.constants.config import Config
 from src.constants.custom_embeds import ErrorEmbed
 from src.entities.user import User
 from src.items.item_library import ItemLibrary
+from src.logging.logger import LOGGER
 from src.scrollables.shop_scrollable import ShopScrollable
 from src.ui.confirm_view import ConfirmView
 from src.ui.scrollable_embed import ScrollableEmbed
@@ -83,6 +84,7 @@ class ShopCommands(commands.Cog):
                 confirm_embed.set_footer(text="Check your inventory with /inventory")
                 if buy_item.buy_message:
                     confirm_embed.add_field(name="Important!", value=buy_item.buy_message)
+                LOGGER.debug(f"SHOP: User {interaction.user.display_name} ({interaction.user.id}) has bought item '{buy_item.display_name}' ({buy_item.id}) {amount}x for {buy_item.price}")
             else:
                 confirm_embed.title = "PURCHASE FAILED"
                 confirm_embed.description = message

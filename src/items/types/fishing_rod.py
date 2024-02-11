@@ -1,6 +1,7 @@
 from typing import Optional
 from src.entities.user import User
 from src.items.item import Item
+from src.logging.logger import LOGGER
 
 class FishingRod(Item):
     def __init__(
@@ -55,5 +56,7 @@ class FishingRod(Item):
     def on_buy(self, user: User) -> None:
         if not user.fishing.unlocked:
             user.fishing.unlock()
+            LOGGER.debug(f"FISH: User {user.get_display_name()} ({user.userid}) has unlocked the fishing game")
         if self.rod_level > user.fishing.rod_level:
+            LOGGER.debug(f"FISH: User {user.get_display_name()} ({user.userid}) has gained a new rod level: {self.rod_level}")
             user.fishing.rod_level = self.rod_level

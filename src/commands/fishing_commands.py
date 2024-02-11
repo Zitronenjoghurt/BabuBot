@@ -28,6 +28,7 @@ class FishingCommands(commands.Cog):
 
     @app_commands.command(name="fish", description="Fish for some random fish of random rarity!")
     @app_commands.describe(bait="The bait you want to use for fishing")
+    @app_commands.checks.cooldown(1, 300)
     async def fish(self, interaction: discord.Interaction, bait: Optional[str] = None):
         user: User = await User.load(userid=str(interaction.user.id))
         if not user.fishing.unlocked:
@@ -58,10 +59,12 @@ class FishingCommands(commands.Cog):
         await user.save()
 
         if first_catch:
+            LOGGER.debug(f"FISH: User {interaction.user.display_name} ({interaction.user.id}) has caught fish {fish_entry.id} for the first time")
             await send_first_catch_embed(interaction=interaction, fish_entry=fish_entry, size=size_str)
         else:
             total_count = user.fishing.get_total_count(fish_entry.id)
             current_count = user.fishing.get_current_count(fish_entry.id)
+            LOGGER.debug(f"FISH: User {interaction.user.display_name} ({interaction.user.id}) has caught fish {fish_entry.id}")
             await send_catch_embed(interaction=interaction, fish_entry=fish_entry, size=size_str, record_size=record_size, current=current_count, total=total_count)
 
     @fish.autocomplete("bait")
@@ -74,6 +77,7 @@ class FishingCommands(commands.Cog):
     
     @app_commands.command(name="fish-basket", description="Shows you the fish you currently have in your basket")
     @app_commands.describe(member="The user you want to check the basket of")
+    @app_commands.checks.cooldown(1, 5)
     async def fish_basket(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if member:
             target = member
@@ -116,6 +120,7 @@ class FishingCommands(commands.Cog):
         user.economy.add_currency(amount=money)
         user.fishing.sell_all()
         await user.save()
+        LOGGER.debug(f"FISH: User {interaction.user.display_name} ({interaction.user.id}) has sold {total_count} fish for {money}")
 
         embed = discord.Embed(
             title="FISH SOLD",
@@ -163,6 +168,7 @@ class FishingCommands(commands.Cog):
         await interaction.response.send_message(embed=embed, file=file)
 
     @app_commands.command(name="fish-dex", description="Provides information about caught fish and which are still left")
+    @app_commands.checks.cooldown(1, 5)
     async def fish_dex(self, interaction: discord.Interaction):
         user: User = await User.load(userid=str(interaction.user.id))
 
