@@ -10,6 +10,9 @@ from src.items.item_library import ItemLibrary
 from src.items.types import Bait
 from src.fishing.fish_library import FishEntry, FishLibrary
 from src.logging.logger import LOGGER
+from src.scrollables.fish_basket_scrollable import FishBasketScrollable
+from src.ui.scrollable_embed import ScrollableEmbed
+from src.utils.interaction_operations import send_scrollable
 
 CONFIG = Config.get_instance()
 FISH_LIBRARY = FishLibrary.get_instance()
@@ -66,6 +69,32 @@ class FishingCommands(commands.Cog):
             for category_choice in AVAILABLE_BAIT
             if current.lower() in category_choice.lower()
         ]
+    
+    @app_commands.command(name="fish-basket", description="Shows you the fish you currently have in your basket")
+    @app_commands.describe(member="The user you want to check the basket of")
+    async def fish_basket(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
+        if member:
+            target = member
+            userid = str(member.id)
+        else:
+            target = interaction.user
+            userid = str(interaction.user.id)
+
+        user: User = await User.load(userid=userid)
+        fishes = user.fishing.get_fishes()
+        scrollable = await FishBasketScrollable.create(fishes=fishes)
+
+        title = "FISH BASKET"
+
+        embed = ScrollableEmbed(
+            scrollable=scrollable,
+            title=title,
+            color=target.color
+        )
+        embed.set_author(name=target.display_name, icon_url=target.display_avatar.url)
+        await embed.initialize()
+
+        await send_scrollable(interaction=interaction, embed=embed)
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(

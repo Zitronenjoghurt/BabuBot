@@ -97,3 +97,9 @@ class Fishing(AbstractSerializableEntity):
         if not self.caught_fish[fish_id]:
             return 0
         return self.caught_fish[fish_id].get("last_catch_stamp", 0)
+    
+    def get_fishes(self) -> list[tuple[str, int]]:
+        fishes = []
+        for fish_id, data in self.caught_fish.items():
+            fishes.append((fish_id, data.get("count", 0)))
+        return fishes

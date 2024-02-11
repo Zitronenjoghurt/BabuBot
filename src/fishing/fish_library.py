@@ -56,6 +56,11 @@ class FishLibrary():
             FishLibrary._instance = FishLibrary()
         return FishLibrary._instance
     
+    def get_by_id(self, id: str) -> Optional[FishEntry]:
+        if id not in self.fish:
+            return None
+        return self.fish[id]
+    
     def random_fish_entry(self, rod_level: int, bait_level: int) -> Optional[FishEntry]:
         probability = self.probabilities[rod_level][bait_level]
         rarity_level = probability.select()
