@@ -40,7 +40,7 @@ class FishingCommands(commands.Cog):
             bait_item = ITEM_LIBRARY.find(identifier=bait)
             if isinstance(bait_item, Bait):
                 if not user.inventory.has_item(bait_item.id):
-                    return await interaction.response.send_message(embed=ErrorEmbed(title="YOU DONT OWN THAT BAIT", message=f"You currently dont own `{bait}`.\nYou can see your available bait with `/inventory bait`."), ephemeral=True)
+                    return await interaction.response.send_message(embed=ErrorEmbed(title="YOU DONT OWN THAT BAIT", message=f"You currently dont have `{bait}`.\nYou can see your available bait with `/inventory bait`."), ephemeral=True)
                 bait_level = bait_item.bait_level
             else:
                 return await interaction.response.send_message(embed=ErrorEmbed(title="ERROR", message=f"An error occured while retrieving the bait item {bait}, please contact the developer."), ephemeral=True)
@@ -81,7 +81,7 @@ class FishingCommands(commands.Cog):
             userid = str(interaction.user.id)
 
         user: User = await User.load(userid=userid)
-        fishes = user.fishing.get_fishes()
+        fishes = user.fishing.get_fishes_with_count()
         scrollable = await FishBasketScrollable.create(fishes=fishes)
 
         title = "FISH BASKET"
@@ -95,6 +95,36 @@ class FishingCommands(commands.Cog):
         await embed.initialize()
 
         await send_scrollable(interaction=interaction, embed=embed)
+
+    @app_commands.command(name="fish-sell", description="Sell all of the fish in your basket")
+    async def fish_sell(self, interaction: discord.Interaction):
+        user: User = await User.load(userid=str(interaction.user.id))
+
+        fishes = user.fishing.get_fishes_with_count()
+        if len(fishes) == 0:
+            return await interaction.response.send_message(embed=ErrorEmbed(title="NO FISH", message="You currently have no fish to sell!\nUse `/fish` to catch some."), ephemeral=True)
+        
+        money = 0
+        total_count = 0
+        for fish_id, count in fishes:
+            fish_entry = FISH_LIBRARY.get_by_id(fish_id)
+            if not isinstance(fish_entry, FishEntry):
+                continue
+            money += fish_entry.price * count
+            total_count += count
+
+        user.economy.add_currency(amount=money)
+        user.fishing.sell_all()
+        await user.save()
+
+        embed = discord.Embed(
+            title="FISH SOLD",
+            description=f"You have sold **`{total_count}`** fish for **`{money}{CONFIG.CURRENCY}`**!",
+            color=discord.Color.yellow(),
+            timestamp=datetime.now()
+        )
+        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(

@@ -98,8 +98,16 @@ class Fishing(AbstractSerializableEntity):
             return 0
         return self.caught_fish[fish_id].get("last_catch_stamp", 0)
     
-    def get_fishes(self) -> list[tuple[str, int]]:
+    def get_fishes_with_count(self) -> list[tuple[str, int]]:
         fishes = []
         for fish_id, data in self.caught_fish.items():
-            fishes.append((fish_id, data.get("count", 0)))
+            count = data.get("count", 0)
+            if count > 0:
+                fishes.append((fish_id, count))
         return fishes
+    
+    def sell_all(self) -> None:
+        for fish_id, data in self.caught_fish.items():
+            count = data.get("count", 0)
+            if count > 0:
+                self.caught_fish[fish_id]["count"] = 0
