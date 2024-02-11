@@ -35,7 +35,7 @@ class FishingCommands(commands.Cog):
             return await interaction.response.send_message(embed=ErrorEmbed(title="YOU HAVE NO FISHING ROD", message="Look in the shop at `/shop rods` or buy the regular rod directly via `/buy R1` or `/buy Regular Rod` to get going!"), ephemeral=True)
         
         if not user.fishing.can_fish():
-            return await interaction.response.send_message(embed=ErrorEmbed(title="COOLDOWN", message=f"You can fish again {relative_time(int(user.fishing.next_fishing_stamp))}"), ephemeral=True)
+            return await interaction.response.send_message(content=f"You can fish again {relative_time(int(user.fishing.next_fishing_stamp))}", ephemeral=True)
 
         if bait and bait not in AVAILABLE_BAIT:
             return await interaction.response.send_message(embed=ErrorEmbed(title="BAIT DOES NOT EXIST", message=f"The bait {bait} you provided does not exist.\nCheck `/shop bait` or `/inventory bait`."), ephemeral=True)
