@@ -42,6 +42,7 @@ class FishingCommands(commands.Cog):
 
         rod_level = user.fishing.rod_level
         bait_level = 0
+        bait_item = None
         if bait:
             bait_item = ITEM_LIBRARY.find(identifier=bait)
             if isinstance(bait_item, Bait):
@@ -59,6 +60,9 @@ class FishingCommands(commands.Cog):
         size = fish_entry.get_random_size()
         size_str = f"{round(size, 2)}cm ({fish_entry.size_classification(size=size)})"
         first_catch, record_size = user.fishing.process_fish(fish_entry=fish_entry, size=size)
+        
+        if bait_item:
+            user.inventory.consume_item(id=bait_item.id)
         await user.save()
 
         if first_catch:
