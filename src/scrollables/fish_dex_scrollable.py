@@ -5,7 +5,7 @@ from src.scrollables.abstract_scrollable_query import AbstractScrollable
 CONFIG = Config.get_instance()
 FISH_LIBRARY = FishLibrary.get_instance()
 
-PAGE_SIZE = 30
+PAGE_SIZE = 20
 
 class FishDexScrollable(AbstractScrollable):
     def __init__(self, page_size: int, starting_page: int = 1) -> None:
