@@ -94,7 +94,7 @@ class FishingCommands(commands.Cog):
             userid = str(interaction.user.id)
 
         user: User = await User.load(userid=userid)
-        fishes = user.fishing.get_fishes_with_count()
+        fishes = user.fishing.get_fishes_with_count_and_prestige()
         scrollable = await FishBasketScrollable.create(fishes=fishes)
 
         embed = ScrollableEmbed(

@@ -138,6 +138,14 @@ class Fishing(AbstractSerializableEntity):
                 fishes.append((fish_id, count))
         return fishes
     
+    def get_fishes_with_count_and_prestige(self) -> list[tuple[str, int, int]]:
+        fishes = []
+        for fish_id, data in self.caught_fish.items():
+            count = data.get("count", 0)
+            if count > 0:
+                fishes.append((fish_id, count, self.get_prestige_level(fish_id=fish_id)))
+        return fishes
+    
     def get_fishes_with_total_count(self) -> list[tuple[str, int]]:
         fishes = []
         for fish_id, data in self.caught_fish.items():

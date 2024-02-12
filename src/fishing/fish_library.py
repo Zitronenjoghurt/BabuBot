@@ -231,3 +231,12 @@ class FishLibrary():
 
         bonus = self.get_prestige_bonus(fish_sold=fish_sold)
         return int(price + bonus*price)
+    
+    def calculate_fish_price_from_prestige(self, id: str, prestige: int) -> int:
+        fish_entry = self.get_by_id(id=id)
+        if not isinstance(fish_entry, FishEntry):
+            return 0
+        price = fish_entry.price
+
+        bonus = PRESTIGE_BONUS[prestige]
+        return int(price + bonus*price)
