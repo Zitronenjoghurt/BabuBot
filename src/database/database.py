@@ -17,8 +17,6 @@ class Database():
         self.cursor = self.connection.cursor()
         self._setup()
 
-        LOGGER.info("Database initialized")
-
     def _setup(self) -> None:
         for table_name in TABLE_NAMES:
             self.create_table(table_name=table_name)

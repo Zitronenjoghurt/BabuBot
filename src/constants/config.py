@@ -39,8 +39,6 @@ class Config():
             validate_of_type(self.CURRENCY, str, "currency")
         except ValueError as e:
             raise RuntimeError(f"An error occured while initializing config: {e}")
-        
-        LOGGER.info("Config initialized")
 
     @staticmethod
     def get_instance() -> 'Config':
