@@ -299,6 +299,66 @@
         "max_size": 70,
         "description": "Blather: Pike are only found in cold water, so they cannot live in warmer parts of the world. They can grow over three feet (90 cm) long and as such are a very popular fish with anglers. Pike have a slightly protruding jaw and large mouths with sharp teeth, making them powerful predators. They use these teeth for tearing apart not only other fish but also birds and other aquatic creatures."
     },
+    "mackerel": {
+        "name": "Mackerel",
+        "scientific": "Scomber scombrus",
+        "type": "fresh",
+        "color": "#5E718E",
+        "emoji_id": "1206709905961132094",
+        "rarity": 1,
+        "price": 8,
+        "min_size": 15,
+        "max_size": 45,
+        "description": "Mackerel is a fast-swimming, iridescent fish known for its slim, streamlined shape and rich, oily flesh, which is highly prized in various cuisines worldwide. These pelagic fish are found in both temperate and tropical seas, often forming large, shimmering schools near the surface. Mackerel are not only important for their culinary value but also play a crucial role in marine ecosystems as prey for larger predators such as sharks, dolphins, and tuna. Additionally, mackerel are a sustainable seafood choice due to their rapid reproduction rates and the efficient management of their fisheries in many regions, making them a favorite among environmentally conscious consumers."
+    },
+    "smelt": {
+        "name": "Pond Smelt",
+        "scientific": "Hypomesus olidus",
+        "type": "fresh",
+        "color": "#855F39",
+        "emoji_id": "1206710694569836614",
+        "rarity": 1,
+        "price": 5,
+        "min_size": 12,
+        "max_size": 20,
+        "description": "Blather: Pond smelt are small but vigorous fish that can survive in water of relatively poor quality. Pond smelt are related to salmon and as such have a lot of the same migratory tendencies. Most of them swim from rivers to the ocean and then return to rivers and lakes. However, some of them actually live in lakes that have no connection to the ocean, so they don't migrate. They have small fins and are perfect for eating whole as tempura or grilled on barbecues."
+    },
+    "sweetfish": {
+        "name": "Sweetfish",
+        "scientific": "Plecoglossus altivelis",
+        "type": "fresh",
+        "color": "#ADB834",
+        "emoji_id": "1206711341935759441",
+        "rarity": 1,
+        "price": 10,
+        "min_size": 20,
+        "max_size": 40,
+        "description": "Blather: Sweetfish are migratory fish born upstream that travel to the sea and then return to rivers to spawn. This migratory mind-set is what emphasizes their similarity to salmon. Adult sweetfish have a watermelon-like mossy smell when caught, since they eat moss on riverbed rocks. Sweetfish are very territorial and will attack rivals that encroach on their territory. Anglers use this combative nature against them by using lures made of other sweetfish."
+    },
+    "grass_carp": {
+        "name": "Grass Carp",
+        "scientific": "Ctenopharyngodon idella",
+        "type": "fresh",
+        "color": "#477238",
+        "emoji_id": "1206712132893409320",
+        "rarity": 1,
+        "price": 15,
+        "min_size": 45,
+        "max_size": 130,
+        "description": "Grass carp, a species of freshwater fish native to rivers and lakes in eastern Asia, is distinguished by its large size, elongated body, and silvery to olive-green coloring. Known scientifically as Ctenopharyngodon idella, this fish has been widely introduced globally for aquatic weed control, thanks to its voracious appetite for aquatic plants. While effective at managing vegetation in waterways, its introduction has sometimes led to ecological challenges, including the displacement of native species and alteration of habitats. Grass carp can grow remarkably large, reaching lengths of up to four feet or more, and are capable of living for several decades. In some regions, they are also farmed for food, providing a significant source of protein. Their adaptability to different environments, coupled with their utility in controlling aquatic plants, makes grass carp a notable species in both aquaculture and environmental management contexts."
+    },
+    "false_gudgeon": {
+        "name": "False Gudgeon",
+        "scientific": "Abbottina rivularis",
+        "type": "fresh",
+        "color": "#B47537",
+        "emoji_id": "1206713082060087387",
+        "rarity": 1,
+        "price": 10,
+        "min_size": 4,
+        "max_size": 15,
+        "description": "False Gudgeons are benthic fish, meaning they spend most of their time near the bottom of water bodies, where they feed on small invertebrates and detritus. Despite their small size, they play an important role in their ecosystems as both prey for larger fish and as predators of smaller aquatic organisms. One of the notable features of the False Gudgeon is its resilience and adaptability to different environmental conditions, which allows it to inhabit a range of freshwater ecosystems, from clear streams and rivers to turbid, stagnant waters. They are not widely known outside of enthusiast circles, but within their range, they are appreciated for their ecological role and the complexity they add to the biodiversity of freshwater systems."
+    },
     "flounder": {
         "name": "Flounder",
         "scientific": "Paralichthys dentatus",
@@ -467,6 +527,18 @@
         "max_size": 50,
         "description": "Blather: Lobsters live in the ocean, have large, powerful claws, and are closely related to crawfish. They are a delicacy, also known by the names 'crawfish of the sea' or 'homard', their French name. However, unlike crawfish, they are much bigger and can live for more than a hundred years. Lobsters are aggressive and will pinch with their claws if you don't properly bind them while handling."
     },
+    "neon_tetra": {
+        "name": "Neon Tetra",
+        "scientific": "Paracheirodon innesi",
+        "type": "fresh",
+        "color": "#42BFE8",
+        "emoji_id": "1206713615877545994",
+        "rarity": 2,
+        "price": 60,
+        "min_size": 3,
+        "max_size": 7,
+        "description": "Blather: Neon tetras get their name from the beautiful blue metallic line on their bodies. Although they're shy, gentle fish, surprisingly they're related to the piranha, though very distantly. They have very sharp and narrow teeth, an odd contrast to their beauty. They are delicate fish who tend to be very sensitive to the cleanliness and temperature of water."
+    },
     "sea_horse": {
         "name": "Sea Horse",
         "scientific": "Hippocampus",
@@ -478,6 +550,54 @@
         "min_size": 3,
         "max_size": 30,
         "description": "Blather: Sea horses don't look like fish, but they still share a lost of distinct connections. They use their small dorsal fins and tail fins to swim, but in actuality they're pretty bad swimmers. They wrap their tail fins around seaweed or coral so they won't float away with the current. Once attached, they feed on plankton and small shrimp that float by. The female deposits eggs in the male's pouch, putting the burden of child care on the male."
+    },
+    "darksleeper": {
+        "name": "Darksleeper",
+        "scientific": "Odontobutis obscura",
+        "type": "fresh",
+        "color": "#D39741",
+        "emoji_id": "1206714757890187274",
+        "rarity": 2,
+        "price": 40,
+        "min_size": 6,
+        "max_size": 10,
+        "description": "The Darksleeper is a fascinating freshwater fish with a knack for playing hide and seek. True to its name, it has a secretive nature, often burying itself in the sand or mud at the bottom of rivers, streams, and lakes to ambush unsuspecting prey. Its camouflage game is strong, blending seamlessly with its surroundings to catch small fish, insects, and other aquatic critters. What sets the Darksleeper apart is its ability to survive in low-oxygen environments, thanks to some clever biological tricks. It can gulp air from the surface, allowing it to live in waters that would suffocate other fish. This sneaky swimmer isn't just a survival expert; it's also a bit of a night owl, preferring to hunt and move around under the cover of darkness."
+    },
+    "bichir": {
+        "name": "Saddled Bichir",
+        "scientific": "Polypterus endlicheri endlicheri",
+        "type": "fresh",
+        "color": "#855F39",
+        "emoji_id": "1206715569471098920",
+        "rarity": 2,
+        "price": 55,
+        "min_size": 20,
+        "max_size": 60,
+        "description": "Blather: The cool-looking saddled bichir are ancient fish with spiky fins on their backs. Though they've been around for more than 400 million years, they remain relatively unchanged. They have big appetites and will wait to ambush any fish they think will fit in their mouths. They can grow up to 30 inches (76 centimeters) long, making them rather large fish indeed. They swim slowly in a way that gives them the appearance of walking like dinosaurs."
+    },
+    "crucian_carp": {
+        "name": "Crucian Carp",
+        "scientific": "Carassius carassius",
+        "type": "fresh",
+        "color": "#333C24",
+        "emoji_id": "1206716547335200768",
+        "rarity": 2,
+        "price": 40,
+        "min_size": 10,
+        "max_size": 20,
+        "description": "Blather: Crucian carp are fairly easy fish for beginners to catch, but they're also popular with veteran anglers. They are related to koi and can live up to 15 years, making them a great fish to keep in a pond. Male offspring are seldom born, so females significantly outnumber males, making populations suffer. Luckily, females can reproduce with males of some other species, so the problem is relatively temporary."
+    },
+    "goby": {
+        "name": "Goby",
+        "scientific": "Gobiidae",
+        "type": "fresh",
+        "color": "#886E6A",
+        "emoji_id": "1206717099544805427",
+        "rarity": 2,
+        "price": 45,
+        "min_size": 8,
+        "max_size": 40,
+        "description": "Blather: These short and stocky river-dwelling fish have a lot of slender teeth for tearing apart other fish. Freshwater gobies dig holes under rocks in riverbeds to make nests for eggs, which the males guard. Other fish breeds take advantage of this protective quality and often lay eggs in goby nests."
     },
     "tuna": {
         "name": "Tuna",
@@ -598,6 +718,30 @@
         "min_size": 15,
         "max_size": 40,
         "description": "Blather: They have terrifyingly sharp teeth, which contributes to their ferocious reputation. Oddly enough, they are actually quite timid, though they are still very dangerous fish. If they can't find food, they will resort to cannibalism or tear apart any animal they can grab hold of. Take care when catching them so they don't end up biting your hand with their sharp teeth!"
+    },
+    "turtle": {
+        "name": "Sea Turtle",
+        "scientific": "Chelonioidea",
+        "type": "salt",
+        "color": "#586334",
+        "emoji_id": "1206717552412328056",
+        "rarity": 3,
+        "price": 400,
+        "min_size": 70,
+        "max_size": 200,
+        "description": "Sea turtles are ocean-dwelling creatures that have captured human fascination for centuries. These ancient reptiles, which have been around for over 100 million years, are remarkable for their long migrations across oceans, some traveling thousands of miles to return to the beaches where they were born to lay their own eggs. They are known for their longevity, with some species living up to 50 years or more. (Also theyre my favorite animal)"
+    },
+    "red_snapper": {
+        "name": "Red Snapper",
+        "scientific": "Lutjanus campechanus",
+        "type": "salt",
+        "color": "#F1641E",
+        "emoji_id": "1206718314576089149",
+        "rarity": 3,
+        "price": 275,
+        "min_size": 50,
+        "max_size": 100,
+        "description": "Blather: Red snappers are gregarious fish that often form schools close to reefs and shipwrecks. They are a prized food fish, but because of demand, other species are often served as 'red snapper'. They usually live up to 50 years. The oldest recorded red snapper was thought to be 57."
     },
     "oarfish": {
         "name": "Oarfish",
