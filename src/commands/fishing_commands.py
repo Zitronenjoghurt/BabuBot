@@ -209,6 +209,7 @@ class FishingCommands(commands.Cog):
         basket_count = user.fishing.get_basket_fish_count()
         cumulative_money = user.fishing.get_cumulative_money()
         dex_stats = user.fishing.get_fish_dex_stats()
+        prestige_stats = user.fishing.get_prestige_stats()
 
         embed = discord.Embed(
             title="FISHING STATS",
@@ -221,6 +222,7 @@ class FishingCommands(commands.Cog):
         embed.add_field(name="In Basket", value=f"**`{basket_count}`**")
         embed.add_field(name="Money Earned", value=f"**`{cumulative_money}{CONFIG.CURRENCY}`**")
         embed.add_field(name="Dex", value=dex_stats)
+        embed.add_field(name="Prestige", value=prestige_stats)
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="fish-settings", description="Adjust various settings for the fishing game")
@@ -265,11 +267,14 @@ class FishingCommands(commands.Cog):
             color=discord.Color.from_str(FISH_LIBRARY.get_prestige_color(prestige_lvl))
         )
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
-        embed.add_field(name="Progress", value=user.fishing.get_prestige_progress(fish_entry.id), inline=False)
+        embed.add_field(name="PROGRESS", value=user.fishing.get_prestige_progress(fish_entry.id), inline=False)
         embed.add_field(name="Base Price", value=f"**`{fish_entry.price}{CONFIG.CURRENCY}`**")
         embed.add_field(name="Bonus", value=f"**`+{FISH_LIBRARY.get_prestige_bonus(fish_sold=fish_sold)*100}%`**")
         embed.add_field(name="Current Price", value=f"**`{FISH_LIBRARY.calculate_fish_price(id=fish_entry.id, fish_sold=fish_sold)}{CONFIG.CURRENCY}`**")
-        await interaction.response.send_message(embed=embed)
+
+        file = discord.File(FISH_LIBRARY.get_prestige_image_path(prestige_lvl), filename=FISH_LIBRARY.get_prestige_image_file_name(prestige_lvl))
+        embed.set_image(url=FISH_LIBRARY.get_prestige_image_url(prestige_lvl))
+        await interaction.response.send_message(file=file, embed=embed)
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(

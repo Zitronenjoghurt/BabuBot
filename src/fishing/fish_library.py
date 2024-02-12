@@ -10,6 +10,8 @@ from src.utils.progress_bar import progress_bar
 DATA_FILE_PATH = construct_path("src/data/fish.json")
 BAIT_LEVELS_FILE_PATH = construct_path("src/data/bait_levels.json")
 
+PRESTIGE_IMAGE_PATH = "src/assets/prestige/prestige_{level}.png"
+
 EMOJI_INDEX = EmojiIndex.get_instance()
 
 RARITY_LEVELS = 5
@@ -181,6 +183,16 @@ class FishLibrary():
         if level >= MAX_PRESTIGE:
             return True
         return False
+    
+    def get_prestige_image_path(self, level: int) -> str:
+        return PRESTIGE_IMAGE_PATH.format(level=level)
+    
+    def get_prestige_image_file_name(self, level: int) -> str:
+        return f"prestige_{level}.png"
+    
+    def get_prestige_image_url(self, level: int) -> str:
+        image_file_name = self.get_prestige_image_file_name(level)
+        return f"attachment://{image_file_name}"
     
     def fish_till_next_level(self, level: int, sold: int) -> int:
         if self.prestige_is_maxed(level=level):

@@ -238,4 +238,11 @@ class Fishing(AbstractSerializableEntity):
         else:
             next_sold = PRESTIGE_LEVELS[prestige_level+1]
             bar = f"{FISH_LIBRARY.get_prestige_emoji(level=prestige_level+1)} "+FISH_LIBRARY.get_prestige_progress(level=prestige_level, sold=sold)
-            return f"**{sold}/{next_sold}**\n{bar}"
+            return f"{bar}\nSold: **{sold} out of {next_sold}**"
+        
+    def get_prestige_stats(self) -> str:
+        prestige_stats = {lvl: 0 for lvl in range(0, 6)}
+        for fish_id in self.caught_fish.keys():
+            level = self.get_prestige_level(fish_id=fish_id)
+            prestige_stats[level] += 1
+        return "\n".join(f"**`{count}x {lvl}★`**" for lvl, count in prestige_stats.items())
