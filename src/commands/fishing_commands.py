@@ -107,31 +107,22 @@ class FishingCommands(commands.Cog):
 
         await send_scrollable(interaction=interaction, embed=embed)
 
-    @app_commands.command(name="fish-sell", description="Sell all of the fish in your basket")
+    @app_commands.command(name="fish-sell", description="Sell the fish in your basket")
     async def fish_sell(self, interaction: discord.Interaction):
         user: User = await User.load(userid=str(interaction.user.id))
 
-        fishes = user.fishing.get_fishes_to_sell()
-        if len(fishes) == 0:
+        amount, money = user.fishing.get_fish_sell_amount_and_money()
+        if amount == 0:
             return await interaction.response.send_message(embed=ErrorEmbed(title="NO FISH", message="You currently have no fish to sell!\nUse `/fish` to catch some."), ephemeral=True)
-        
-        money = 0
-        total_count = 0
-        for fish_id, count in fishes:
-            fish_entry = FISH_LIBRARY.get_by_id(fish_id)
-            if not isinstance(fish_entry, FishEntry):
-                continue
-            money += fish_entry.price * count
-            total_count += count
 
         user.economy.add_currency(amount=money)
         user.fishing.sell_all()
         await user.save()
-        LOGGER.debug(f"FISH: User {interaction.user.display_name} ({interaction.user.id}) has sold {total_count} fish for {money}")
+        LOGGER.debug(f"FISH: User {interaction.user.display_name} ({interaction.user.id}) has sold {amount} fish for {money}")
 
         embed = discord.Embed(
             title="FISH SOLD",
-            description=f"You have sold **`{total_count}`** fish for **`{money}{CONFIG.CURRENCY}`**!",
+            description=f"You have sold **`{amount}`** fish for **`{money}{CONFIG.CURRENCY}`**!",
             color=discord.Color.yellow(),
             timestamp=datetime.now()
         )
@@ -159,7 +150,14 @@ class FishingCommands(commands.Cog):
         smallest = f"{min_size}cm ({fish_entry.size_classification(min_size)})"
         biggest = f"{max_size}cm ({fish_entry.size_classification(max_size)})"
 
+        fish_sold = user.fishing.get_fish_sold(fish_id=fish_entry.id)
+        prestige_price = FISH_LIBRARY.calculate_fish_price(fish_entry.id, fish_sold)
+        prestige_level = FISH_LIBRARY.get_prestige_level(fish_sold)
+        prestige_bonus = FISH_LIBRARY.get_prestige_bonus(fish_sold)
+        prestige_str = f"**`{prestige_price}{CONFIG.CURRENCY}`**\n**`Lvl {prestige_level} +{prestige_bonus*100}%`**"
+
         embed.add_field(name="Price", value=f"**`{fish_entry.price}{CONFIG.CURRENCY}`**")
+        embed.add_field(name="Prestige Price", value=prestige_str)
         embed.add_field(name="Type", value=f"**`{fish_entry.type.name.capitalize()}`**")
         embed.add_field(name="Rarity", value=f"**`{fish_entry.rarity.name.capitalize()}`**")
         embed.add_field(name="Size Range", value=f"**`{fish_entry.get_size_range()}`**")
@@ -179,9 +177,7 @@ class FishingCommands(commands.Cog):
     async def fish_dex(self, interaction: discord.Interaction):
         user: User = await User.load(userid=str(interaction.user.id))
 
-        caught_fish_ids = user.fishing.get_fishes()
-        fish_dex = FISH_LIBRARY.generate_fish_dex(caught_ids=caught_fish_ids)
-
+        fish_dex = user.fishing.get_fish_dex()
         scrollable = await FishDexScrollable.create(fish_dex=fish_dex)
 
         embed = ScrollableEmbed(
@@ -211,12 +207,8 @@ class FishingCommands(commands.Cog):
         start_stamp = int(user.fishing.started_at)
         total_count = user.fishing.get_total_fish_count()
         basket_count = user.fishing.get_basket_fish_count()
-
-        fishes_with_total_count = user.fishing.get_fishes_with_total_count_difference()
-        cumulative_money = FISH_LIBRARY.calculate_cumulative_money(fishes_with_total_count)
-
-        caught_ids = user.fishing.get_fishes()
-        dex_stats = FISH_LIBRARY.get_dex_stats(caught_ids)
+        cumulative_money = user.fishing.get_cumulative_money()
+        dex_stats = user.fishing.get_fish_dex_stats()
 
         embed = discord.Embed(
             title="FISHING STATS",
@@ -254,6 +246,29 @@ class FishingCommands(commands.Cog):
         for setting, state in zip(settings, states):
             embed.add_field(name=setting, value=f"`{state}`", inline=False)
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="fish-prestige", description="Retrieve your prestige status of a fish")
+    @app_commands.describe(fish="The fish you want to know the prestige status of")
+    async def fish_prestige(self, interaction: discord.Interaction, fish: str):
+        user: User = await User.load(userid=str(interaction.user.id))
+
+        fish_entry = FISH_LIBRARY.find(fish)
+        if not isinstance(fish_entry, FishEntry) or not user.fishing.has_caught(fish_entry.id):
+            return await interaction.response.send_message(embed=ErrorEmbed(title="NO INFORMATION AVAILABLE", message=f"Either you did not catch `{fish}` yet, or it does not exist.\nUse `/fish-dex` to check that you made no typo."), ephemeral=True)
+        
+        fish_sold = user.fishing.get_fish_sold(fish_id=fish_entry.id)
+        prestige_lvl = FISH_LIBRARY.get_prestige_level(fish_sold=fish_sold)
+
+        embed = discord.Embed(
+            title=f"{prestige_lvl}★ {fish_entry.name} {fish_entry.get_emoji()}",
+            color=discord.Color.from_str(FISH_LIBRARY.get_prestige_color(prestige_lvl))
+        )
+        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
+        embed.add_field(name="Progress", value=user.fishing.get_prestige_progress(fish_entry.id), inline=False)
+        embed.add_field(name="Base Price", value=f"**`{fish_entry.price}{CONFIG.CURRENCY}`**")
+        embed.add_field(name="Bonus", value=f"**`+{FISH_LIBRARY.get_prestige_bonus(fish_sold=fish_sold)*100}%`**")
+        embed.add_field(name="Current Price", value=f"**`{FISH_LIBRARY.calculate_fish_price(id=fish_entry.id, fish_sold=fish_sold)}{CONFIG.CURRENCY}`**")
         await interaction.response.send_message(embed=embed)
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:

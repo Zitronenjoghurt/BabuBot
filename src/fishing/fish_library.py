@@ -1,14 +1,43 @@
 from numpy import random
 from typing import Optional
+from src.constants.emoji_index import EmojiIndex
 from src.fishing.fish_entry import FishEntry
 from src.fishing.fish_rarity import FishRarity
 from src.utils.file_operations import construct_path, file_to_dict, file_to_list
 from src.utils.probability import WeightedSelector
+from src.utils.progress_bar import progress_bar
 
 DATA_FILE_PATH = construct_path("src/data/fish.json")
 BAIT_LEVELS_FILE_PATH = construct_path("src/data/bait_levels.json")
 
+EMOJI_INDEX = EmojiIndex.get_instance()
+
 RARITY_LEVELS = 5
+MAX_PRESTIGE = 5
+PRESTIGE_LEVELS = {
+    0: 0,
+    1: 5,
+    2: 15,
+    3: 35,
+    4: 75,
+    5: 150
+}
+PRESTIGE_BONUS = {
+    0: 0,
+    1: 0.25,
+    2: 0.75,
+    3: 1.75,
+    4: 3.75,
+    5: 7.5
+}
+PRESTIGE_COLORS = {
+    0: "#806052",
+    1: "#e05b22",
+    2: "#dbd7d5",
+    3: "#f0c846",
+    4: "#b041cc",
+    5: "#29d8ff"
+}
 
 class FishLibrary():
     _instance = None
@@ -97,6 +126,7 @@ class FishLibrary():
         entry = random.choice(entries, size=1)[0]
         return entry
     
+    # tuple[entry, caught?]
     def generate_fish_dex(self, caught_ids: list[str]) -> list[tuple[FishEntry, bool]]:
         entries = list(self.fish_by_id.values())
 
@@ -114,7 +144,7 @@ class FishLibrary():
             entry = self.get_by_id(fish_id)
             if not isinstance(entry, FishEntry):
                 continue
-            money += count * entry.price
+            money += self.calculate_fish_price_cumulative(id=fish_id, count=count, fish_sold=count)
         return money
     
     def get_dex_stats(self, caught_ids: list[str]) -> str:
@@ -128,3 +158,64 @@ class FishLibrary():
             
         result = "\n".join([f"**`{found_vs_total[0]}/{found_vs_total[1]}`** **{rarity.name}**" for rarity, found_vs_total in count_by_rarity.items()])
         return result
+    
+    def get_prestige_level(self, fish_sold: int) -> int:
+        for level, required in PRESTIGE_LEVELS.items():
+            if fish_sold < required:
+                return level - 1
+        return MAX_PRESTIGE
+
+    def get_prestige_bonus(self, fish_sold: int) -> float:
+        level = self.get_prestige_level(fish_sold=fish_sold)
+        return PRESTIGE_BONUS[level]
+    
+    def get_prestige_emoji(self, level: int) -> str:
+        level = max(0, min(level, MAX_PRESTIGE))
+        return EMOJI_INDEX.get_emoji(f"prestige_{level}")
+    
+    def get_prestige_color(self, level: int) -> str:
+        level = max(0, min(level, MAX_PRESTIGE))
+        return PRESTIGE_COLORS[level]
+    
+    def prestige_is_maxed(self, level: int) -> bool:
+        if level >= MAX_PRESTIGE:
+            return True
+        return False
+    
+    def fish_till_next_level(self, level: int, sold: int) -> int:
+        if self.prestige_is_maxed(level=level):
+            return 0
+        return PRESTIGE_LEVELS[level + 1] - sold
+    
+    def get_prestige_progress(self, level: int, sold: int) -> str:
+        if self.prestige_is_maxed(level=level):
+            bar, percentage = progress_bar(0, 0, 0, 20)
+        else:
+            print(sold)
+            print(level)
+            bar, percentage = progress_bar(current=sold, start=PRESTIGE_LEVELS[level], end=PRESTIGE_LEVELS[level + 1], length=20)
+        return bar + f" `({percentage*100}%)`"
+
+    # Important for prestige levels, the higher the amount of sold fish, the better the price
+    def calculate_fish_price_cumulative(self, id: str, count: int, fish_sold: int) -> int:
+        fish_entry = self.get_by_id(id=id)
+        if not isinstance(fish_entry, FishEntry):
+            return 0
+        price = fish_entry.price
+
+        money = 0
+        for _ in range(count):
+            bonus = self.get_prestige_bonus(fish_sold=fish_sold)
+            sell_price = price + bonus*price
+            money += int(sell_price)
+            fish_sold += 1
+        return money
+    
+    def calculate_fish_price(self, id: str, fish_sold: int) -> int:
+        fish_entry = self.get_by_id(id=id)
+        if not isinstance(fish_entry, FishEntry):
+            return 0
+        price = fish_entry.price
+
+        bonus = self.get_prestige_bonus(fish_sold=fish_sold)
+        return int(price + bonus*price)

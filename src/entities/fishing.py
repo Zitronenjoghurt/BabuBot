@@ -2,8 +2,10 @@ from datetime import datetime
 from typing import Optional
 from src.entities.abstract_serializable_entity import AbstractSerializableEntity
 from src.fishing.fish_entry import FishEntry
+from src.fishing.fish_library import FishLibrary, PRESTIGE_LEVELS
 
 FISHING_COOLDOWN = 300
+FISH_LIBRARY = FishLibrary.get_instance()
 
 class Fishing(AbstractSerializableEntity):
     SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish", "next_fishing_stamp", "leave_one"]
@@ -177,3 +179,63 @@ class Fishing(AbstractSerializableEntity):
             count = entry.get("count", 0)
             total_count += count
         return total_count
+    
+    def get_cumulative_money(self) -> int:
+        fishes = self.get_fishes_with_total_count_difference()
+        return FISH_LIBRARY.calculate_cumulative_money(fishes=fishes)
+    
+    # tuple[entry, caught?, prestige_level]
+    def get_fish_dex(self) -> list[tuple[FishEntry, bool, int]]:
+        caught_ids = self.get_fishes()
+
+        fish_dex = FISH_LIBRARY.generate_fish_dex(caught_ids=caught_ids)
+        fish_dex_with_prestige = []
+        for entry, caught in fish_dex:
+            if not caught:
+                fish_dex_with_prestige.append((entry, caught, 0))
+            else:
+                fish_sold = self.get_fish_sold(fish_id=entry.id)
+                prestige_level = FISH_LIBRARY.get_prestige_level(fish_sold=fish_sold)
+                fish_dex_with_prestige.append((entry, caught, prestige_level))
+        return fish_dex_with_prestige
+    
+    def get_fish_dex_stats(self) -> str:
+        caught_ids = self.get_fishes()
+        return FISH_LIBRARY.get_dex_stats(caught_ids=caught_ids)
+    
+    def get_fish_sold(self, fish_id: str) -> int:
+        if fish_id not in self.caught_fish:
+            return 0
+        fish_data = self.caught_fish[fish_id]
+        total = fish_data.get("total_count", 0)
+        current = fish_data.get("count", 0)
+
+        return max(total-current, 0)
+
+    def get_fish_sell_amount_and_money(self) -> tuple[int, int]:
+        fishes_to_sell = self.get_fishes_to_sell()
+
+        money = 0
+        total_count = 0
+        for fish_id, count in fishes_to_sell:
+            fish_sold = self.get_fish_sold(fish_id=fish_id)
+            money += FISH_LIBRARY.calculate_fish_price_cumulative(id=fish_id, count=count, fish_sold=fish_sold)
+            total_count += count
+
+        return total_count, money 
+    
+    def get_prestige_level(self, fish_id: str) -> int:
+        sold = self.get_fish_sold(fish_id=fish_id)
+        return FISH_LIBRARY.get_prestige_level(fish_sold=sold)
+    
+    def get_prestige_progress(self, fish_id: str) -> str:
+        sold = self.get_fish_sold(fish_id=fish_id)
+        prestige_level = FISH_LIBRARY.get_prestige_level(fish_sold=sold)
+        is_maxed = FISH_LIBRARY.prestige_is_maxed(level=prestige_level)
+
+        if is_maxed:
+            return "**MAXED**"
+        else:
+            next_sold = PRESTIGE_LEVELS[prestige_level+1]
+            bar = f"{FISH_LIBRARY.get_prestige_emoji(level=prestige_level+1)} "+FISH_LIBRARY.get_prestige_progress(level=prestige_level, sold=sold)
+            return f"**{sold}/{next_sold}**\n{bar}"
