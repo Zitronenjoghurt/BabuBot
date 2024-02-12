@@ -2,6 +2,7 @@
     "prefix": "%",
     "token": "BOT_TOKEN",
     "nasa_key": "NASA API KEY",
+    "cat_key": "",
     "guild_id": "GUILD_ID",
     "counted_words": [],
     "ignored_channel_ids": [],

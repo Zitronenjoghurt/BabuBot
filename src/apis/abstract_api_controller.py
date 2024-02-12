@@ -15,7 +15,9 @@ class AbstractApiController():
 
     def generate_url(self, endpoint: str, **kwargs) -> str:
         arguments = "&".join([f"{key}={value}" for key, value in kwargs.items()])
-        return f"{self.BASE_URL}/{endpoint}?{arguments}"
+        if len(kwargs) > 0:
+            return f"{self.BASE_URL}/{endpoint}?{arguments}"
+        return f"{self.BASE_URL}/{endpoint}"
     
     async def request(self, endpoint: str, expected_codes: list[int], **params) -> dict|list:
         url = self.generate_url(endpoint, **params)
