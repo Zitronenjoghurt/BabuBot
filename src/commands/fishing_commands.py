@@ -111,7 +111,7 @@ class FishingCommands(commands.Cog):
     async def fish_sell(self, interaction: discord.Interaction):
         user: User = await User.load(userid=str(interaction.user.id))
 
-        fishes = user.fishing.get_fishes_with_count()
+        fishes = user.fishing.get_fishes_to_sell()
         if len(fishes) == 0:
             return await interaction.response.send_message(embed=ErrorEmbed(title="NO FISH", message="You currently have no fish to sell!\nUse `/fish` to catch some."), ephemeral=True)
         
@@ -231,6 +231,31 @@ class FishingCommands(commands.Cog):
         embed.add_field(name="Dex", value=dex_stats)
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="fish-settings", description="Adjust various settings for the fishing game")
+    @app_commands.describe(leave_one="If you always want to leave one fish in your basket when selling")
+    async def fish_settings(self, interaction: discord.Interaction, leave_one: Optional[bool] = None):
+        user: User = await User.load(userid=str(interaction.user.id))
+
+        adjusted_settings = False
+
+        if isinstance(leave_one, bool):
+            adjusted_settings = True
+            user.fishing.leave_one = leave_one
+
+        await user.save()
+
+        settings = ["Always leave one fish (each) in basket"]
+        states = [yes_no(user.fishing.leave_one)]
+
+        if not adjusted_settings:
+            embed = discord.Embed(title="SETTINGS", color=discord.Color.light_grey())
+        else:
+            embed = discord.Embed(title="SETTINGS UPDATED", color=discord.Color.green())
+        for setting, state in zip(settings, states):
+            embed.add_field(name=setting, value=f"`{state}`", inline=False)
+        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
+
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(
         title=f"{fish_entry.rarity.name} CATCH",
@@ -263,6 +288,11 @@ async def send_catch_embed(interaction: discord.Interaction, fish_entry: FishEnt
     embed.add_field(name="Caught Total", value=f"**`{total}`**")
 
     await interaction.response.send_message(embed=embed)
+
+def yes_no(state: bool) -> str:
+    if state:
+        return "Yes"
+    return "No"
 
 async def setup(bot):
     await bot.add_cog(FishingCommands(bot))

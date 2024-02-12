@@ -6,7 +6,7 @@ from src.fishing.fish_entry import FishEntry
 FISHING_COOLDOWN = 300
 
 class Fishing(AbstractSerializableEntity):
-    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish", "next_fishing_stamp"]
+    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish", "next_fishing_stamp", "leave_one"]
 
     def __init__(
             self,
@@ -14,7 +14,8 @@ class Fishing(AbstractSerializableEntity):
             started_at: Optional[float] = None,
             rod_level: Optional[int] = None,
             caught_fish: Optional[dict] = None,
-            next_fishing_stamp: Optional[float] = None
+            next_fishing_stamp: Optional[float] = None,
+            leave_one: Optional[bool] = None
         ) -> None:
         if unlocked is None:
             unlocked = False
@@ -26,12 +27,15 @@ class Fishing(AbstractSerializableEntity):
             caught_fish = {}
         if next_fishing_stamp is None:
             next_fishing_stamp = 0
+        if leave_one is None:
+            leave_one = False
         
         self.unlocked = unlocked
         self.started_at = started_at
         self.rod_level = rod_level
         self.caught_fish = caught_fish
         self.next_fishing_stamp = next_fishing_stamp
+        self.leave_one = leave_one
 
     def unlock(self) -> None:
         if not self.unlocked:
@@ -112,6 +116,18 @@ class Fishing(AbstractSerializableEntity):
             fishes.append(fish_id)
         return fishes
     
+    def get_fishes_to_sell(self) -> list[tuple[str, int]]:
+        fishes = []
+        for fish_id, data in self.caught_fish.items():
+            count = data.get("count", 0)
+            if not self.leave_one:
+                if count > 0:
+                    fishes.append((fish_id, count))
+            else:
+                if count > 1:
+                    fishes.append((fish_id, count - 1))
+        return fishes
+    
     def get_fishes_with_count(self) -> list[tuple[str, int]]:
         fishes = []
         for fish_id, data in self.caught_fish.items():
@@ -141,8 +157,12 @@ class Fishing(AbstractSerializableEntity):
     def sell_all(self) -> None:
         for fish_id, data in self.caught_fish.items():
             count = data.get("count", 0)
-            if count > 0:
-                self.caught_fish[fish_id]["count"] = 0
+            if not self.leave_one:
+                if count > 0:
+                    self.caught_fish[fish_id]["count"] = 0
+            else:
+                if count > 1:
+                    self.caught_fish[fish_id]["count"] = 1
 
     def get_total_fish_count(self) -> int:
         total_count = 0
