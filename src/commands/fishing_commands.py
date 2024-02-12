@@ -165,7 +165,7 @@ class FishingCommands(commands.Cog):
         embed.add_field(name="In Basket", value=f"**`{user.fishing.get_current_count(fish_entry.id)}`**")
         embed.add_field(name="Smallest Catch", value=f"**`{smallest}`**")
         embed.add_field(name="Biggest Catch", value=f"**`{biggest}`**")
-        embed.add_field(name="Last Caught", value=f"{relative_time(int(user.fishing.get_first_catch_stamp(fish_entry.id)))}")
+        embed.add_field(name="Last Caught", value=f"{relative_time(int(user.fishing.get_last_catch_stamp(fish_entry.id)))}")
         embed.add_field(name="First Caught", value=f"{long_date_time(int(user.fishing.get_first_catch_stamp(fish_entry.id)))}")
 
         file = discord.File(fish_entry.get_image_path(), filename=fish_entry.get_image_file_name())
