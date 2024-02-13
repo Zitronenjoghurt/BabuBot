@@ -16,6 +16,7 @@ from src.entities.word_counter import WordCounter
 from src.logging.logger import LOGGER
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.dict_operations import sort_simple
+from src.utils.discord_time import relative_time
 from src.utils.guild_operations import retrieve_member
 from src.utils.validator import validate_of_type
 
@@ -180,6 +181,9 @@ class User(AbstractDatabaseEntity):
             ("Give someone a reputation point with /rep @user", not self.reputation.can_do_rep())
         ]
         return tasks
+    
+    def get_cooldowns(self) -> str:
+        return f"**FISHING:** {relative_time(int(self.fishing.next_fishing_stamp))}"
     
     def add_accepted_command_cost(self, command_name: str) -> None:
         command_name = command_name.lower()

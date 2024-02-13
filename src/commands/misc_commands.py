@@ -36,6 +36,7 @@ class MiscCommands(commands.Cog):
         embed = discord.Embed(title="TASKS", description=generate_tasks_string(tasks), color=discord.Color.from_str("#ae53fc"), timestamp=datetime.now())
         embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
         embed.add_field(name="DAILY TASKS", value=generate_daily_tasks_string(daily_tasks), inline=False)
+        embed.add_field(name="COOLDOWNS", value=user.get_cooldowns(), inline=False)
         embed.add_field(name="OTHER THINGS", value="`Dont forget your relationships!`\n`Dont forget to go fish with /fish!`", inline=False)
         embed.set_footer(text="Also try out other commands, you can easily navigate them by typing a / in chat!")
         await interaction.response.send_message(embed=embed)
