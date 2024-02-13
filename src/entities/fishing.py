@@ -193,10 +193,10 @@ class Fishing(AbstractSerializableEntity):
         return FISH_LIBRARY.calculate_cumulative_money(fishes=fishes)
     
     # tuple[entry, caught?, prestige_level]
-    def get_fish_dex(self) -> list[tuple[FishEntry, bool, int]]:
+    def get_fish_dex(self, rarity: Optional[str] = None) -> list[tuple[FishEntry, bool, int]]:
         caught_ids = self.get_fishes()
 
-        fish_dex = FISH_LIBRARY.generate_fish_dex(caught_ids=caught_ids)
+        fish_dex = FISH_LIBRARY.generate_fish_dex(caught_ids=caught_ids, rarity=rarity)
         fish_dex_with_prestige = []
         for entry, caught in fish_dex:
             if not caught:

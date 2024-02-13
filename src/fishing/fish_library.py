@@ -129,11 +129,19 @@ class FishLibrary():
         return entry
     
     # tuple[entry, caught?]
-    def generate_fish_dex(self, caught_ids: list[str]) -> list[tuple[FishEntry, bool]]:
+    def generate_fish_dex(self, caught_ids: list[str], rarity: Optional[str] = None) -> list[tuple[FishEntry, bool]]:
+        if rarity:
+            rarity_value = FishRarity.__members__.get(rarity.upper(), None)
+        else:
+            rarity_value = None
+        
         entries = list(self.fish_by_id.values())
 
         dex = []
         for entry in entries:
+            # Skip the entry if it doesnt equal the given rarity
+            if isinstance(rarity_value, FishRarity) and entry.rarity != rarity_value:
+                continue
             caught = False
             if entry.id in caught_ids:
                 caught = True

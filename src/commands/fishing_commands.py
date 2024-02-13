@@ -21,6 +21,7 @@ FISH_LIBRARY = FishLibrary.get_instance()
 ITEM_LIBRARY = ItemLibrary.get_instance()
 
 AVAILABLE_BAIT = ITEM_LIBRARY.get_available_bait()
+AVAILABLE_RARITIES = ["Common", "Uncommon", "Rare", "Legendary", "Mythical"]
 
 class FishingCommands(commands.Cog):
     def __init__(self, bot):
@@ -75,7 +76,7 @@ class FishingCommands(commands.Cog):
             await send_catch_embed(interaction=interaction, fish_entry=fish_entry, size=size_str, record_size=record_size, current=current_count, total=total_count)
 
     @fish.autocomplete("bait")
-    async def shop_category_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    async def fish_bait_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
         return [
             app_commands.Choice(name=category_choice, value=category_choice)
             for category_choice in AVAILABLE_BAIT
@@ -173,16 +174,24 @@ class FishingCommands(commands.Cog):
         await interaction.response.send_message(embed=embed, file=file)
 
     @app_commands.command(name="fish-dex", description="Provides information about caught fish and which are still left")
+    @app_commands.describe(rarity="The rarity of fish you want to look at")
     @app_commands.checks.cooldown(1, 5)
-    async def fish_dex(self, interaction: discord.Interaction):
+    async def fish_dex(self, interaction: discord.Interaction, rarity: Optional[str] = None):
+        if rarity and rarity.capitalize() not in AVAILABLE_RARITIES:
+            return await interaction.response.send_message(embed=ErrorEmbed(title="INVALID CATEGORY", message="The specified category does not exist."), ephemeral=True)
+
         user: User = await User.load(userid=str(interaction.user.id))
 
-        fish_dex = user.fishing.get_fish_dex()
+        fish_dex = user.fishing.get_fish_dex(rarity=rarity)
         scrollable = await FishDexScrollable.create(fish_dex=fish_dex)
+
+        title = "FISH DEX"
+        if rarity:
+            title += f" ({rarity.upper()})"
 
         embed = ScrollableEmbed(
             scrollable=scrollable,
-            title="FISH DEX",
+            title=title,
             color=interaction.user.color
         )
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
@@ -275,6 +284,14 @@ class FishingCommands(commands.Cog):
         file = discord.File(FISH_LIBRARY.get_prestige_image_path(prestige_lvl), filename=FISH_LIBRARY.get_prestige_image_file_name(prestige_lvl))
         embed.set_image(url=FISH_LIBRARY.get_prestige_image_url(prestige_lvl))
         await interaction.response.send_message(file=file, embed=embed)
+
+    @fish_dex.autocomplete("rarity")
+    async def fish_rarity(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        return [
+            app_commands.Choice(name=rarity, value=rarity)
+            for rarity in AVAILABLE_RARITIES
+            if current.lower() in rarity.lower()
+        ]
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(
