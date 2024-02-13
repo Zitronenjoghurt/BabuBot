@@ -30,12 +30,14 @@ class ShopCommands(commands.Cog):
             categories = ", ".join(SHOP_CATEGORIES)
             return await interaction.response.send_message(embed=ErrorEmbed(title="CATEGORY NOT FOUND", message=f"Category **`{category}`** does not exist.\nAvailable categories are: {categories}."), ephemeral=True)
         
+        user: User = await User.load(userid=str(interaction.user.id))
+
         items = ITEM_LIBRARY.get_items_by_category(category=category)
         scrollable = await ShopScrollable.create(items=items)
 
         embed = ScrollableEmbed(
             scrollable=scrollable,
-            title=f"{category.upper()} SHOP",
+            title=f"{category.upper()} SHOP ({user.economy.currency}{CONFIG.CURRENCY})",
             color=discord.Color.yellow()
         )
         await embed.initialize()
