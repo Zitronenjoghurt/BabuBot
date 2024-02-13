@@ -119,7 +119,7 @@
         "price": 50,
         "max_count": 100,
         "requirements": [],
-        "needs_item": "R2",
+        "needs_item": "R3",
         "data": {},
         "bait_level": 2
     },
@@ -136,7 +136,7 @@
         "price": 150,
         "max_count": 100,
         "requirements": [],
-        "needs_item": "R2",
+        "needs_item": "R4",
         "data": {},
         "bait_level": 3
     },
@@ -153,7 +153,7 @@
         "price": 600,
         "max_count": 100,
         "requirements": [],
-        "needs_item": "R2",
+        "needs_item": "R5",
         "data": {},
         "bait_level": 4
     },
@@ -170,7 +170,7 @@
         "price": 1200,
         "max_count": 100,
         "requirements": [],
-        "needs_item": "R2",
+        "needs_item": "R5",
         "data": {},
         "bait_level": 5
     }
