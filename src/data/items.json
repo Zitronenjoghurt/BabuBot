@@ -163,7 +163,7 @@
         "display_name": "Expert Bait",
         "color": "#D5DC1C",
         "description": "A prop fish filled with the highest-concentration nutritional powder on the market. It will behave like a regular fish while other fish can smell its yummieness from more than 50km away!",
-        "use": "Will give you an UNFATHOMABLE higher chance to encounter higher-rarity fish. Only properly works if your rod is able to fish for anything more than common.",
+        "use": "Will give you an UNFATHOMABLE higher chance to encounter higher-rarity fish. Only properly works if your rod is able to fish for mythicals.",
         "buy_message": null,
         "category": "bait",
         "emoji_id": "1206272344658550784",
