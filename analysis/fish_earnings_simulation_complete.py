@@ -7,7 +7,7 @@ FL = FishLibrary.get_instance()
 ITERATIONS = 1000000
 WORKERS = 10
 
-BAIT_COST = [0, 7, 50, 150, 600, 1200]
+BAIT_COST = [0, 7, 50, 150, 600, 2000]
 PRESTIGE_LEVEL = 0
 
 def catch_fish_and_calculate_earnings(iterations, bait_level: int, rod_level: int):

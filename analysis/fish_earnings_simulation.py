@@ -9,7 +9,7 @@ WORKERS = 10
 
 ROD_LEVEL = 4
 BAIT_LEVEL = 5
-BAIT_COST = [0, 7, 50, 150, 600, 1200]
+BAIT_COST = [0, 7, 50, 150, 600, 2000]
 PRESTIGE_LEVEL = 0
 
 def catch_fish_and_calculate_earnings(iterations):
