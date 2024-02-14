@@ -192,19 +192,19 @@ class Fishing(AbstractSerializableEntity):
         fishes = self.get_fishes_with_total_count_difference()
         return FISH_LIBRARY.calculate_cumulative_money(fishes=fishes)
     
-    # tuple[entry, caught?, prestige_level]
-    def get_fish_dex(self, rarity: Optional[str] = None) -> list[tuple[FishEntry, bool, int]]:
+    # tuple[entry, caught?, prestige_level, prestige_percentage]
+    def get_fish_dex(self, rarity: Optional[str] = None) -> list[tuple[FishEntry, bool, int, float]]:
         caught_ids = self.get_fishes()
 
         fish_dex = FISH_LIBRARY.generate_fish_dex(caught_ids=caught_ids, rarity=rarity)
         fish_dex_with_prestige = []
         for entry, caught in fish_dex:
             if not caught:
-                fish_dex_with_prestige.append((entry, caught, 0))
+                fish_dex_with_prestige.append((entry, caught, 0, 0))
             else:
                 fish_sold = self.get_fish_sold(fish_id=entry.id)
-                prestige_level = FISH_LIBRARY.get_prestige_level(fish_sold=fish_sold)
-                fish_dex_with_prestige.append((entry, caught, prestige_level))
+                level, percentage = FISH_LIBRARY.get_prestige_level_and_percentage(fish_sold=fish_sold)
+                fish_dex_with_prestige.append((entry, caught, level, percentage))
         return fish_dex_with_prestige
     
     def get_fish_dex_stats(self) -> str:

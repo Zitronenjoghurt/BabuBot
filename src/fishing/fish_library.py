@@ -5,7 +5,7 @@ from src.fishing.fish_entry import FishEntry
 from src.fishing.fish_rarity import FishRarity
 from src.utils.file_operations import construct_path, file_to_dict, file_to_list
 from src.utils.probability import WeightedSelector
-from src.utils.progress_bar import progress_bar
+from src.utils.progress_bar import progress_bar, get_progress_ratio
 
 DATA_FILE_PATH = construct_path("src/data/fish.json")
 BAIT_LEVELS_FILE_PATH = construct_path("src/data/bait_levels.json")
@@ -174,6 +174,12 @@ class FishLibrary():
             if fish_sold < required:
                 return level - 1
         return MAX_PRESTIGE
+    
+    def get_prestige_level_and_percentage(self, fish_sold: int) -> tuple[int, float]:
+        level = self.get_prestige_level(fish_sold=fish_sold)
+        if self.prestige_is_maxed(level=level):
+            return level, 1
+        return level, get_progress_ratio(fish_sold, PRESTIGE_LEVELS[level], PRESTIGE_LEVELS[level + 1]) * 100
 
     def get_prestige_bonus(self, fish_sold: int) -> float:
         level = self.get_prestige_level(fish_sold=fish_sold)
