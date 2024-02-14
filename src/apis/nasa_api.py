@@ -58,12 +58,14 @@ class NasaApi(AbstractApiController):
                 LOGGER.info(f"Successfully collected 100 new APOD from the NASA API.")
             else:
                 LOGGER.error(f"No list was returned while trying to cache new APOD.")
-            self.fetching = False
         except UnexpectedResponseCodeError as e:
+            self.fetching = False
             LOGGER.error(f"An unexpected response code was returned while trying to cache new APOD: {e}")
         except asyncio.TimeoutError as e:
+            self.fetching = False
             LOGGER.error(f"A timeout happened while trying to cache new APOD: {e}")
         except aiohttp.ClientConnectionError as e:
+            self.fetching = False
             LOGGER.error(f"A connection error occured while trying to cache new APOD: {e}")
 
 class APOD():

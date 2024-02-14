@@ -62,10 +62,13 @@ class RandomCatApi(AbstractEmbedApi):
                 LOGGER.error(f"No list was returned while trying to cache new cat images.")
             self.fetching = False
         except UnexpectedResponseCodeError as e:
+            self.fetching = False
             LOGGER.error(f"An unexpected response code was returned while trying to cache new cat images: {e}")
         except asyncio.TimeoutError as e:
+            self.fetching = False
             LOGGER.error(f"A timeout happened while trying to cache new cat images: {e}")
         except aiohttp.ClientConnectionError as e:
+            self.fetching = False
             LOGGER.error(f"A connection error occured while trying to cache new cat images: {e}")
     
     async def generate_embed(self) -> discord.Embed:
