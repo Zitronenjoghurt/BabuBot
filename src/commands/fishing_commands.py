@@ -12,6 +12,9 @@ from src.fishing.fish_library import FishEntry, FishLibrary
 from src.logging.logger import LOGGER
 from src.scrollables.fish_basket_scrollable import FishBasketScrollable
 from src.scrollables.fish_dex_scrollable import FishDexScrollable
+from src.scrollables.fish_sold_toplist_scrollable import FishSoldToplistScrollable
+from src.scrollables.money_earned_toplist_scrollable import MoneyEarnedToplistScrollable
+from src.scrollables.prestige_points_toplist_scrollable import PrestigePointsToplistScrollable
 from src.ui.scrollable_embed import ScrollableEmbed
 from src.utils.discord_time import relative_time, long_date_time
 from src.utils.interaction_operations import send_scrollable
@@ -22,6 +25,7 @@ ITEM_LIBRARY = ItemLibrary.get_instance()
 
 AVAILABLE_BAIT = ITEM_LIBRARY.get_available_bait()
 AVAILABLE_RARITIES = ["Common", "Uncommon", "Rare", "Legendary", "Mythical"]
+TOPLISTS = ["Prestige Points", "Money Earned", "Fish Sold"]
 
 class FishingCommands(commands.Cog):
     def __init__(self, bot):
@@ -259,6 +263,37 @@ class FishingCommands(commands.Cog):
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="fish-toplist", description="Display different toplists")
+    @app_commands.describe(category="The kind of toplist you want to look at")
+    @app_commands.checks.cooldown(1, 5)
+    async def fish_toplist(self, interaction: discord.Interaction, category: str):
+        await interaction.response.defer()
+
+        if category not in TOPLISTS:
+            return await interaction.followup.send(embed=ErrorEmbed(title="INVALID CATEGORY", message="The category you have provided does not exist."))
+
+        match category:
+            case "Prestige Points":
+                users: list[User] = await User.global_prestige_point_toplist()
+                scrollable = await PrestigePointsToplistScrollable.create(users=users)
+            case "Money Earned":
+                users: list[User] = await User.global_fishing_money_earned_toplist()
+                scrollable = await MoneyEarnedToplistScrollable.create(users=users)
+            case "Fish Sold":
+                users: list[User] = await User.global_fish_sold_toplist()
+                scrollable = await FishSoldToplistScrollable.create(users=users)
+            case _:
+                return await interaction.followup.send(embed=ErrorEmbed(title="INVALID CATEGORY", message="The category you have provided does not exist."))
+        
+        embed = ScrollableEmbed(
+            scrollable=scrollable,
+            title=category,
+            color=discord.Color.from_str("#FFFFFF")
+        )
+        await embed.initialize()
+
+        await send_scrollable(interaction=interaction, embed=embed, followup=True)
+
     @app_commands.command(name="fish-prestige", description="Retrieve your prestige status of a fish")
     @app_commands.describe(fish="The fish you want to know the prestige status of")
     async def fish_prestige(self, interaction: discord.Interaction, fish: str):
@@ -284,14 +319,6 @@ class FishingCommands(commands.Cog):
         file = discord.File(FISH_LIBRARY.get_prestige_image_path(prestige_lvl), filename=FISH_LIBRARY.get_prestige_image_file_name(prestige_lvl))
         embed.set_image(url=FISH_LIBRARY.get_prestige_image_url(prestige_lvl))
         await interaction.response.send_message(file=file, embed=embed)
-
-    @fish_dex.autocomplete("rarity")
-    async def fish_rarity(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-        return [
-            app_commands.Choice(name=rarity, value=rarity)
-            for rarity in AVAILABLE_RARITIES
-            if current.lower() in rarity.lower()
-        ]
     
     @app_commands.command(name="prestige", description="Retrieve all important information about your overall prestige")
     @app_commands.describe(member="The user you want to check the prestige of")
@@ -322,6 +349,22 @@ class FishingCommands(commands.Cog):
         embed.add_field(name="TOTAL POINTS EARNED", value=f"`{user.fishing.get_total_prestige_earned()}🏅`", inline=False)
         embed.add_field(name="TOTAL PROGRESS", value=f"**`{round(user.fishing.get_total_prestige_progress(), 4)}%`**", inline=False)
         await interaction.response.send_message(embed=embed)
+
+    @fish_dex.autocomplete("rarity")
+    async def fish_rarity(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        return [
+            app_commands.Choice(name=rarity, value=rarity)
+            for rarity in AVAILABLE_RARITIES
+            if current.lower() in rarity.lower()
+        ]
+    
+    @fish_toplist.autocomplete("category")
+    async def fish_toplist_category(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        return [
+            app_commands.Choice(name=category, value=category)
+            for category in TOPLISTS
+            if current.lower() in category.lower()
+        ]
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(

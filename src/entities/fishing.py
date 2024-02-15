@@ -248,6 +248,12 @@ class Fishing(AbstractSerializableEntity):
 
         return total_count, money 
     
+    def get_total_fish_sold(self) -> int:
+        total_fish_sold = 0
+        for id in self.caught_fish.keys():
+            total_fish_sold += self.get_fish_sold(fish_id=id)
+        return total_fish_sold
+
     def get_prestige_level(self, fish_id: str) -> int:
         sold = self.get_fish_sold(fish_id=fish_id)
         return FISH_LIBRARY.get_prestige_level(fish_sold=sold)

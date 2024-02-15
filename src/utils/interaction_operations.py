@@ -11,11 +11,17 @@ async def send_in_channel(interaction: discord.Interaction, message: Optional[st
         else:
             await channel.send(content=message)
 
-async def send_scrollable(interaction: discord.Interaction, embed: ScrollableEmbed, timeout_after: int = 120):
+async def send_scrollable(interaction: discord.Interaction, embed: ScrollableEmbed, timeout_after: int = 120, followup: bool = False):
     if embed.scrollable.is_scrollable():
         scrollable_view = ScrollableView(embed=embed, user_id=interaction.user.id)
-        await interaction.response.send_message(embed=embed, view=scrollable_view)
+        if not followup:
+            await interaction.response.send_message(embed=embed, view=scrollable_view)
+        else:
+            await interaction.followup.send(embed=embed, view=scrollable_view)
         scrollable_view.message = await interaction.original_response()
         await scrollable_view.timeout_after(timeout_after)
     else:
-        await interaction.response.send_message(embed=embed)
+        if not followup:
+            await interaction.response.send_message(embed=embed)
+        else:
+            await interaction.followup.send(embed=embed)

@@ -120,6 +120,24 @@ class User(AbstractDatabaseEntity):
 
         return WordCounterToplist(sorted_toplist)
     
+    @staticmethod
+    async def global_prestige_point_toplist() -> list['User']:
+        users: list[User] = [user for user in await User.findall() if user.fishing.unlocked]
+        users.sort(key=lambda user: user.fishing.get_current_prestige_points(), reverse=True)
+        return users
+    
+    @staticmethod
+    async def global_fishing_money_earned_toplist() -> list['User']:
+        users: list[User] = [user for user in await User.findall() if user.fishing.unlocked]
+        users.sort(key=lambda user: user.fishing.get_cumulative_money(), reverse=True)
+        return users
+    
+    @staticmethod
+    async def global_fish_sold_toplist() -> list['User']:
+        users: list[User] = [user for user in await User.findall() if user.fishing.unlocked]
+        users.sort(key=lambda user: user.fishing.get_total_fish_sold(), reverse=True)
+        return users
+    
     def get_created_time(self) -> datetime:
         return datetime.fromtimestamp(self.created_stamp)
     
