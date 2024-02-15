@@ -292,6 +292,36 @@ class FishingCommands(commands.Cog):
             for rarity in AVAILABLE_RARITIES
             if current.lower() in rarity.lower()
         ]
+    
+    @app_commands.command(name="prestige", description="Retrieve all important information about your overall prestige")
+    @app_commands.describe(member="The user you want to check the prestige of")
+    async def prestige(self, interaction: discord.Interaction, member: Optional[discord.Member]):
+        if member:
+            target = member
+            userid = str(member.id)
+            self_target = False
+        else:
+            target = interaction.user
+            userid = str(interaction.user.id)
+            self_target = True
+
+        user: User = await User.load(userid=userid)
+        if not user.fishing.unlocked:
+            if self_target:
+                embed = ErrorEmbed(title="NO FISHER", message="You did not start your fishing journey yet! Try buying a fishing rod with `/buy item:R1` (you can get some money with `/daily`).")
+            else:
+                embed = ErrorEmbed(title="NO FISHER", message="The specified user did not start their fishing journey yet! Maybe help them get started c:")
+            return await interaction.response.send_message(embed=embed)
+
+        embed = discord.Embed(
+            title="PRESTIGE",
+            color=target.color
+        )
+        embed.set_author(name=target.display_name, icon_url=target.display_avatar.url)
+        embed.add_field(name="AVAILABLE POINTS", value=f"`{user.fishing.get_current_prestige_points()}🏅`", inline=False)
+        embed.add_field(name="TOTAL POINTS EARNED", value=f"`{user.fishing.get_total_prestige_earned()}🏅`", inline=False)
+        embed.add_field(name="TOTAL PROGRESS", value=f"**`{round(user.fishing.get_total_prestige_progress(), 4)}%`**", inline=False)
+        await interaction.response.send_message(embed=embed)
 
 async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str) -> None:
     embed = discord.Embed(

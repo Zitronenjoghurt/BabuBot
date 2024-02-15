@@ -7,8 +7,10 @@ from src.fishing.fish_library import FishLibrary, PRESTIGE_LEVELS
 FISHING_COOLDOWN = 300
 FISH_LIBRARY = FishLibrary.get_instance()
 
+# Since prestige was added afterwards, the prestige points earned from fishing are calculated from the available data
+# Though if prestige points are earned through ways other than fishing, they will be count into the "earned_prestige"
 class Fishing(AbstractSerializableEntity):
-    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish", "next_fishing_stamp", "leave_one"]
+    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish", "next_fishing_stamp", "leave_one", "spent_prestige", "earned_prestige"]
 
     def __init__(
             self,
@@ -17,7 +19,9 @@ class Fishing(AbstractSerializableEntity):
             rod_level: Optional[int] = None,
             caught_fish: Optional[dict] = None,
             next_fishing_stamp: Optional[float] = None,
-            leave_one: Optional[bool] = None
+            leave_one: Optional[bool] = None,
+            spent_prestige: Optional[int] = None,
+            earned_prestige: Optional[int] = None
         ) -> None:
         if unlocked is None:
             unlocked = False
@@ -31,6 +35,10 @@ class Fishing(AbstractSerializableEntity):
             next_fishing_stamp = 0
         if leave_one is None:
             leave_one = False
+        if spent_prestige is None:
+            spent_prestige = 0
+        if earned_prestige is None:
+            earned_prestige = 0
         
         self.unlocked = unlocked
         self.started_at = started_at
@@ -38,6 +46,8 @@ class Fishing(AbstractSerializableEntity):
         self.caught_fish = caught_fish
         self.next_fishing_stamp = next_fishing_stamp
         self.leave_one = leave_one
+        self.spent_prestige = spent_prestige
+        self.earned_prestige = earned_prestige
 
     def unlock(self) -> None:
         if not self.unlocked:
@@ -219,6 +229,12 @@ class Fishing(AbstractSerializableEntity):
         current = fish_data.get("count", 0)
 
         return max(total-current, 0)
+    
+    def get_fish_with_sold_amount(self) -> list[tuple[str, int]]:
+        result = []
+        for fish_id in self.caught_fish.keys():
+            result.append((fish_id, self.get_fish_sold(fish_id=fish_id)))
+        return result
 
     def get_fish_sell_amount_and_money(self) -> tuple[int, int]:
         fishes_to_sell = self.get_fishes_to_sell()
@@ -248,9 +264,30 @@ class Fishing(AbstractSerializableEntity):
             bar = f"{FISH_LIBRARY.get_prestige_emoji(level=prestige_level+1)} "+FISH_LIBRARY.get_prestige_progress(level=prestige_level, sold=sold)
             return f"{bar}\nSold: **{sold} out of {next_sold}**"
         
+    def get_total_prestige_progress(self) -> float:
+        maximum_needed = FISH_LIBRARY.get_maximum_needed_fish_sold()
+        maximum_needed_total = maximum_needed * FISH_LIBRARY.fish_count
+        
+        total_fish_sold = 0
+        for id in self.caught_fish.keys():
+            total_fish_sold += min(self.get_fish_sold(fish_id=id), maximum_needed)
+        return total_fish_sold/maximum_needed_total
+        
     def get_prestige_stats(self) -> str:
         prestige_stats = {lvl: 0 for lvl in range(0, 6)}
         for fish_id in self.caught_fish.keys():
             level = self.get_prestige_level(fish_id=fish_id)
             prestige_stats[level] += 1
         return "\n".join(f"**`{count}x {lvl}★`**" for lvl, count in prestige_stats.items())
+    
+    def get_total_prestige_earned(self) -> int:
+        fish_with_sold_amount = self.get_fish_with_sold_amount()
+
+        total = self.earned_prestige
+        for fish_id, fish_sold in fish_with_sold_amount:
+            total += FISH_LIBRARY.get_prestige_points(fish_id=fish_id, fish_sold=fish_sold)
+        return total
+    
+    def get_current_prestige_points(self) -> int:
+        total = self.get_total_prestige_earned()
+        return total - self.spent_prestige

@@ -41,6 +41,15 @@ PRESTIGE_COLORS = {
     5: "#29d8ff"
 }
 
+# How much prestige points fish of different rarity and prestige level give in total
+PRESTIGE_POINTS = [
+    [1, 2, 3, 4, 5],
+    [3, 5, 7, 10, 12],
+    [5, 8, 12, 16, 20],
+    [10, 15, 20, 25, 30],
+    [20, 30, 40, 50, 60]
+]
+
 class FishLibrary():
     _instance = None
 
@@ -54,6 +63,7 @@ class FishLibrary():
         self.probabilities: list[list[WeightedSelector]] = []
         self._initialize_entries()
         self._initialize_bait_levels()
+        self.fish_count = len(self.fish_by_id)
 
     def _initialize_entries(self) -> None:
         fish_data = file_to_dict(DATA_FILE_PATH)
@@ -254,3 +264,24 @@ class FishLibrary():
 
         bonus = PRESTIGE_BONUS[prestige]
         return int(price + bonus*price)
+    
+    def get_prestige_points(self, fish_id: str, fish_sold: int) -> int:
+        prestige_level = self.get_prestige_level(fish_sold=fish_sold)
+        if prestige_level == 0:
+            return 0
+        
+        fish_entry = self.get_by_id(id=fish_id)
+        if not isinstance(fish_entry, FishEntry):
+            return 0
+        rarity = fish_entry.rarity.value
+        
+        try:
+            return PRESTIGE_POINTS[rarity-1][prestige_level-1]
+        except IndexError:
+            raise RuntimeError(f"Cant calculate prestige points from rarity {rarity} and prestige level {prestige_level}, prestige points for this configuration werent defined yet.")
+        
+    def get_maximum_needed_fish_sold(self) -> int:
+        return list(PRESTIGE_LEVELS.values())[-1]
+    
+    def get_fish_count(self) -> int:
+        return self.fish_count
