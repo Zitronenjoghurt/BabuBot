@@ -84,8 +84,8 @@ class InventoryCommands(commands.Cog):
         user: User = await User.load(userid=userid)
         items_mapped = user.inventory.map_items_by_id_and_count()
 
-        items = ITEM_LIBRARY.items_from_id_and_count(data=items_mapped, category=category)
-        scrollable = await InventoryScrollable.create(items=items)
+        items_with_count = ITEM_LIBRARY.items_with_count_from_id_with_count(data=items_mapped, category=category)
+        scrollable = await InventoryScrollable.create(items_with_count=items_with_count)
 
         title = "INVENTORY"
         if category:

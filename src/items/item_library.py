@@ -38,7 +38,7 @@ class ItemLibrary():
             ItemLibrary._instance = ItemLibrary()
         return ItemLibrary._instance
     
-    def items_from_id_and_count(self, data: dict[str, int], category: Optional[str] = None) -> list[Item]:
+    def items_with_count_from_id_with_count(self, data: dict[str, int], category: Optional[str] = None) -> list[tuple[Item, int]]:
         items = []
         for id, count in data.items():
             item = self.get_item_by_id(id)
@@ -46,8 +46,7 @@ class ItemLibrary():
                 continue
             if category and item.category != category.lower():
                 continue
-            item.data["count"] = count
-            items.append(item)
+            items.append((item, count))
         return items
     
     def get_categories(self) -> list[str]:
