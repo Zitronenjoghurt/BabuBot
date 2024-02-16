@@ -1,6 +1,7 @@
 from typing import Optional
 from src.entities.abstract_serializable_entity import AbstractSerializableEntity
 from src.entities.inventory_item import InventoryItem
+from src.logging.logger import LOGGER
 
 class Inventory(AbstractSerializableEntity):
     SERIALIZED_PROPERTIES = ["items"]
@@ -37,18 +38,23 @@ class Inventory(AbstractSerializableEntity):
     def add_item(self, item: InventoryItem, count: int = 1) -> None:
         if item.unique:
             self.items.append(item)
+            LOGGER.debug(f"INVENTORY: Appended item entry {item.id}")
         else:
             inv_item = self.get_item(id=item.id)
             if isinstance(inv_item, InventoryItem):
                 inv_item.add(count)
+                LOGGER.debug(f"INVENTORY: Found item entry {item.id} and added count={count}")
             else:
                 self.items.append(item)
                 item.add(count)
+                LOGGER.debug(f"INVENTORY: Appended item entry {item.id} and added count={count}")
 
     def remove_item(self, id: str) -> None:
+        LOGGER.debug(f"INVENTORY: Removed item entry {id}")
         self.items = [i for i in self.items if i.id != id]
-
+  
     def consume_item(self, id: str, amount: int = 1) -> tuple[bool, str]:
+        LOGGER.debug(f"INVENTORY: Item {id} supposed to be consumed {amount} times")
         item = self.get_item(id=id)
         if not isinstance(item, InventoryItem):
             return False, "You dont have this item."
@@ -59,6 +65,7 @@ class Inventory(AbstractSerializableEntity):
             item_count = item.data.get("count", 0)
             if item_count > amount:
                 item.data["count"] -= amount
+                LOGGER.debug(f"INVENTORY: Removed count={amount} from item {id}")
                 return True, ""
             if item_count < amount:
                 return False, f"You only have `{item_count}x`"

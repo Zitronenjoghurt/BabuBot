@@ -2,6 +2,7 @@ from typing import Optional
 from src.constants.config import Config
 from src.entities.inventory_item import InventoryItem
 from src.entities.user import User
+from src.logging.logger import LOGGER
 
 CONFIG = Config.get_instance()
 IMAGE_PATH = "src/assets/{category}/{name}.png"
@@ -80,6 +81,7 @@ class Item():
         return True, ""
     
     async def buy(self, user: User, amount: int = 1) -> tuple[bool, str]:
+        LOGGER.debug(f"INVENTORY: Executing buy item id {self.id} for user {user.display_name} ({user.userid}) amount={amount}")
         status, message = self.can_buy(user=user, amount=amount)
         if not status:
             return False, message
@@ -89,7 +91,6 @@ class Item():
         inventory_item = self.get_inventory_item()
         user.inventory.add_item(inventory_item, count=amount)
         self.on_buy(user=user)
-        await user.save()
         return True, ""
     
     def on_buy(self, user: User) -> None:

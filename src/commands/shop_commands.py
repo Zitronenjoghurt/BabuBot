@@ -86,7 +86,7 @@ class ShopCommands(commands.Cog):
                 confirm_embed.set_footer(text="Check your inventory with /inventory")
                 if buy_item.buy_message:
                     confirm_embed.add_field(name="Important!", value=buy_item.buy_message)
-                LOGGER.debug(f"SHOP: User {interaction.user.name} ({interaction.user.id}) has bought item '{buy_item.display_name}' ({buy_item.id}) {amount}x for {buy_item.price}")
+                LOGGER.debug(f"SHOP: User {interaction.user.name} ({interaction.user.id}) has bought item '{buy_item.display_name}' ({buy_item.id}) {amount}x for {buy_item.price*amount}")
             else:
                 confirm_embed.title = "PURCHASE FAILED"
                 confirm_embed.description = message
