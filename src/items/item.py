@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Optional
 from src.constants.config import Config
 from src.entities.inventory_item import InventoryItem
@@ -52,7 +53,7 @@ class Item():
         return InventoryItem(
             id=self.id,
             unique=self.unique,
-            data=self.data.copy()
+            data=deepcopy(self.data)
         )
     
     def get_emoji(self) -> str:
