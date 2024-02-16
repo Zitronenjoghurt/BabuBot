@@ -42,6 +42,7 @@ class Inventory(AbstractSerializableEntity):
         else:
             inv_item = self.get_item(id=item.id)
             if isinstance(inv_item, InventoryItem):
+                LOGGER.debug(f"INVENTORY: Loaded inventory item with id {inv_item.id} and data {inv_item.data} from USER")
                 inv_item.add(count)
                 LOGGER.debug(f"INVENTORY: Found item entry {item.id} and added count={count}")
             else:

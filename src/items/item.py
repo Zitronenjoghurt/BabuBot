@@ -90,6 +90,7 @@ class Item():
         if not success:
             return False, f"You need at least **`{self.price}{CONFIG.CURRENCY}`** to buy this item."
         inventory_item = self.get_inventory_item()
+        LOGGER.debug(f"INVENTORY: loaded inventory item from library with id {inventory_item.id} and data {inventory_item.data}")
         user.inventory.add_item(inventory_item, count=amount)
         self.on_buy(user=user)
         return True, ""
