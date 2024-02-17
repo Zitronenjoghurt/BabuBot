@@ -743,6 +743,102 @@
         "max_size": 100,
         "description": "Blather: Red snappers are gregarious fish that often form schools close to reefs and shipwrecks. They are a prized food fish, but because of demand, other species are often served as 'red snapper'. They usually live up to 50 years. The oldest recorded red snapper was thought to be 57."
     },
+    "barracuda": {
+        "name": "Barracuda",
+        "scientific": "Sphyraena",
+        "type": "salt",
+        "color": "#5E718E",
+        "emoji_id": "1208420301336084510",
+        "rarity": 3,
+        "price": 280,
+        "min_size": 60,
+        "max_size": 150,
+        "description": "The barracuda is a fascinating marine creature known for its fearsome appearance and remarkable hunting skills. Belonging to the genus Sphyraena, the barracuda is easily recognizable by its elongated body, sharp, pointed head, and large mouth filled with razor-sharp teeth. These fish can grow to be quite large, with some species reaching up to 6 feet in length. Barracudas are primarily found in the warmer waters of the world's oceans, where they lurk in shallow waters waiting to ambush their prey. They rely on their incredible speed and burst of acceleration to catch other fish, squid, and even small sharks. Their silver scales and sleek body allow them to blend into the surrounding water, making it difficult for both prey and predators to spot them. Despite their fearsome reputation, barracudas are not generally considered dangerous to humans unless provoked. They are a popular subject of marine photography and an exciting challenge for sport fishermen, contributing to the mystique and allure that surrounds these powerful predators of the sea."
+    },
+    "cuban_gar": {
+        "name": "Cuban Gar",
+        "scientific": "Atractosteus tristoechus",
+        "type": "salt",
+        "color": "#DDCEBF",
+        "emoji_id": "1208421946438451210",
+        "rarity": 3,
+        "price": 310,
+        "min_size": 50,
+        "max_size": 200,
+        "description": "Blather: Their long faces and large mouths make them look like alligators. Some can grow up to three yards. They are ancient fish that haven't changed since they first appeared millions of years ago. They breathe not only through gills, but also by sticking their mouths above the surface of the water. Gar eggs are poisonous, so people all over the world are advised to not eat them--no exceptions."
+    },
+    "squid": {
+        "name": "Squid",
+        "scientific": "Teuthida",
+        "type": "salt",
+        "color": "#BDA499",
+        "emoji_id": "1208422500174667916",
+        "rarity": 3,
+        "price": 260,
+        "min_size": 15,
+        "max_size": 60,
+        "description": "Blather: People assume squids have legs, but those are actually arms. There are 10 in all; two are used to grab prey. To swim, they twist their fins and expel water from inside their bodies to allow for fluid motion. The ink they shoot when threatened forms into the shape of a squid, acting as a sort of body double."
+    },
+    "mantis_shrimp": {
+        "name": "Mantis Shrimp",
+        "scientific": "Stomatopoda",
+        "type": "salt",
+        "color": "#C68556",
+        "emoji_id": "1208423448712314890",
+        "rarity": 3,
+        "price": 315,
+        "min_size": 5,
+        "max_size": 18,
+        "description": "Blather: Mantis shrimps have long, sickle-shaped legs and thick carapaces covering both their bodies and tails. They strike captured prey with claws powerful enough to crack the shells of even the toughest crabs. They are a popular dish with fans of seafood, though females with eggs are worth more than males."
+    },
+    "octopus": {
+        "name": "Octopus",
+        "scientific": "Octopus Vulgaris",
+        "type": "salt",
+        "color": "#F6A2A7",
+        "emoji_id": "1208424094530281472",
+        "rarity": 3,
+        "price": 345,
+        "min_size": 20,
+        "max_size": 100,
+        "description": "Blather: Many people think octopuses have eight legs, but those are not legs. Their tentacles are actually arms. They have a strange anatomy, with their head located between their body and arms. The flexible arms are perfect for catching all kinds of crab, shrimp, and shellfish, especially in reefs. When attacked by predators, octopuses emit a black ink that spreads through the water. This greatly reduces visibility and allows them to escape, making them highly skilled at disappearing."
+    },
+    "monkfish": {
+        "name": "Monkfish",
+        "scientific": "Lophius",
+        "type": "salt",
+        "color": "#BDA499",
+        "emoji_id": "1208425461734965318",
+        "rarity": 3,
+        "price": 360,
+        "min_size": 70,
+        "max_size": 150,
+        "description": "The monkfish, also known as the anglerfish, is a distinctive and somewhat bizarre-looking sea creature found in the Atlantic and Mediterranean waters. Notorious for its wide, gaping mouth and sharp teeth, the monkfish has a unique method of hunting: it uses a fleshy growth (esca) on its head as a lure to attract prey. This adaptation allows the monkfish to remain mostly stationary on the sea floor, waiting for unsuspecting fish to come close enough to be engulfed in one swift motion. Despite its unappealing appearance, the monkfish is highly prized for its tail meat, often referred to as 'poor man's lobster' due to its sweet, firm texture. This culinary delight contrasts sharply with the monkfish's menacing look, making it a fascinating subject of both marine biology and gastronomy."
+    },
+    "striped_beakfish": {
+        "name": "Striped Beakfish",
+        "scientific": "Oplegnathus fasciatus",
+        "type": "salt",
+        "color": "#595757",
+        "emoji_id": "1208426288717758484",
+        "rarity": 3,
+        "price": 290,
+        "min_size": 10,
+        "max_size": 80,
+        "description": "Blather: Striped beakfish stand out thanks to the seven stripes adorning their white bodies. Their natural curiosity and strong pull make them a popular target of anglers, but they're no easy catch. They have strong teeth that allow them to make short work of sea creatures with tough shells. This means that both urchins and mollusks need to be careful, lest they become meals for these fish."
+    },
+    "crayfish": {
+        "name": "Crayfish",
+        "scientific": "Palinuridae",
+        "type": "fresh",
+        "color": "#B4202A",
+        "emoji_id": "1208427661387636817",
+        "rarity": 3,
+        "price": 270,
+        "min_size": 4,
+        "max_size": 12,
+        "description": "Blather: These shrimp relatives are usually found in ponds and rivers, typically making them easy to catch. The reason for this strange habitat is that crawfish are plentiful and will eat just about anything. Eating plant material makes their bodies red, but only eating fish and meat will turn their bodies blue. A red color indicates they are eating a healthy and balanced diet, so red is the ideal for the species."
+    },
     "oarfish": {
         "name": "Oarfish",
         "scientific": "Regalecus glesne",
@@ -802,6 +898,30 @@
         "min_size": 5,
         "max_size": 60,
         "description": "Blather: Football fish live in parts of the ocean so deep that light does not reach them. Their lanterns, which they sway back and forth to lure prey, can emit light thanks to special bacteria. When prey gets near, they shoot a luminescent liquid and snatch the prey while it's blinded by the light. Only females possess the useful lantern. They can grow to be about two feet by maturity. Males are small, less than two inches in length."
+    },
+    "betta": {
+        "name": "Betta",
+        "scientific": "Betta splendens",
+        "type": "fresh",
+        "color": "#8BA1F6",
+        "emoji_id": "1208428007270649956",
+        "rarity": 4,
+        "price": 1700,
+        "min_size": 3,
+        "max_size": 7,
+        "description": "Blather: The betta has long fins and beautiful coloring. It is a tropical fish popular in decorative aquariums. They're very territorial and will fight to complete exhaustion, so aquarists must keep them carefully. Rarely do such beauty and violence commingle outside the rowdiest of sunset-viewing parties."
+    },
+    "moray_eel": {
+        "name": "Moray Eel",
+        "scientific": "Uropterygius xanthopterus",
+        "type": "salt",
+        "color": "#D6A851",
+        "emoji_id": "1208428949882019960",
+        "rarity": 4,
+        "price": 1600,
+        "min_size": 150,
+        "max_size": 350,
+        "description": "Blather: Moray eels can often be seen sticking just their heads out from between two rocks. When unsuspecting prey approaches, they dart out to snatch it up into their sharp-toothed mouths. Once moray eels have their teeth in you, it's hard to get away, making moray-eel bites no trifling matter. Their long, finless bodies are covered in tough, snakelike skin that often gets used as leather."
     },
     "whaleshark": {
         "name": "Whaleshark",
