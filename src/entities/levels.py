@@ -1,4 +1,4 @@
-import math
+import random
 from datetime import datetime, timedelta
 from typing import Optional
 from src.entities.abstract_serializable_entity import AbstractSerializableEntity
@@ -44,3 +44,26 @@ class Levels(AbstractSerializableEntity):
 
         self.total_xp = total_xp
         self.next_gain = next_gain
+
+    def get_level(self) -> int:
+        return total_xp_to_level(total_xp=self.total_xp)
+
+    def can_gain(self) -> bool:
+        now_stamp = datetime.now().timestamp()
+        if now_stamp >= self.next_gain:
+            return True
+        return False
+
+    # Returns true if the xp gain lead to a level up
+    def gain(self) -> bool:
+        if not self.can_gain():
+            return False
+        xp_gain = random.randint(MIN_XP, MAX_XP)
+        next_gain = datetime.now() + timedelta(minutes=XP_COOLDOWN_MINS)
+        
+        level_before = self.get_level()
+        self.total_xp += xp_gain
+        self.next_gain = next_gain.timestamp()
+        level_after = self.get_level()
+
+        return level_after > level_before
