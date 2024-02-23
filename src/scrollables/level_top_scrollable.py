@@ -28,6 +28,6 @@ class LevelTopScrollable(AbstractScrollableQuery):
             position = i + position_offset
             level = user.levels.get_level()
             _, ratio = user.levels.get_level_progress()
-            string = f"#**{position}** ❥ **`{level} ({ratio*100}%)`** | **{user.get_display_name()}**"
+            string = f"#**{position}** ❥ **`{level} ({round(ratio*100, CONFIG.DECIMAL_DIGITS)}%)`** | **{user.get_display_name()}**"
             strings.append(string)
         return "\n".join(strings)
