@@ -147,10 +147,11 @@ async def run_relationship_action(action: RelationshipAction, interaction: disco
     await relationship.save()
 
     embed.set_footer(text="Use /relationship status @user to check your relationship")
-    await interaction.response.send_message(embed=embed)
 
     if status:
-        await interaction.followup.send(content=f"<@{member.id}> look!")
+        await interaction.response.send_message(content=f"<@{member.id}> look!", embed=embed)
+    else:
+        await interaction.response.send_message(embed=embed)
 
 def generate_postive_embed(user: discord.User|discord.Member, target: discord.Member, message: str, verb: str) -> discord.Embed:
     embed = discord.Embed(title=f"{user.display_name} {verb} {target.display_name}", timestamp=datetime.now())
