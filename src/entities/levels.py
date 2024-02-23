@@ -111,7 +111,7 @@ class Levels(AbstractSerializableEntity):
         level = self.get_level()
 
         reward = 0
-        for lvl in range(self.redeemed_till_level, level+1):
+        for lvl in range(self.redeemed_till_level+1, level+1):
             reward += LEVEL_REWARD[lvl]
         
         self.redeemed_till_level = level
