@@ -7,7 +7,7 @@ from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.economy import Economy
 from src.entities.inventory import Inventory
 from src.entities.fishing import Fishing
-from entities.levels import Levels
+from src.entities.levels import Levels
 from src.entities.message_statistics import MessageStatistics
 from src.entities.profile import Profile
 from src.entities.relationship import Relationship

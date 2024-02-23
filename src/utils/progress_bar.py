@@ -14,4 +14,4 @@ def progress_bar(current: int, start: int, end: int, length: int) -> tuple[str, 
     
     progress_bar_str = FULL * full_blocks + EMPTY * empty_blocks
     
-    return progress_bar_str, round(progress_ratio, 2)
+    return progress_bar_str, round(progress_ratio, 4)

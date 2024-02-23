@@ -2,8 +2,12 @@ import asyncio
 import discord
 from discord import app_commands
 from discord.ext import commands
+from src.constants.config import Config
+from src.entities.user import User
 from src.logging.logger import LOGGER
 import time
+
+CONFIG = Config.get_instance()
 
 class CommmandEvents(commands.Cog):
     def __init__(self, bot):
@@ -29,6 +33,18 @@ class CommmandEvents(commands.Cog):
             LOGGER.debug(f"Command {command_name} by {interaction.user.name} ({interaction.user.id}) was successfully executed in {execution_time:.2f} seconds")
         else:
             LOGGER.debug(f"Command {command_name} by {interaction.user.name} ({interaction.user.id}) was successfully executed but start time was not recorded")
+
+        # Checking for user levelup reward
+        user: User = await User.load(userid=str(interaction.user.id))
+        reward, first_time = user.levels.collect_reward()
+        if reward > 0:
+            if first_time:
+                await interaction.followup.send(content=f"*Pssst... through your recent leveups you have gained `{reward}{CONFIG.CURRENCY}`.*\n\nSince this is your first time:\n- You gain a certain amount of currency by being active.\n- Whenever you use a command anytime after you have leveled up, you will receive your levelup reward.\n- You can check your current level with `/level`!", ephemeral=True)
+            else:
+                await interaction.followup.send(content=f"*Pssst... through your recent leveups you have gained `{reward}{CONFIG.CURRENCY}`.*", ephemeral=True)
+            user.economy.add_currency(amount=reward)
+            LOGGER.info(f"LEVEL User {interaction.user.name} ({interaction.user.id}) has collected {reward} currency as a levelup reward")
+            await user.save()
 
     async def check_command_completion(self, interaction_id: int, command_name: str, user_id: int):
         await asyncio.sleep(120)

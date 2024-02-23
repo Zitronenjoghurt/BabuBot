@@ -16,8 +16,6 @@ bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents, enable_debug_e
 
 LOGGER.info("Bot initialized")
 
-# Tomorrow is maths exam and I dont have the mental capacity to commit something BUT I dont wanna end my streak for 2024 so here it is, the commit of despair
-
 @bot.event
 async def on_ready():
     # Cache guilds

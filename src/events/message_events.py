@@ -19,20 +19,21 @@ class MessageEvents(commands.Cog):
         if len(content) == 0:
             return
         
-        for word in content.split(" "):
-            if word.lower() in CONFIG.IGNORED_MESSAGE_WORDS:
-                return
-        
         # Check if message channel is an ignored channel
         channel_id = message.channel.id
         if channel_id:
             if int(channel_id) in CONFIG.IGNORED_CHANNEL_IDS:
+                return
+        
+        for word in content.split(" "):
+            if word.lower() in CONFIG.IGNORED_MESSAGE_WORDS:
                 return
 
         author_id = str(message.author.id)
         user: User = await User.load(userid=author_id)
         word_analyzer: WordAnalyzer = await WordAnalyzer.load(userid=author_id)
 
+        user.levels.gain()
         user.message_statistics.process_message(message=content)
 
         for word in content.split(" "):
