@@ -1,3 +1,4 @@
+from src.fishing.fish_category import FishCategory
 from src.fishing.fish_rarity import FishRarity
 from src.fishing.fish_type import FishType
 from src.utils.maths import bell_curve_random
@@ -9,7 +10,8 @@ RARITY_COLORS = {
     FishRarity.UNCOMMON: "#2C82C9",
     FishRarity.RARE: "#9365B8",
     FishRarity.LEGENDARY: "#FAC51C",
-    FishRarity.MYTHICAL: "#E25041"
+    FishRarity.MYTHICAL: "#F73D2A",
+    FishRarity.GODLY: "#FA11EA"
 }
 
 # An entry in the fish library of src/data/fish.json
@@ -26,7 +28,10 @@ class FishEntry():
             price: int,
             min_size: float,
             max_size: float,
-            description: str
+            description: str,
+            category: FishCategory,
+            invisible: bool,
+            followup_content: str
         ) -> None:
         self.id = id
         self.name = name
@@ -39,6 +44,9 @@ class FishEntry():
         self.min_size = min_size
         self.max_size = max_size
         self.description = description
+        self.category = category
+        self.invisible = invisible
+        self.followup_content = followup_content
 
     @staticmethod
     def from_dict(data: dict) -> 'FishEntry':
@@ -51,6 +59,8 @@ class FishEntry():
         min_size = data.get("min_size", 0)
         max_size = data.get("max_size", 0)
         description = data.get("description", 0)
+        invisible = data.get("invisible", False)
+        followup_content = data.get("followup_content", "")
 
         type = data.get("type", None)
         if type:
@@ -64,6 +74,12 @@ class FishEntry():
         else:
             raise ValueError(f"Invalid fish rarity {rarity}.")
         
+        category = data.get("category", None)
+        if category:
+            category = FishCategory(category)
+        else:
+            category = FishCategory.REGULAR
+        
         return FishEntry(
             id=id,
             name=name,
@@ -75,7 +91,10 @@ class FishEntry():
             price=price,
             min_size=min_size,
             max_size=max_size,
-            description=description
+            description=description,
+            category=category,
+            invisible=invisible,
+            followup_content=followup_content
         )
     
     def get_random_size(self) -> float:

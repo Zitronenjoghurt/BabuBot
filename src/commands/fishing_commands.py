@@ -24,7 +24,7 @@ FISH_LIBRARY = FishLibrary.get_instance()
 ITEM_LIBRARY = ItemLibrary.get_instance()
 
 AVAILABLE_BAIT = ITEM_LIBRARY.get_available_bait()
-AVAILABLE_RARITIES = ["Common", "Uncommon", "Rare", "Legendary", "Mythical"]
+AVAILABLE_RARITIES = ["Common", "Uncommon", "Rare", "Legendary", "Mythical", "Godly"]
 TOPLISTS = ["Prestige Points", "Money Earned", "Fish Sold"]
 
 class FishingCommands(commands.Cog):
@@ -381,6 +381,9 @@ async def send_first_catch_embed(interaction: discord.Interaction, fish_entry: F
     file = discord.File(fish_entry.get_image_path(), filename=fish_entry.get_image_file_name())
     embed.set_image(url=fish_entry.get_image_url())
     await interaction.response.send_message(embed=embed, file=file)
+
+    if len(fish_entry.followup_content) > 0:
+        await interaction.followup.send(content=fish_entry.followup_content)
 
 async def send_catch_embed(interaction: discord.Interaction, fish_entry: FishEntry, size: str, record_size: bool, current: int, total: int) -> None:
     embed = discord.Embed(

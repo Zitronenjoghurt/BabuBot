@@ -1,6 +1,8 @@
+import random
 from numpy import random
 from typing import Optional
 from src.constants.emoji_index import EmojiIndex
+from src.fishing.fish_category import FishCategory
 from src.fishing.fish_entry import FishEntry
 from src.fishing.fish_rarity import FishRarity
 from src.utils.file_operations import construct_path, file_to_dict, file_to_list
@@ -8,6 +10,7 @@ from src.utils.probability import WeightedSelector
 from src.utils.progress_bar import progress_bar, get_progress_ratio
 
 DATA_FILE_PATH = construct_path("src/data/fish.json")
+HIDDEN_DATA_FILE_PATH = construct_path("src/data/hidden_fish.json")
 BAIT_LEVELS_FILE_PATH = construct_path("src/data/bait_levels.json")
 
 PRESTIGE_IMAGE_PATH = "src/assets/prestige/prestige_{level}.png"
@@ -47,8 +50,12 @@ PRESTIGE_POINTS = [
     [3, 5, 7, 10, 12],
     [5, 8, 12, 16, 20],
     [10, 15, 20, 25, 30],
-    [20, 30, 40, 50, 60]
+    [20, 30, 40, 50, 60],
+    [50, 60, 70, 85, 100]
 ]
+
+# How many fish you would have to catch to get one hidden
+HIDDEN_CHANCE_BY_ROD_LEVEL = [10000, 7500, 5000, 2500, 1000]
 
 class FishLibrary():
     _instance = None
@@ -58,7 +65,8 @@ class FishLibrary():
             raise RuntimeError("Tried to initialize multiple instances of FishLibrary.")
         self.fish_by_id = {}
         self.fish_by_name = {}
-        self.fish_by_rarity = {i: [] for i in range(1, 6)}
+        self.fish_by_rarity = {i: [] for i in range(1, 7)}
+        self.fish_by_category = {}
         # Probabilities mapped to bait_levels[rod_level][bait_level]
         self.probabilities: list[list[WeightedSelector]] = []
         self._initialize_entries()
@@ -67,6 +75,9 @@ class FishLibrary():
 
     def _initialize_entries(self) -> None:
         fish_data = file_to_dict(DATA_FILE_PATH)
+        hidden_fish_data = file_to_dict(HIDDEN_DATA_FILE_PATH)
+        fish_data.update(hidden_fish_data)
+
         fish_list = []
         for id, data in fish_data.items():
             data["id"] = id
@@ -79,7 +90,10 @@ class FishLibrary():
         self.fish_by_name = {entry.name.lower(): entry for entry in sorted_fish_list}
 
         for entry in sorted_fish_list:
+            if entry.category.value not in self.fish_by_category:
+                self.fish_by_category[entry.category.value] = []
             self.fish_by_rarity[entry.rarity.value].append(entry)
+            self.fish_by_category[entry.category.value].append(entry)
 
     def _initialize_bait_levels(self) -> None:
         self.probabilities = []
@@ -126,12 +140,23 @@ class FishLibrary():
         if name not in self.fish_by_name:
             return None
         return self.fish_by_name[name]
+    
+    def roll_hidden(self, rod_level: int) -> bool:
+        if rod_level < 0 or rod_level >= len(HIDDEN_CHANCE_BY_ROD_LEVEL):
+            raise RuntimeError(f"Tried to roll for a hidden, but rod level {rod_level} has no specified hidden chance.")
+        chance = HIDDEN_CHANCE_BY_ROD_LEVEL[rod_level]
+        roll = random.randint(chance)
+        return roll == 69
 
     def random_fish_entry(self, rod_level: int, bait_level: int) -> Optional[FishEntry]:
         probability = self.probabilities[rod_level][bait_level]
         rarity_level = probability.select()
 
-        entries = self.fish_by_rarity[rarity_level]
+        if self.roll_hidden(rod_level=rod_level):
+            entries = self.fish_by_category[FishCategory.HIDDEN.value]
+        else:
+            entries = self.fish_by_rarity[rarity_level]
+
         if len(entries) == 0:
             return None
         
@@ -155,6 +180,11 @@ class FishLibrary():
             caught = False
             if entry.id in caught_ids:
                 caught = True
+
+            # Skip the entry if fish was not caught and entry is invisible
+            if not caught and entry.invisible:
+                continue
+
             dex.append((entry, caught))
         return dex
     
@@ -173,7 +203,7 @@ class FishLibrary():
             if entry.id in caught_ids:
                 count_by_rarity[entry.rarity][0] += 1
                 count_by_rarity[entry.rarity][1] += 1
-            else:
+            elif not entry.invisible:
                 count_by_rarity[entry.rarity][1] += 1
             
         result = "\n".join([f"**`{found_vs_total[0]}/{found_vs_total[1]}`** **{rarity.name}**" for rarity, found_vs_total in count_by_rarity.items()])

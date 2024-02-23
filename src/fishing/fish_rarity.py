@@ -6,3 +6,4 @@ class FishRarity(Enum):
     RARE = 3
     LEGENDARY = 4
     MYTHICAL = 5
+    GODLY = 6

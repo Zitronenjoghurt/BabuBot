@@ -4,6 +4,7 @@ assets
 bot.db
 config.json
 config_test.json
+hidden_fish.json
 test.py
 
 # Byte-compiled / optimized / DLL files
