@@ -39,9 +39,9 @@ class CommmandEvents(commands.Cog):
         reward, first_time = user.levels.collect_reward()
         if reward > 0:
             if first_time:
-                await interaction.followup.send(content=f"*Pssst... through your recent leveups you have gained `{reward}{CONFIG.CURRENCY}`.*\n\nSince this is your first time:\n- You gain a certain amount of currency by being active.\n- Whenever you use a command anytime after you have leveled up, you will receive your levelup reward.\n- You can check your current level with `/level`!", ephemeral=True)
+                await interaction.followup.send(content=f"*Pssst... through your recent levelups you have gained `{reward}{CONFIG.CURRENCY}`.*\n\nSince this is your first time:\n- You gain a certain amount of currency by being active.\n- Whenever you use a command anytime after you have leveled up, you will receive your levelup reward.\n- You can check your current level with `/level`!", ephemeral=True)
             else:
-                await interaction.followup.send(content=f"*Pssst... through your recent leveups you have gained `{reward}{CONFIG.CURRENCY}`.*", ephemeral=True)
+                await interaction.followup.send(content=f"*Pssst... through your recent levelups you have gained `{reward}{CONFIG.CURRENCY}`.*", ephemeral=True)
             user.economy.add_currency(amount=reward)
             LOGGER.info(f"LEVEL User {interaction.user.name} ({interaction.user.id}) has collected {reward} currency as a levelup reward")
             await user.save()
