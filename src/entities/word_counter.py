@@ -37,3 +37,6 @@ class WordCounter(AbstractSerializableEntity):
         if word not in self.words:
             self.words[word] = 0
         self.words[word] += 1
+
+    def get_sorted_alphabetically(self) -> dict:
+        return {word: self.words[word] for word in sorted(self.words)}
