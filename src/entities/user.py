@@ -4,6 +4,7 @@ from discord.ext import commands
 from typing import Optional
 from src.constants.config import Config
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
+from src.entities.digging import Digging
 from src.entities.economy import Economy
 from src.entities.inventory import Inventory
 from src.entities.fishing import Fishing
@@ -25,9 +26,9 @@ CONFIG = Config.get_instance()
 
 class User(AbstractDatabaseEntity):
     TABLE_NAME = "users"
-    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation", "inventory", "fishing", "levels"]
-    SERIALIZE_CLASSES = {"word_counter": WordCounter, "message_statistics": MessageStatistics, "profile": Profile, "economy": Economy, "reputation": Reputation, "inventory": Inventory, "fishing": Fishing, "levels": Levels}
-    SAVED_PROPERTIES = ["userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation", "inventory", "fishing", "levels"]
+    SERIALIZED_PROPERTIES = ["id", "userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation", "inventory", "fishing", "levels", "digging"]
+    SERIALIZE_CLASSES = {"word_counter": WordCounter, "message_statistics": MessageStatistics, "profile": Profile, "economy": Economy, "reputation": Reputation, "inventory": Inventory, "fishing": Fishing, "levels": Levels, "digging": Digging}
+    SAVED_PROPERTIES = ["userid", "created_stamp", "name", "display_name", "sent_feedback", "accepted_command_cost", "message_statistics", "word_counter", "profile", "economy", "reputation", "inventory", "fishing", "levels", "digging"]
 
     def __init__(
             self, 
@@ -45,7 +46,8 @@ class User(AbstractDatabaseEntity):
             reputation: Optional[Reputation] = None,
             inventory: Optional[Inventory] = None,
             fishing: Optional[Fishing] = None,
-            levels: Optional[Levels] = None
+            levels: Optional[Levels] = None,
+            digging: Optional[Digging] = None
         ) -> None:
         super().__init__(id=id, created_stamp=created_stamp)
         if userid is None:
@@ -74,6 +76,8 @@ class User(AbstractDatabaseEntity):
             fishing = Fishing()
         if levels is None:
             levels = Levels()
+        if digging is None:
+            digging = Digging()
 
         validate_of_type(message_statistics, MessageStatistics, "message_statistics")
         validate_of_type(word_counter, WordCounter, "word_counter")
@@ -83,6 +87,7 @@ class User(AbstractDatabaseEntity):
         validate_of_type(inventory, Inventory, "inventory")
         validate_of_type(fishing, Fishing, "fishing")
         validate_of_type(levels, Levels, "levels")
+        validate_of_type(digging, Digging, "digging")
 
         self.userid = str(userid)
         self.name = name
@@ -97,6 +102,7 @@ class User(AbstractDatabaseEntity):
         self.inventory: Inventory = inventory
         self.fishing: Fishing = fishing
         self.levels: Levels = levels
+        self.digging: Digging = digging
         
     @staticmethod
     async def global_word_count() -> WordCounter:
