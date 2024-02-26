@@ -5,7 +5,7 @@ from typing import Any, Optional
 from src.logging.logger import LOGGER
 from src.utils.validator import validate_of_type
 
-TABLE_NAMES = ["feedback", "users", "word_analyzer", "relationships"]
+TABLE_NAMES = ["feedback", "users", "word_analyzer", "relationships", "digging_queue"]
 
 class Database():
     _instance = None

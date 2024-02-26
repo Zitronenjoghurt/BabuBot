@@ -2,7 +2,9 @@ import src.items.types as TYPES
 
 TYPE_REGISTRY = {
     "bait": TYPES.Bait,
-    "rods": TYPES.FishingRod
+    "rods": TYPES.FishingRod,
+    "minerals": TYPES.Mineral,
+    "treasures": TYPES.Treasure
 }
 
 def create_item(data: dict):

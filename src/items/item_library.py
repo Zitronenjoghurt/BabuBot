@@ -7,6 +7,8 @@ from src.utils.file_operations import construct_path, file_to_dict
 DATA_FILE_PATH = construct_path("src/data/items.json")
 IMAGE_PATH = "src/assets/{category}/{name}.png"
 
+NON_BUYABLE_CATEGORIES = ["treasures", "minerals"]
+
 class ItemLibrary():
     _instance = None
 
@@ -18,6 +20,11 @@ class ItemLibrary():
         self.items_by_id = {}
         self.items_by_category = {}
         self._initialize_items()
+
+        self.categories = []
+        for category in list(self.items_by_category.keys()):
+            if category not in NON_BUYABLE_CATEGORIES:
+                self.categories.append(category)
 
     def _initialize_items(self) -> None:
         item_data = file_to_dict(DATA_FILE_PATH)
@@ -50,7 +57,7 @@ class ItemLibrary():
         return items
     
     def get_categories(self) -> list[str]:
-        return list(self.items_by_category.keys())
+        return self.categories
     
     def find(self, identifier: str) -> Optional[Item]:
         if identifier.lower() in self.items_by_id:
