@@ -5,6 +5,7 @@ from typing import Optional
 from src.constants.config import Config
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.digging import Digging
+from src.entities.digging_queue import DiggingQueueItem
 from src.entities.economy import Economy
 from src.entities.inventory import Inventory
 from src.entities.fishing import Fishing
@@ -233,3 +234,18 @@ class User(AbstractDatabaseEntity):
     # Will create a new relationship if both users have none yet
     async def load_relationship_with_user(self, user_id: str) -> Relationship:
         return await Relationship.load([self.userid, user_id])
+    
+    async def get_digging_queue(self) -> list[DiggingQueueItem]:
+        return await DiggingQueueItem.get_user_queue_items(user_id=self.userid)
+    
+    async def queue_digging_item(self, item_id: str, seconds: int) -> tuple[bool, str]:
+        digging_queue = await self.get_digging_queue()
+
+        if not self.digging.queue_slot_available(digging_queue=digging_queue):
+            return False, "There is currently no dwarf squad available."
+        
+        now = datetime.now().timestamp()
+        finish_stamp = now + seconds
+        queue_item = DiggingQueueItem(user_id=self.userid, item_id=item_id, finish_stamp=finish_stamp)
+        await queue_item.save()
+        return True, ""

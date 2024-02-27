@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from src.entities.abstract_serializable_entity import AbstractSerializableEntity
+from src.entities.digging_queue import DiggingQueueItem
 
 class Digging(AbstractSerializableEntity):
     SERIALIZED_PROPERTIES = ["unlocked", "started_at", "reputation", "power_level", "speed_level", "capacity_level", "queue_level"]
@@ -42,3 +43,7 @@ class Digging(AbstractSerializableEntity):
         if not self.unlocked:
             self.unlocked = True
             self.started_at = datetime.now().timestamp()
+
+    def queue_slot_available(self, digging_queue: list[DiggingQueueItem]) -> bool:
+        length = len(digging_queue)
+        return length < self.queue_level
