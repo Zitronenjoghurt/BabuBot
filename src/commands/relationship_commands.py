@@ -135,10 +135,11 @@ class RelationshipCommands(commands.Cog):
         await interaction.response.send_message(embed=ErrorEmbed(title="ERROR", message=str(error)), ephemeral=True)
         
 async def run_relationship_action(action: RelationshipAction, interaction: discord.Interaction, member: discord.Member, success_verb: str, fail_verb: str, cost: int) -> None:
-    if member.bot:
-        return await interaction.response.send_message(embed=ErrorEmbed(title=f"Seriously?", message="PLEASE just use it on a human and get a proper relationship going."))
-    
     user: User = await User.load(userid=str(interaction.user.id))
+    
+    if member.bot:
+        await refund(user=user, amount=cost, interaction=interaction, reason="Mentioned a bot", send_message=False)
+        return await interaction.response.send_message(embed=ErrorEmbed(title=f"Seriously?", message="PLEASE just use it on a human and get a proper relationship going."))
     
     if interaction.user.id == member.id:
         await refund(user=user, amount=cost, interaction=interaction, reason="Mentioned themselves", send_message=False)
