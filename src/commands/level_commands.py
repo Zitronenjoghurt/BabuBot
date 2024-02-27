@@ -4,6 +4,7 @@ from discord.ext import commands
 from datetime import datetime
 from typing import Optional
 from src.constants.config import Config
+from src.constants.custom_embeds import ErrorEmbed
 from src.entities.user import User
 from src.scrollables.level_top_scrollable import LevelTopScrollable
 from src.ui.scrollable_embed import ScrollableEmbed
@@ -19,6 +20,8 @@ class LevelCommands(commands.Cog):
     @app_commands.describe(member="The user you want to check the level of")
     async def level(self, interaction: discord.Interaction, member: Optional[discord.Member]):
         if member:
+            if member.bot:
+                return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not gain xp."))
             target = member
             userid = str(member.id)
         else:

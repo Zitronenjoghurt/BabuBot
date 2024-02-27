@@ -75,6 +75,8 @@ class InventoryCommands(commands.Cog):
             return await interaction.response.send_message(embed=ErrorEmbed(title="CATEGORY NOT FOUND", message=f"Category **`{category}`** does not exist.\nAvailable categories are: {categories}."), ephemeral=True)
 
         if member:
+            if member.bot:
+                return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not have inventories."))
             target = member
             userid = str(member.id)
         else:

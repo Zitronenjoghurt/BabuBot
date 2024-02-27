@@ -4,6 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 from typing import Optional
 from src.constants.config import Config
+from src.constants.custom_embeds import ErrorEmbed
 from src.entities.user import User
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.guild_operations import retrieve_member_strict
@@ -23,6 +24,8 @@ class MiscCommands(commands.Cog):
     @app_commands.describe(member="The user you want to see the tasks of")
     async def tasks(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if isinstance(member, discord.Member):
+            if member.bot:
+                return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not do tasks."))
             user_id = member.id
         else:
             user_id = interaction.user.id

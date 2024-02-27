@@ -4,6 +4,7 @@ from discord.ext import commands
 from src.constants.config import Config
 from src.entities.user import User
 from typing import Optional
+from src.constants.custom_embeds import ErrorEmbed
 from src.ui.profile_modal import ProfileModal
 from src.utils.bot_operations import retrieve_guild_strict
 from src.utils.guild_operations import retrieve_member_strict
@@ -20,6 +21,9 @@ class ProfileCommands(commands.Cog):
     @app_commands.describe(member="The user you want to see the profile of")
     async def profile_show(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if isinstance(member, discord.Member):
+            if member.bot:
+                if interaction.user.id == member.id:
+                    return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not have profiles."))
             user_id = member.id
             count_view = user_id != interaction.user.id
         else:

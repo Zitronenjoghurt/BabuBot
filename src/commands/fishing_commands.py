@@ -92,6 +92,8 @@ class FishingCommands(commands.Cog):
     @app_commands.checks.cooldown(1, 5)
     async def fish_basket(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if member:
+            if member.bot:
+                return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not fish."))
             target = member
             userid = str(member.id)
         else:
@@ -207,6 +209,8 @@ class FishingCommands(commands.Cog):
     @app_commands.describe(member="The user you want to check the stats of")
     async def fish_stats(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if member:
+            if member.bot:
+                return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not fish."))
             target = member
             userid = str(member.id)
         else:
@@ -324,6 +328,8 @@ class FishingCommands(commands.Cog):
     @app_commands.describe(member="The user you want to check the prestige of")
     async def prestige(self, interaction: discord.Interaction, member: Optional[discord.Member]):
         if member:
+            if member.bot:
+                return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not fish."))
             target = member
             userid = str(member.id)
             self_target = False

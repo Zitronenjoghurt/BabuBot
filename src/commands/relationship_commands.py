@@ -20,6 +20,8 @@ class RelationshipCommands(commands.Cog):
     @app_commands.checks.cooldown(2, 30)
     async def relationships(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if isinstance(member, discord.Member):
+            if member.bot:
+                return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not have relationships."))
             user: discord.User|discord.Member = member
         else:
             user: discord.User|discord.Member = interaction.user
@@ -107,6 +109,9 @@ class RelationshipCommands(commands.Cog):
     @relationship_group.command(name="status", description="Check your relationship status with someone")
     @app_commands.describe(member="The user you want to check your relationship with")
     async def status(self, interaction: discord.Interaction, member: discord.Member):
+        if member.bot:
+            return await interaction.response.send_message(embed=ErrorEmbed(title=f"Nope", message="Since you cant build a relationship with a bot, youre unable to display the status about it."))
+        
         if interaction.user.id == member.id:
             return await interaction.response.send_message(embed=ErrorEmbed(title=f"Nope", message="Since you cant build a relationship with yourself, youre unable to display the status about it."))
 
@@ -130,6 +135,9 @@ class RelationshipCommands(commands.Cog):
         await interaction.response.send_message(embed=ErrorEmbed(title="ERROR", message=str(error)), ephemeral=True)
         
 async def run_relationship_action(action: RelationshipAction, interaction: discord.Interaction, member: discord.Member, success_verb: str, fail_verb: str, cost: int) -> None:
+    if member.bot:
+        return await interaction.response.send_message(embed=ErrorEmbed(title=f"Seriously?", message="PLEASE just use it on a human and get a proper relationship going."))
+    
     user: User = await User.load(userid=str(interaction.user.id))
     
     if interaction.user.id == member.id:

@@ -20,6 +20,8 @@ class StatisticsCommands(commands.Cog):
     @app_commands.describe(member="The user you want to see the message statistics of")
     async def messages(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if isinstance(member, discord.Member):
+            if member.bot:
+                return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not have their messages analyzed."))
             user_id = member.id
         else:
             user_id = interaction.user.id
@@ -40,6 +42,8 @@ class StatisticsCommands(commands.Cog):
     @app_commands.describe(member="The user you want to see the word statistics of")
     async def words(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         if isinstance(member, discord.Member):
+            if member.bot:
+                return await interaction.response.send_message(embed=ErrorEmbed(title=f"ERROR", message="Bots do not have their messages analyzed."))
             user_id = member.id
         else:
             user_id = interaction.user.id
