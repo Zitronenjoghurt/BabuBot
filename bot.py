@@ -1,10 +1,10 @@
 import discord
 import json
-from discord.ext import commands
+from discord.ext import commands, tasks
 from src.constants.config import Config
 from src.entities.user import User
 from src.logging.logger import LOGGER
-from src.utils.command_operations import get_extensions
+from src.utils.init_operations import get_extensions, get_routines
 
 CONFIG = Config.get_instance()
 
@@ -33,6 +33,13 @@ async def on_ready():
     extensions = get_extensions()
     for extension in extensions:
         await bot.load_extension(extension)
+    LOGGER.info("Extensions initialized")
+
+    intervall_and_routines = get_routines()
+    for intervall, routine in intervall_and_routines:
+        loop = tasks.loop(seconds=intervall)(routine)
+        loop.start()
+    LOGGER.info("Routines initialized")
 
     # Set activity
     await bot.change_presence(activity=discord.Game(name="try: /tasks"))
