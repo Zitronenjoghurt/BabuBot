@@ -3,6 +3,7 @@ from discord.ext import commands
 from src.constants.config import Config
 from src.entities.user import User
 from src.entities.word_analyzer import WordAnalyzer
+from src.logging.logger import LOGGER
 
 CONFIG = Config.get_instance()
 
@@ -13,6 +14,12 @@ class MessageEvents(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author.bot:
+            return
+        
+        if isinstance(message.channel, discord.DMChannel):
+            LOGGER.info(f"Received DM message from {message.author.name} ({message.author.id}): {message.content}")
+        
+        if not isinstance(message.channel, discord.TextChannel):
             return
         
         content = message.content

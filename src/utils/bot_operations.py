@@ -60,7 +60,7 @@ async def notify_user_private(bot: commands.Bot, user_id: int, message: Optional
         
         return True
     except Exception as e:
-        LOGGER.critical(f"An error occured while trying to notify user {user_id} via DM: {e}")
+        LOGGER.error(f"An error occured while trying to notify user {user_id} via DM: {e}")
         return False
     
 async def notify_user_channel(bot: commands.Bot, user_id: int, channel_id: int, message: Optional[str] = None, embed: Optional[discord.Embed] = None) -> bool:
@@ -92,5 +92,5 @@ async def notify_user_channel(bot: commands.Bot, user_id: int, channel_id: int, 
             await channel.send(content=message)
         return True
     except Exception as e:
-        LOGGER.critical(f"An error occured while trying to notify user {user_id} in channel {channel_id}: {e}")
+        LOGGER.error(f"An error occured while trying to notify user {user_id} in channel {channel_id}: {e}")
         return False
