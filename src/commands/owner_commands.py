@@ -10,7 +10,7 @@ class OwnerCommands(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def notify(self, ctx, member: discord.Member, text: str):
+    async def notify(self, ctx, member: discord.Member, *, text: str):
         if not isinstance(member, discord.Member):
             return
         success = await notify_user_private(bot=self.bot, user_id=member.id, message=text)
