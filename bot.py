@@ -3,6 +3,7 @@ import json
 from discord.ext import commands, tasks
 from src.constants.config import Config
 from src.entities.user import User
+from src.logging.channel_logger import ChannelLogger
 from src.logging.logger import LOGGER
 from src.utils.init_operations import get_extensions, get_routines
 
@@ -22,9 +23,11 @@ async def on_ready():
     for guild in bot.guilds:
         await guild.chunk()
 
+    # Initialize channel logger
+    CL = await ChannelLogger._initialize(bot=bot)
+
     # Cache member data in database
     for user in await User.findall():
-        print(user.userid)
         await user.cache_member_data(bot)
         await user.save()
     LOGGER.info("Cached available member data of all users in database")
@@ -45,6 +48,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="try: /tasks"))
 
     LOGGER.info("Bot ready")
+    await CL.info("**`Bot online!`**", title="BOT STATUS")
 
 # Connection events
 @bot.event

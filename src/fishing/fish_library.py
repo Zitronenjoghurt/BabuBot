@@ -257,8 +257,6 @@ class FishLibrary():
         if self.prestige_is_maxed(level=level):
             bar, percentage = progress_bar(0, 0, 0, 20)
         else:
-            print(sold)
-            print(level)
             bar, percentage = progress_bar(current=sold, start=PRESTIGE_LEVELS[level], end=PRESTIGE_LEVELS[level + 1], length=20)
         return bar + f" `({percentage*100}%)`"
 
