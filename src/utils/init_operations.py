@@ -2,6 +2,7 @@ import os
 import importlib.util
 import inspect
 from typing import Callable
+from src.logging.logger import LOGGER
 from src.utils.file_operations import construct_path, files_in_directory
 
 COMMAND_EXTENSIONS_PATH = "src/commands/"
@@ -36,6 +37,13 @@ def get_routines() -> list[tuple[int, Callable]]:
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module=module)
 
+        if not hasattr(module, 'ACTIVE'):
+            raise RuntimeError(f"Routine {module_name} has no specified ACTIVE value.")
+        active = getattr(module, 'ACTIVE')
+        if not active:
+            LOGGER.info(f"Routine {module_name} is not active and will be skipped.")
+            continue
+
         if not hasattr(module, 'run'):
             raise RuntimeError(f"Routine {module_name} has no run method.")
         if not inspect.iscoroutinefunction(module.run):
@@ -43,9 +51,9 @@ def get_routines() -> list[tuple[int, Callable]]:
         if not hasattr(module, 'INTERVAL_SECONDS'):
             raise RuntimeError(f"Routine {module_name} has no specified INTERVAL_SECONDS.")
         
-        intervall = getattr(module, 'INTERVAL_SECONDS')
-        if intervall < 1:
+        interval = getattr(module, 'INTERVAL_SECONDS')
+        if interval < 1:
             raise RuntimeError(f"The intervall of routine {module_name} is too low. Has to be at least 1.")
         
-        routines.append((module.INTERVAL_SECONDS, module.run))
+        routines.append((interval, module.run))
     return routines
