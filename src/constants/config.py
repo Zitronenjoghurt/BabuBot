@@ -24,6 +24,7 @@ class Config():
         self.IGNORED_MESSAGE_WORDS = config_data.get("ignored_message_words", [])
         self.DECIMAL_DIGITS = config_data.get("decimal_digits", 2)
         self.CURRENCY = config_data.get("currency", "$")
+        self.FISHING_CHANNEL_ID = config_data.get("fishing_channel_id", None)
         self.LOG_CHANNEL_ID = config_data.get("log_channel_id", None)
 
         try:
@@ -40,6 +41,7 @@ class Config():
             validate_all_in_of_type(self.IGNORED_MESSAGE_WORDS, str, "word", "ignored_message_words")
             validate_of_type(self.DECIMAL_DIGITS, int, "decimal_digits")
             validate_of_type(self.CURRENCY, str, "currency")
+            validate_of_type(self.FISHING_CHANNEL_ID, int, "fishing_channel_id")
             validate_of_type(self.LOG_CHANNEL_ID, int, "log_channel_id")
         except ValueError as e:
             raise RuntimeError(f"An error occured while initializing config: {e}")

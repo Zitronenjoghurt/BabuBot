@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -6,6 +7,7 @@ from typing import Optional
 from src.constants.config import Config
 from src.constants.custom_embeds import ErrorEmbed
 from src.entities.user import User
+from src.entities.fishing import FISHING_COOLDOWN
 from src.items.item_library import ItemLibrary
 from src.items.types import Bait
 from src.fishing.fish_library import FishEntry, FishLibrary
@@ -78,6 +80,15 @@ class FishingCommands(commands.Cog):
             current_count = user.fishing.get_current_count(fish_entry.id)
             LOGGER.debug(f"FISH: User {interaction.user.name} ({interaction.user.id}) has caught fish '{fish_entry.id}'")
             await send_catch_embed(interaction=interaction, fish_entry=fish_entry, size=size_str, record_size=record_size, current=current_count, total=total_count)
+
+        if user.fishing.notify_on_fishing_ready:
+            asyncio.create_task(user.notify(
+                bot=self.bot, 
+                channel_id=CONFIG.FISHING_CHANNEL_ID, 
+                try_dm=user.fishing.notify_dm,
+                delay_seconds=FISHING_COOLDOWN,
+                content="You can fish again :)"
+            ))
 
     @fish.autocomplete("bait")
     async def fish_bait_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
@@ -244,7 +255,9 @@ class FishingCommands(commands.Cog):
 
     @app_commands.command(name="fish-settings", description="Adjust various settings for the fishing game")
     @app_commands.describe(leave_one="If you always want to leave one fish in your basket when selling")
-    async def fish_settings(self, interaction: discord.Interaction, leave_one: Optional[bool] = None):
+    @app_commands.describe(notify_fish_ready="If you want to get notified when you can fish again")
+    @app_commands.describe(notify_dm="If you want to receive notifications via DM")
+    async def fish_settings(self, interaction: discord.Interaction, leave_one: Optional[bool] = None, notify_fish_ready: Optional[bool] = None, notify_dm: Optional[bool] = None):
         user: User = await User.load(userid=str(interaction.user.id))
 
         adjusted_settings = False
@@ -252,11 +265,25 @@ class FishingCommands(commands.Cog):
         if isinstance(leave_one, bool):
             adjusted_settings = True
             user.fishing.leave_one = leave_one
+        if isinstance(notify_fish_ready, bool):
+            adjusted_settings = True
+            user.fishing.notify_on_fishing_ready = notify_fish_ready
+        if isinstance(notify_dm, bool):
+            adjusted_settings = True
+            user.fishing.notify_dm = notify_dm
 
         await user.save()
 
-        settings = ["Always leave one fish (each) in basket"]
-        states = [yes_no(user.fishing.leave_one)]
+        settings = [
+            "Always leave one fish (each) in basket",
+            "Get notified when you can fish again",
+            "Get notifications via DM"
+        ]
+        states = [
+            yes_no(user.fishing.leave_one),
+            yes_no(user.fishing.notify_on_fishing_ready),
+            yes_no(user.fishing.notify_dm)
+        ]
 
         if not adjusted_settings:
             embed = discord.Embed(title="SETTINGS", color=discord.Color.light_grey())

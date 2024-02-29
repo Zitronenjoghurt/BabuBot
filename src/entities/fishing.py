@@ -10,7 +10,7 @@ FISH_LIBRARY = FishLibrary.get_instance()
 # Since prestige was added afterwards, the prestige points earned from fishing are calculated from the available data
 # Though if prestige points are earned through ways other than fishing, they will be count into the "earned_prestige"
 class Fishing(AbstractSerializableEntity):
-    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish", "next_fishing_stamp", "leave_one", "spent_prestige", "earned_prestige"]
+    SERIALIZED_PROPERTIES = ["unlocked", "started_at", "rod_level", "caught_fish", "next_fishing_stamp", "leave_one", "spent_prestige", "earned_prestige", "notify_on_fishing_ready", "notify_dm"]
 
     def __init__(
             self,
@@ -21,7 +21,9 @@ class Fishing(AbstractSerializableEntity):
             next_fishing_stamp: Optional[float] = None,
             leave_one: Optional[bool] = None,
             spent_prestige: Optional[int] = None,
-            earned_prestige: Optional[int] = None
+            earned_prestige: Optional[int] = None,
+            notify_on_fishing_ready: Optional[bool] = None,
+            notify_dm: Optional[bool] = None
         ) -> None:
         if unlocked is None:
             unlocked = False
@@ -39,6 +41,10 @@ class Fishing(AbstractSerializableEntity):
             spent_prestige = 0
         if earned_prestige is None:
             earned_prestige = 0
+        if notify_on_fishing_ready is None:
+            notify_on_fishing_ready = False
+        if notify_dm is None:
+            notify_dm = False
         
         self.unlocked = unlocked
         self.started_at = started_at
@@ -48,6 +54,8 @@ class Fishing(AbstractSerializableEntity):
         self.leave_one = leave_one
         self.spent_prestige = spent_prestige
         self.earned_prestige = earned_prestige
+        self.notify_on_fishing_ready = notify_on_fishing_ready
+        self.notify_dm = notify_dm
 
     def unlock(self) -> None:
         if not self.unlocked:

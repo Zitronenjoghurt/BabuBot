@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from datetime import datetime
 from discord.ext import commands
@@ -17,7 +18,7 @@ from src.entities.reputation import Reputation
 from src.entities.word_counter_toplist import WordCounterToplist
 from src.entities.word_counter import WordCounter
 from src.logging.logger import LOGGER
-from src.utils.bot_operations import retrieve_guild_strict
+from src.utils.bot_operations import retrieve_guild_strict, notify_user
 from src.utils.dict_operations import sort_simple
 from src.utils.discord_time import relative_time
 from src.utils.guild_operations import retrieve_member
@@ -153,6 +154,12 @@ class User(AbstractDatabaseEntity):
     
     def get_created_time(self) -> datetime:
         return datetime.fromtimestamp(self.created_stamp)
+    
+    async def notify(self, bot: commands.Bot, channel_id: int, try_dm: bool = False, delay_seconds: int = 0, content: Optional[str] = None, embed: Optional[discord.Embed] = None) -> None:
+        if delay_seconds < 0:
+            delay_seconds = 0
+        await asyncio.sleep(delay=delay_seconds)
+        await notify_user(bot=bot, user_id=int(self.userid), try_dm=try_dm, channel_id=channel_id, message=content, embed=embed)
     
     async def rep_user(self, user: 'User|str') -> None:
         if isinstance(user, str):

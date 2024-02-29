@@ -9,5 +9,6 @@
     "ignored_message_words": [],
     "decimal_digits": 2,
     "currency": "$",
+    "fishing_channel_id": 0,
     "log_channel_id": 0
 }
