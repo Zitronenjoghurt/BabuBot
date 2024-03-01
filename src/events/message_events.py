@@ -76,6 +76,8 @@ async def ai_answer(message: discord.Message, user: User) -> None:
     answer = await OPENAI.request(preset_name='message_commenter', user_message=prompt)
     if answer:
         await message.reply(content=answer)
+    else:
+        LOGGER.error("OPENAI tried to answer a random message but api result was empty")
 
 async def setup(bot):
     await bot.add_cog(MessageEvents(bot))
