@@ -13,7 +13,7 @@ YT_API = YoutubeApi.get_instance()
 async def run(bot: commands.Bot):
     new_videos = await YT_API.get_new_youtube_videos()
     for video in new_videos:
-        message = f"From Clara's recommendations:\n**{video.channel_name}** uploaded an interesting new video!"
+        message = f"<@&1213166346498478090> from Clara's recommendations:\n**{video.channel_name}** uploaded an interesting new video!"
         embed = video.create_embed()
         success = await send_in_channel(bot=bot, channel_id=CONFIG.YOUTUBE_NOTIFICATION_CHANNEL_ID, content=message, embed=embed)
         if not success:
