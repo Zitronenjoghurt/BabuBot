@@ -10,11 +10,11 @@ from src.logging.logger import LOGGER
 
 CONFIG = Config.get_instance()
 
-# Needs 3 quota per channel check
-# Can check for 120 channels per hour
-# 60 channels per 30 mins
-# 30 channels per 15 mins
-# 10 channels per 5 mins
+# Needs 2 quota per channel check
+# Can check for 150 channels per hour
+# 80 channels per 30 mins
+# 40 channels per 15 mins
+# 12 channels per 5 mins
 CHANNEL_IDS = {
     "ambiguousamphibian": "UCSDiMahT5qDCjoWtzruztkw",
     "Astrum": "UC-9b7aDP6ZN0coj9-xFnrtw",
@@ -84,6 +84,7 @@ class YoutubeApi(AbstractApiController):
         super().__init__()
         self.api = build('youtube', 'v3', developerKey=CONFIG.YOUTUBE_API_KEY)
         self.last_videos: dict[str, YoutubeVideo] = {}
+        self.upload_playlist_ids: dict[str, str] = {}
         self.avatar_urls: dict[str, str] = {}
 
     @staticmethod
@@ -92,18 +93,23 @@ class YoutubeApi(AbstractApiController):
             YoutubeApi._instance = YoutubeApi()
         return YoutubeApi._instance
     
-    @rate_limit(calls=30, seconds=900)
+    @rate_limit(calls=40, seconds=900)
     async def get_new_youtube_videos(self) -> list['YoutubeVideo']:
         new_videos = []
         for channel_name in CHANNEL_IDS.keys():
+            # Cache channel avatar url and upload playlist id
             await self.update_avatar_url(channel_name=channel_name)
+            await self.update_upload_playlist_id(channel_name=channel_name)
+
             video = await self.fetch_latest_video(channel_name=channel_name)
             if not isinstance(video, YoutubeVideo):
                 LOGGER.error(f"YOUTUBE Unable to update latest video information of channel {channel_name}: Failed to fetch latest video.")
                 continue
+
             new = self.update_video(channel_name=channel_name, video=video)
             if new:
                 new_videos.append(video)
+
         return new_videos
 
     def update_video(self, channel_name: str, video: 'YoutubeVideo') -> bool:
@@ -130,6 +136,16 @@ class YoutubeApi(AbstractApiController):
             self.avatar_urls[channel_name] = url
         else:
             LOGGER.error(f"YOUTUBE Unable to update avatar url of channel {channel_name}: Failed to fetch avatar url")
+
+    async def update_upload_playlist_id(self, channel_name: str) -> None:
+        if channel_name in self.upload_playlist_ids:
+            return
+        
+        id = await self.fetch_upload_playlist_id(channel_name=channel_name)
+        if isinstance(id, str):
+            self.upload_playlist_ids[channel_name] = id
+        else:
+            LOGGER.error(f"YOUTUBE Unable to update upload playlist id of channel {channel_name}: Failed to fetch upload playlist id.")
     
     @rate_limit(class_scope=True)
     async def fetch_channel_avatar_url(self, channel_name: str) -> Optional[str]:
@@ -174,9 +190,9 @@ class YoutubeApi(AbstractApiController):
             return None
         
         return url
-
+    
     @rate_limit(class_scope=True)
-    async def fetch_latest_video(self, channel_name: str) -> Optional['YoutubeVideo']:
+    async def fetch_upload_playlist_id(self, channel_name: str) -> Optional[str]:
         channel_id = CHANNEL_IDS.get(channel_name, None)
         if not channel_id:
             LOGGER.error(f"YOUTUBE An error occured while fetching last video of channel {channel_name}: invalid channel_id '{channel_id}'")
@@ -198,9 +214,23 @@ class YoutubeApi(AbstractApiController):
             LOGGER.error(f"YOUTUBE An error occured while fetching last video of channel {channel_name}: channel response did not yield any upload playlists\n{channel_response}")
             return None
         
+        return uploads_playlist_id
+
+    @rate_limit(class_scope=True)
+    async def fetch_latest_video(self, channel_name: str) -> Optional['YoutubeVideo']:
+        channel_id = CHANNEL_IDS.get(channel_name, None)
+        if not channel_id:
+            LOGGER.error(f"YOUTUBE An error occured while fetching last video of channel {channel_name}: invalid channel_id '{channel_id}'")
+            return None
+        
+        upload_playlist_id = self.upload_playlist_ids.get(channel_name, None)
+        if not isinstance(upload_playlist_id, str):
+            LOGGER.error(f"YOUTUBE An error occured while fetching last video of channel {channel_name}: No upload playlist id in cache")
+            return None
+        
         # Costs 1 quota
         playlist_response = self.api.playlistItems().list(
-            playlistId=uploads_playlist_id,
+            playlistId=upload_playlist_id,
             part='snippet',
             maxResults=1
         ).execute()
