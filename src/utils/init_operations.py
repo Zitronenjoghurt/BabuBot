@@ -1,6 +1,7 @@
 import os
 import importlib.util
 import inspect
+from discord.ext import commands
 from typing import Callable
 from src.logging.logger import LOGGER
 from src.utils.file_operations import construct_path, files_in_directory
@@ -24,7 +25,7 @@ def get_extensions() -> list[str]:
         extensions.append(events_extension + name)
     return extensions
 
-def get_routines() -> list[tuple[int, Callable]]:
+def get_routines(bot: commands.Bot) -> list[tuple[int, Callable]]:
     routines = []
     for file_name in files_in_directory(ROUTINES_PATH, ".py"):
         file_path = os.path.join(ROUTINES_PATH, file_name)
@@ -54,6 +55,13 @@ def get_routines() -> list[tuple[int, Callable]]:
         interval = getattr(module, 'INTERVAL_SECONDS')
         if interval < 1:
             raise RuntimeError(f"The intervall of routine {module_name} is too low. Has to be at least 1.")
-        
-        routines.append((interval, module.run))
+
+        routines.append((interval, create_run_method(bot=bot, module=module, module_name=module_name)))
     return routines
+
+def create_run_method(bot: commands.Bot, module, module_name: str) -> Callable:
+    async def run():
+        LOGGER.debug(f"Executing routine {module_name}.")
+        await module.run(bot)
+        LOGGER.debug(f"Finished executing routine {module_name}.")
+    return run

@@ -24,6 +24,29 @@ async def retrieve_guild_strict(bot: commands.Bot, guild_id: int) -> discord.Gui
     
     return guild
 
+async def send_in_channel(bot: commands.Bot, channel_id: int, content: Optional[str] = None, embed: Optional[discord.Embed] = None) -> bool:
+    if not content and not embed:
+        LOGGER.error(f"bot_operations failed to send message in channel {channel_id}: No content or embed provided.")
+        return False
+    if content and not isinstance(content, str):
+        LOGGER.error(f"bot_operations failed to send message in channel {channel_id}: Content has to be of type string.")
+        return False
+    if embed and not isinstance(embed, discord.Embed):
+        LOGGER.error(f"bot_operations failed to send message in channel {channel_id}: Embed has to be a valid discord Embed.")
+        return False
+    
+    channel = await bot.fetch_channel(channel_id)
+    if not isinstance(channel, discord.TextChannel):
+        LOGGER.error(f"bot_operations failed to send message in channel {channel_id}: Channel is not a TextChannel or does not exist.")
+        return False
+    
+    try:
+        await channel.send(content=content, embed=embed) # type: ignore
+        return True
+    except Exception as e:
+        LOGGER.error(f"bot_operations failed to send message in channel {channel_id}: {e}")
+        return False
+
 async def notify_user(bot: commands.Bot, user_id: int, try_dm: bool = False, channel_id: Optional[int] = None, message: Optional[str] = None, embed: Optional[discord.Embed] = None):
     dm_success = None
     if try_dm:

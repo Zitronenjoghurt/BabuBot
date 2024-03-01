@@ -3,6 +3,7 @@
     "token": "BOT_TOKEN",
     "nasa_key": "NASA API KEY",
     "cat_key": "",
+    "youtube_key": "YouTube Data API v3 API KEY",
     "guild_id": 0,
     "counted_words": [],
     "ignored_channel_ids": [],
@@ -10,5 +11,6 @@
     "decimal_digits": 2,
     "currency": "$",
     "fishing_channel_id": 0,
-    "log_channel_id": 0
+    "log_channel_id": 0,
+    "youtube_notification_channel_id": 0
 }

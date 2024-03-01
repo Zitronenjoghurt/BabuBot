@@ -18,7 +18,7 @@ class NasaApi(AbstractApiController):
 
     def __init__(self) -> None:
         if NasaApi._instance is not None:
-            raise RuntimeError("Tried to initialize multiple instances of ApodApi.")
+            raise RuntimeError("Tried to initialize multiple instances of NasaApi.")
         super().__init__()
         self.apod_queue = asyncio.Queue()
         self.fetching = False

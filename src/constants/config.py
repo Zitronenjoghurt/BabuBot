@@ -16,6 +16,7 @@ class Config():
         self.BOT_TOKEN = config_data.get("token", None)
         self.NASA_API_KEY = config_data.get("nasa_key", "")
         self.CAT_API_KEY = config_data.get("cat_key", "")
+        self.YOUTUBE_API_KEY = config_data.get("youtube_key", "")
         self.PREFIX = config_data.get("prefix", None)
         self.GUILD_ID = config_data.get("guild_id", None)
         self.COUNTED_WORDS = config_data.get("counted_words", [])
@@ -26,11 +27,13 @@ class Config():
         self.CURRENCY = config_data.get("currency", "$")
         self.FISHING_CHANNEL_ID = config_data.get("fishing_channel_id", None)
         self.LOG_CHANNEL_ID = config_data.get("log_channel_id", None)
+        self.YOUTUBE_NOTIFICATION_CHANNEL_ID = config_data.get("youtube_notification_channel_id", None)
 
         try:
             validate_of_type(self.BOT_TOKEN, str, "token")
             validate_of_type(self.NASA_API_KEY, str, "nasa_key")
             validate_of_type(self.CAT_API_KEY, str, "cat_key")
+            validate_of_type(self.YOUTUBE_API_KEY, str, "youtube_key")
             validate_of_type(self.PREFIX, str, "prefix")
             validate_of_type(self.GUILD_ID, int, "guild_id")
             validate_of_type(self.COUNTED_WORDS, list, "counted_words")
@@ -43,6 +46,7 @@ class Config():
             validate_of_type(self.CURRENCY, str, "currency")
             validate_of_type(self.FISHING_CHANNEL_ID, int, "fishing_channel_id")
             validate_of_type(self.LOG_CHANNEL_ID, int, "log_channel_id")
+            validate_of_type(self.YOUTUBE_NOTIFICATION_CHANNEL_ID, int, "youtube_notification_channel_id")
         except ValueError as e:
             raise RuntimeError(f"An error occured while initializing config: {e}")
 

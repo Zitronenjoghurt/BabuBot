@@ -24,10 +24,13 @@ def rate_limit(calls: int = 0, seconds: int = 0, class_scope: bool = False):
             method_name = method.__name__
             if class_scope:
                 method_name = "at-class-scope"
-                calls = self.CALLS
-                seconds = self.SECONDS
+                _calls = self.CALLS
+                _seconds = self.SECONDS
+            else:
+                _calls = calls
+                _seconds = seconds
 
-            if calls < 1 or seconds < 1:
+            if _calls < 1 or _seconds < 1:
                 raise RuntimeError("Rate limit calls and seconds have to be greater or equal 1.")
 
             # Initialize method name in tracking dictionaries
@@ -38,16 +41,16 @@ def rate_limit(calls: int = 0, seconds: int = 0, class_scope: bool = False):
 
             while True:
                 # Reset if time of first call has passed
-                if time_passed(self.first_method_call[method_name], seconds):
+                if time_passed(self.first_method_call[method_name], _seconds):
                     self.first_method_call[method_name] = datetime.now().timestamp()
                     self.method_count[method_name] = 0
 
                 # Check rate limit
-                if self.method_count[method_name] < calls:
+                if self.method_count[method_name] < _calls:
                     self.method_count[method_name] += 1
                     break
                 else:
-                    cooldown = cooldown_time(timestamp=self.first_method_call[method_name], seconds=seconds)
+                    cooldown = cooldown_time(timestamp=self.first_method_call[method_name], seconds=_seconds)
                     await asyncio.sleep(cooldown)
 
             return await method(self, *args, **kwargs)

@@ -38,7 +38,7 @@ async def on_ready():
         await bot.load_extension(extension)
     LOGGER.info("Extensions initialized")
 
-    interval_and_routines = get_routines()
+    interval_and_routines = get_routines(bot=bot)
     for interval, routine in interval_and_routines:
         loop = tasks.loop(seconds=interval)(routine)
         loop.start()
