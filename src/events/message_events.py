@@ -1,5 +1,8 @@
+import asyncio
 import discord
+import random
 from discord.ext import commands
+from src.apis.openai_api import OpenAIApi
 from src.constants.config import Config
 from src.entities.user import User
 from src.entities.word_analyzer import WordAnalyzer
@@ -8,6 +11,8 @@ from src.logging.logger import LOGGER
 
 CHANNEL_LOGGER = ChannelLogger.get_instance()
 CONFIG = Config.get_instance()
+
+OPENAI = OpenAIApi.get_instance()
 
 class MessageEvents(commands.Cog):
     def __init__(self, bot):
@@ -43,6 +48,10 @@ class MessageEvents(commands.Cog):
         user: User = await User.load(userid=author_id)
         word_analyzer: WordAnalyzer = await WordAnalyzer.load(userid=author_id)
 
+        should_respond = random.randint(1, 100) == 69
+        if should_respond:
+            asyncio.create_task(ai_answer(message=message, user=user))
+
         user.levels.gain()
         user.message_statistics.process_message(message=content)
 
@@ -56,6 +65,17 @@ class MessageEvents(commands.Cog):
 
         await user.save()
         await word_analyzer.save()
+
+async def ai_answer(message: discord.Message, user: User) -> None:
+    username = message.author.display_name
+    pronouns = user.profile.pronouns
+
+    name = username if len(pronouns) == 0 else username + f" ({pronouns})"
+    prompt = f"{name}\n{message.content}"
+
+    answer = await OPENAI.request(preset_name='message_commenter', user_message=prompt)
+    if answer:
+        await message.reply(content=answer)
 
 async def setup(bot):
     await bot.add_cog(MessageEvents(bot))
