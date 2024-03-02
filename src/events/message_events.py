@@ -50,7 +50,7 @@ class MessageEvents(commands.Cog):
         word_analyzer: WordAnalyzer = await WordAnalyzer.load(userid=author_id)
 
         should_respond = random.randint(1, 100) == 69
-        if should_respond:
+        if should_respond and user.settings.ai_responses:
             asyncio.create_task(ai_answer(bot=self.bot, message=message))
 
         user.levels.gain()

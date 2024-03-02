@@ -8,6 +8,8 @@ async def get_ai_context_from_message(message: discord.Message) -> str:
 
     if not author.bot:
         user: User = await User.load(userid=str(author.id))
+        if not user.settings.ai_responses:
+            return ""
         pronouns = user.profile.pronouns
         if len(pronouns) > 0:
             username = f"User {name} ({pronouns})"
