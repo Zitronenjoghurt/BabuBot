@@ -36,12 +36,12 @@ async def cache_member_data(bot: commands.Bot, user: User, member: Optional[disc
         guild = await retrieve_guild_strict(bot=bot, guild_id=CONFIG.GUILD_ID)
         member = await retrieve_member(guild=guild, member_id=int(user.userid))
         if not member:
-            LOGGER.debug(f"Tried to cache member data of id {user.userid} in database but member was not found")
+            LOGGER.warning(f"Tried to cache member data of id {user.userid} in database but member was not found")
             return
 
     user.name = member.name
     user.display_name = member.display_name
-    LOGGER.debug(f"Cached member data of id {user.userid} in database")
+    #LOGGER.debug(f"Cached member data of id {user.userid} in database")
 
 async def send_in_channel(bot: commands.Bot, channel_id: int, content: Optional[str] = None, embed: Optional[discord.Embed] = None) -> bool:
     if not content and not embed:
