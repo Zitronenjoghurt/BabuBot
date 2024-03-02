@@ -1,7 +1,14 @@
+import asyncio
 import discord
 from discord.ext import commands
 from typing import Optional
+from src.constants.config import Config
+from src.entities.user import User
 from src.logging.logger import LOGGER
+from src.utils.message_operations import get_ai_context_from_message
+from src.utils.guild_operations import retrieve_member
+
+CONFIG = Config.get_instance()
 
 async def retrieve_guild(bot: commands.Bot, guild_id: int) -> Optional[discord.Guild]:
     guild = bot.get_guild(guild_id)
@@ -23,6 +30,18 @@ async def retrieve_guild_strict(bot: commands.Bot, guild_id: int) -> discord.Gui
         raise RuntimeError("Unable to retrieve guild.")
     
     return guild
+
+async def cache_member_data(bot: commands.Bot, user: User, member: Optional[discord.Member] = None) -> None:
+    if not member:
+        guild = await retrieve_guild_strict(bot=bot, guild_id=CONFIG.GUILD_ID)
+        member = await retrieve_member(guild=guild, member_id=int(user.userid))
+        if not member:
+            LOGGER.debug(f"Tried to cache member data of id {user.userid} in database but member was not found")
+            return
+
+    user.name = member.name
+    user.display_name = member.display_name
+    LOGGER.debug(f"Cached member data of id {user.userid} in database")
 
 async def send_in_channel(bot: commands.Bot, channel_id: int, content: Optional[str] = None, embed: Optional[discord.Embed] = None) -> bool:
     if not content and not embed:
@@ -46,8 +65,35 @@ async def send_in_channel(bot: commands.Bot, channel_id: int, content: Optional[
     except Exception as e:
         LOGGER.error(f"bot_operations failed to send message in channel {channel_id}: {e}")
         return False
+    
+async def get_message_context(bot: commands.Bot, message: discord.Message, context_length: int = 20) -> list[str]:
+    channel = message.channel
+    if not isinstance(channel, discord.TextChannel):
+        return []
+    
+    context_messages = []
+    async for msg in channel.history(limit=context_length*2, before=message):
+        context = await get_ai_context_from_message(message=msg)
+        if len(context) == 0:
+            continue
+        context_messages.append(context)
 
-async def notify_user(bot: commands.Bot, user_id: int, try_dm: bool = False, channel_id: Optional[int] = None, message: Optional[str] = None, embed: Optional[discord.Embed] = None):
+    if len(context_messages) > context_length - 1:
+        context_messages = context_messages[:context_length]
+
+    context_messages.reverse()
+
+    author_context = await get_ai_context_from_message(message=message)
+    if len(author_context) > 0:
+        context_messages.append(author_context)
+
+    return context_messages
+
+async def notify_user(bot: commands.Bot, user_id: int, delay_seconds: int = 0, try_dm: bool = False, channel_id: Optional[int] = None, message: Optional[str] = None, embed: Optional[discord.Embed] = None):
+    if delay_seconds < 0:
+            delay_seconds = 0
+    await asyncio.sleep(delay=delay_seconds)
+
     dm_success = None
     if try_dm:
         dm_success = await notify_user_private(bot=bot, user_id=user_id, message=message, embed=embed)

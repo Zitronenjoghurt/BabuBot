@@ -5,6 +5,7 @@ from src.constants.config import Config
 from src.entities.user import User
 from src.logging.channel_logger import ChannelLogger
 from src.logging.logger import LOGGER
+from src.utils.bot_operations import cache_member_data
 from src.utils.init_operations import get_extensions, get_routines
 
 CONFIG = Config.get_instance()
@@ -28,7 +29,7 @@ async def on_ready():
 
     # Cache member data in database
     for user in await User.findall():
-        await user.cache_member_data(bot)
+        await cache_member_data(bot=bot, user=user)
         await user.save()
     LOGGER.info("Cached available member data of all users in database")
 

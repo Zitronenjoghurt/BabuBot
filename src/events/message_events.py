@@ -8,6 +8,7 @@ from src.entities.user import User
 from src.entities.word_analyzer import WordAnalyzer
 from src.logging.channel_logger import ChannelLogger
 from src.logging.logger import LOGGER
+from src.utils.bot_operations import cache_member_data, get_message_context
 
 CHANNEL_LOGGER = ChannelLogger.get_instance()
 CONFIG = Config.get_instance()
@@ -50,7 +51,7 @@ class MessageEvents(commands.Cog):
 
         should_respond = random.randint(1, 100) == 69
         if should_respond:
-            asyncio.create_task(ai_answer(message=message, user=user))
+            asyncio.create_task(ai_answer(bot=self.bot, message=message))
 
         user.levels.gain()
         user.message_statistics.process_message(message=content)
@@ -61,19 +62,14 @@ class MessageEvents(commands.Cog):
                 user.word_counter.count_word(word=word)
             word_analyzer.process_word(word=word)
 
-        await user.cache_member_data(bot=self.bot)
+        await cache_member_data(bot=self.bot, user=user)
 
         await user.save()
         await word_analyzer.save()
 
-async def ai_answer(message: discord.Message, user: User) -> None:
-    username = message.author.display_name
-    pronouns = user.profile.pronouns
-
-    name = username if len(pronouns) == 0 else username + f" ({pronouns})"
-    prompt = f"{name}\n{message.content}"
-
-    answer = await OPENAI.request(preset_name='message_commenter', user_message=prompt)
+async def ai_answer(bot: commands.Bot, message: discord.Message) -> None:
+    context = await get_message_context(bot=bot, message=message, context_length=5)
+    answer = await OPENAI.request(preset_name='message_commenter', user_messages=context)
     if answer:
         await message.reply(content=answer)
     else:

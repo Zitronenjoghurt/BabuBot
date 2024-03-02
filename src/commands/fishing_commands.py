@@ -18,6 +18,7 @@ from src.scrollables.fish_sold_toplist_scrollable import FishSoldToplistScrollab
 from src.scrollables.money_earned_toplist_scrollable import MoneyEarnedToplistScrollable
 from src.scrollables.prestige_points_toplist_scrollable import PrestigePointsToplistScrollable
 from src.ui.scrollable_embed import ScrollableEmbed
+from src.utils.bot_operations import notify_user
 from src.utils.discord_time import relative_time, long_date_time
 from src.utils.interaction_operations import send_scrollable
 
@@ -82,12 +83,13 @@ class FishingCommands(commands.Cog):
             await send_catch_embed(interaction=interaction, fish_entry=fish_entry, size=size_str, record_size=record_size, current=current_count, total=total_count)
 
         if user.fishing.notify_on_fishing_ready:
-            asyncio.create_task(user.notify(
+            asyncio.create_task(notify_user(
                 bot=self.bot, 
+                user_id=interaction.user.id,
                 channel_id=CONFIG.FISHING_CHANNEL_ID, 
                 try_dm=user.fishing.notify_dm,
                 delay_seconds=FISHING_COOLDOWN,
-                content="You can fish again :)"
+                message="You can fish again :)"
             ))
 
     @fish.autocomplete("bait")
