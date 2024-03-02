@@ -3,7 +3,7 @@ from src.entities.user import User
 
 async def get_ai_context_from_message(message: discord.Message) -> str:
     author = message.author
-    name = author.name
+    name = author.display_name
     content = message.content
 
     if not author.bot:
