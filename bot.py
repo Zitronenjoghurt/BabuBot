@@ -18,6 +18,8 @@ bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents, enable_debug_e
 
 LOGGER.info("Bot initialized")
 
+CL = ChannelLogger.get_instance()
+
 @bot.event
 async def on_ready():
     # Cache guilds
@@ -25,7 +27,7 @@ async def on_ready():
         await guild.chunk()
 
     # Initialize channel logger
-    CL = await ChannelLogger._initialize(bot=bot)
+    await CL._initialize(bot=bot)
 
     # Cache member data in database
     for user in await User.findall():
@@ -62,6 +64,7 @@ async def on_disconnect():
 
 @bot.event
 async def on_resumed():
+    await CL.info(message="Bot reconnected")
     LOGGER.info("Bot reconnected")
 
 @bot.event

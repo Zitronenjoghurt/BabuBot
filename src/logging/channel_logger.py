@@ -3,6 +3,7 @@ from discord.ext import commands
 from datetime import datetime
 from typing import Optional
 from src.constants.config import Config
+from logging.log_color import LogColor
 from src.logging.logger import LOGGER
 from src.utils.string_operations import limit_length
 
@@ -11,19 +12,19 @@ CONFIG = Config.get_instance()
 class ChannelLogger():
     _instance = None
 
-    def __init__(self, bot: Optional[commands.Bot]) -> None:
+    def __init__(self) -> None:
         if ChannelLogger._instance is not None:
             raise RuntimeError("Tried to initialize multiple instances of ChannelLogger.")
-        if not isinstance(bot, commands.Bot):
-            raise RuntimeError("Tried to initialize ChannelLogger without a bot instance.")
-        self.bot = bot
+        self.bot: Optional[commands.Bot] = None
         self.channels: dict[str, discord.TextChannel] = {}
         self.initialized = False
 
     @staticmethod
-    async def _initialize(bot: Optional[commands.Bot] = None) -> 'ChannelLogger':
-        ChannelLogger._instance = ChannelLogger(bot=bot)
+    async def _initialize(bot: commands.Bot) -> 'ChannelLogger':
         CL = ChannelLogger.get_instance()
+        if CL.initialized:
+            raise RuntimeError(f"An error occured while initializing ChannelLogger: ChannelLogger was already initialized.")
+        CL.bot = bot
 
         try:
             default_channel = await CL.bot.fetch_channel(CONFIG.LOG_CHANNEL_ID)
@@ -42,10 +43,13 @@ class ChannelLogger():
     @staticmethod
     def get_instance() -> 'ChannelLogger':
         if ChannelLogger._instance is None:
-            raise RuntimeError(f"An error occured while getting instance of ChannelLogger: ChannelLogger was not initialized yet. Use _initialize and pass a bot instance.")
+            ChannelLogger._instance = ChannelLogger()
         return ChannelLogger._instance
     
     def get_log_channel(self, log_channel: Optional[str] = None) -> discord.TextChannel:
+        if not self.initialized:
+            raise RuntimeError(f"An error while trying to use ChannelLogger: ChannelLogger was not initialized yet.")
+        
         default_channel = self.channels.get("default")
         if not isinstance(default_channel, discord.TextChannel):
             raise RuntimeError(f"An error occured while retrieving default logging channel: channel is not a TextChannel.")
@@ -59,20 +63,29 @@ class ChannelLogger():
         return channel
 
     async def info(self, message: str, log_channel: Optional[str] = None, title: Optional[str] = None, author_name: Optional[str] = None, icon_url: Optional[str] = None, fields: Optional[list[tuple[str, str]]] = None) -> None:
-        await self.log(color="#3474EB", log_channel=log_channel, message=message, title=title, author_name=author_name, icon_url=icon_url, fields=fields)
+        await self.log(color=LogColor.INFO, log_channel=log_channel, message=message, title=title, author_name=author_name, icon_url=icon_url, fields=fields)
+
+    async def error(self, message: str, log_channel: Optional[str] = None, title: Optional[str] = None, author_name: Optional[str] = None, icon_url: Optional[str] = None, fields: Optional[list[tuple[str, str]]] = None) -> None:
+        await self.log(color=LogColor.ERROR, log_channel=log_channel, message=message, title=title, author_name=author_name, icon_url=icon_url, fields=fields)
+    
+    async def success(self, message: str, log_channel: Optional[str] = None, title: Optional[str] = None, author_name: Optional[str] = None, icon_url: Optional[str] = None, fields: Optional[list[tuple[str, str]]] = None) -> None:
+        await self.log(color=LogColor.SUCCESS, log_channel=log_channel, message=message, title=title, author_name=author_name, icon_url=icon_url, fields=fields)
+
+    async def warning(self, message: str, log_channel: Optional[str] = None, title: Optional[str] = None, author_name: Optional[str] = None, icon_url: Optional[str] = None, fields: Optional[list[tuple[str, str]]] = None) -> None:
+        await self.log(color=LogColor.WARNING, log_channel=log_channel, message=message, title=title, author_name=author_name, icon_url=icon_url, fields=fields)
 
     async def dm(self, message: discord.Message, log_channel: Optional[str] = None) -> None:
         content = message.content
         if not isinstance(content, str):
             content = ""
         author = message.author
-        await self.log(color="#68E397", log_channel=log_channel, message=content, title="DM RECEIVED", author_name=author.name, icon_url=author.display_avatar.url)
+        await self.log(color=LogColor.DM, log_channel=log_channel, message=content, title="DM RECEIVED", author_name=author.name, icon_url=author.display_avatar.url)
 
-    async def log(self, message: str, color: str, log_channel: Optional[str] = None, title: Optional[str] = None, author_name: Optional[str] = None, icon_url: Optional[str] = None, fields: Optional[list[tuple[str, str]]] = None) -> None:
+    async def log(self, message: str, color: LogColor, log_channel: Optional[str] = None, title: Optional[str] = None, author_name: Optional[str] = None, icon_url: Optional[str] = None, fields: Optional[list[tuple[str, str]]] = None) -> None:
         if not isinstance(message, str):
             raise ValueError("Log message must be a string.")
-        if not isinstance(color, str):
-            raise ValueError("Log color must be a string.")
+        if not isinstance(color, LogColor):
+            raise ValueError("Color must be a LogColor.")
         if title and not isinstance(title, str):
             raise ValueError("Log title must be a string.")
         if author_name and not isinstance(author_name, str):
@@ -91,7 +104,7 @@ class ChannelLogger():
         
         channel = self.get_log_channel(log_channel=log_channel)
         embed = build_embed(title, message, author_name, icon_url, fields)
-        embed.color = discord.Color.from_str(color)
+        embed.color = color.value
         await channel.send(embed=embed)
 
 def build_embed(title: Optional[str] = None, message: Optional[str] = None, author_name: Optional[str] = None, icon_url: Optional[str] = None, fields: Optional[list[tuple[str, str]]] = None) -> discord.Embed:
