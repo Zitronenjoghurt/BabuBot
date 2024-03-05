@@ -62,6 +62,9 @@ def get_routines(bot: commands.Bot) -> list[tuple[int, Callable]]:
 def create_run_method(bot: commands.Bot, module, module_name: str) -> Callable:
     async def run():
         LOGGER.debug(f"Executing routine {module_name}.")
-        await module.run(bot)
+        try:
+            await module.run(bot)
+        except Exception as e:
+            LOGGER.error(f"An error occured while executing routine {module_name}: {e}")
         LOGGER.debug(f"Finished executing routine {module_name}.")
     return run
