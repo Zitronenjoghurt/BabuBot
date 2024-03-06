@@ -9,7 +9,7 @@ class AbstractSerializableEntity():
         data = {}
         for property in self.SERIALIZED_PROPERTIES:
             value = getattr(self, property)
-            # Allows for serialization of value is a list of serializable entities
+            # Allows for serialization if value is a list of serializable entities
             if isinstance(value, list):
                 new_value = []
                 for list_value in value:

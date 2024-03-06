@@ -18,8 +18,12 @@ class Rocket(AbstractSerializableEntity):
 
     @staticmethod
     def from_api_data(data: dict) -> 'Rocket':
-        name = data.get("name", None)
-        family = data.get("family", None)
-        full_name = data.get("full_name", None)
-        variant = data.get("variant", None)
+        configuration_data = data.get("configuration", {})
+        if not isinstance(configuration_data, dict):
+            configuration_data = {}
+
+        name = configuration_data.get("name", None)
+        family = configuration_data.get("family", None)
+        full_name = configuration_data.get("full_name", None)
+        variant = configuration_data.get("variant", None)
         return Rocket(name=name, family=family, full_name=full_name, variant=variant)

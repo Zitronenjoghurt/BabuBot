@@ -6,7 +6,7 @@ from src.logging.logger import LOGGER
 from src.utils.dict_operations import deep_difference
 from src.utils.validator import validate_of_type
 
-TABLE_NAMES = ["feedback", "users", "word_analyzer", "relationships", "digging_queue"]
+TABLE_NAMES = ["feedback", "users", "word_analyzer", "relationships", "digging_queue", "rocket_launches"]
 
 class Database():
     _instance = None
