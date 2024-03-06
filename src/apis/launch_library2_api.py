@@ -33,15 +33,15 @@ class LaunchLibrary2Api(AbstractApiController):
         for result in results:
             # ToDo: Notify on certain updates, like when theres a new fail reason, etc.
             entry = await RocketLaunch.from_api_data(data=result)
-            await entry.save()
+            updated_fields = await entry.save()
 
     @rate_limit(class_scope=True)
-    async def update_launche(self, limit: int = 100) -> None:
+    async def update_launches(self, limit: int = 100) -> None:
         if self.fetching:
             raise ApiError("The bot is currently fetching launches.")
         self.fetching = True
         try:
-            data = await self.request(endpoint="/2.2.0/launch/", expected_codes=[200], limit=limit)
+            data = await self.request(endpoint="2.2.0/launch/upcoming", expected_codes=[200], limit=limit)
             if isinstance(data, dict):
                 await self._process_launches(data=data)
                 LOGGER.info(f"Successfully updated launch entries from the LL2 API.")
