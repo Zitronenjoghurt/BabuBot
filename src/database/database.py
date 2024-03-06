@@ -3,6 +3,7 @@ import sqlite3
 from numbers import Number
 from typing import Any, Optional
 from src.logging.logger import LOGGER
+from src.utils.dict_operations import deep_difference
 from src.utils.validator import validate_of_type
 
 TABLE_NAMES = ["feedback", "users", "word_analyzer", "relationships", "digging_queue"]
@@ -45,11 +46,25 @@ class Database():
         self.connection.commit()
         return self.cursor.lastrowid
     
-    def update(self, table_name: str, entity_id: int, data: dict) -> None:
+    def update(self, table_name: str, entity_id: int, data: dict, return_changed_fields: bool = False) -> Optional[dict]:
         validate_table_name(table_name=table_name)
+
+        if return_changed_fields:
+            self.cursor.execute(f"SELECT data FROM {table_name} WHERE id = ?", (entity_id,))
+            result = self.cursor.fetchone()
+            if result:
+                old_data = json.loads(result[0])
+                changed_fields = deep_difference(old_dict=old_data, new_dict=data)
+            else:
+                changed_fields = {}
+
         json_data = json.dumps(data)
         self.cursor.execute(f"UPDATE {table_name} SET data = ? WHERE id = ?", (json_data, entity_id))
         self.connection.commit()
+
+        if not return_changed_fields:
+            return
+        return changed_fields
 
     def find(self, table_name: str, **kwargs) -> Any:
         validate_table_name(table_name=table_name)

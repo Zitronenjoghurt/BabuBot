@@ -22,13 +22,13 @@ class AbstractDatabaseEntity(AbstractSerializableEntity):
         self.id = id
         self.created_stamp = created_stamp
 
-    async def save(self) -> None:
+    async def save(self, return_changed_fields: bool = False) -> Optional[dict]:
         data = self.to_dict()
         save_data = {key: value for key, value in data.items() if key in self.SAVED_PROPERTIES}
         if self.id is None:
             self.id = DB.insert(table_name=self.TABLE_NAME, data=save_data)
         else:
-            DB.update(table_name=self.TABLE_NAME, entity_id=self.id, data=save_data)
+            return DB.update(table_name=self.TABLE_NAME, entity_id=self.id, data=save_data, return_changed_fields=return_changed_fields)
 
     @classmethod
     async def find(cls, **kwargs) -> Any:
