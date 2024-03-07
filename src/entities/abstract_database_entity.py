@@ -31,7 +31,10 @@ class AbstractDatabaseEntity(AbstractSerializableEntity):
             return DB.update(table_name=self.TABLE_NAME, entity_id=self.id, data=save_data, return_changed_fields=return_changed_fields)
         
     async def delete(self) -> None:
-        pass
+        if self.id:
+            DB.delete(table_name=self.TABLE_NAME, id=self.id)
+        else:
+            raise RuntimeError(f"Tried to delete an entity from table {self.TABLE_NAME}, but it has no id.")
 
     @classmethod
     async def find(cls, **kwargs) -> Any:

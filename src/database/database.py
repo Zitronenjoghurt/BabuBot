@@ -46,6 +46,11 @@ class Database():
         self.connection.commit()
         return self.cursor.lastrowid
     
+    def delete(self, table_name: str, id: int) -> None:
+        validate_table_name(table_name=table_name)
+        self.cursor.execute(f"DELETE FROM {table_name} WHERE id = ?", (id,))
+        self.connection.commit()
+
     def update(self, table_name: str, entity_id: int, data: dict, return_changed_fields: bool = False) -> Optional[dict]:
         validate_table_name(table_name=table_name)
 
