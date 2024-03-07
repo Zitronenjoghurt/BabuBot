@@ -1,3 +1,4 @@
+import discord
 from datetime import datetime, timedelta
 from typing import Optional
 from src.constants.config import Config
@@ -7,14 +8,16 @@ from src.entities.rocket_launch_mission import RocketLaunchMission
 from src.entities.rocket_launch_mission_agency import RocketLaunchMissionAgency
 from src.entities.rocket_launch_pad import RocketLaunchPad
 from src.entities.rocket_launch_status import RocketLaunchStatus
+from src.utils.string_operations import limit_length
+from src.utils.discord_time import relative_time, long_date_time
 
 CONFIG = Config.get_instance()
 
 class RocketLaunch(AbstractDatabaseEntity):
     TABLE_NAME = "rocket_launches"
-    SERIALIZED_PROPERTIES = ["id", "created_stamp", "launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "notifications_sent"]
+    SERIALIZED_PROPERTIES = ["id", "created_stamp", "launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "notifications_sent"]
     SERIALIZE_CLASSES = {"status": RocketLaunchStatus, "rocket": Rocket, "mission": RocketLaunchMission, "mission_agencies": RocketLaunchMissionAgency, "pad": RocketLaunchPad}
-    SAVED_PROPERTIES = ["launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", ""]
+    SAVED_PROPERTIES = ["launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", ""]
 
     def __init__(
             self, 
@@ -37,6 +40,7 @@ class RocketLaunch(AbstractDatabaseEntity):
             hold_reason: Optional[str] = None,
             fail_reason: Optional[str] = None,
             webcast_live: Optional[bool] = None,
+            image_url: Optional[str] = None,
             orbital_launch_attempt_count: Optional[int] = None,
             orbital_launch_attempt_count_year: Optional[int] = None,
             notifications_sent: Optional[int] = None
@@ -59,6 +63,7 @@ class RocketLaunch(AbstractDatabaseEntity):
         self.hold_reason = hold_reason if isinstance(hold_reason, str) else "No Reason"
         self.fail_reason = fail_reason if isinstance(fail_reason, str) else "No Reason"
         self.webcast_live = webcast_live if isinstance(webcast_live, bool) else False
+        self.image_url = image_url if isinstance(image_url, str) else None
         self.orbital_launch_attempt_count = orbital_launch_attempt_count if isinstance(orbital_launch_attempt_count, int) else 0
         self.orbital_launch_attempt_count_year = orbital_launch_attempt_count_year if isinstance(orbital_launch_attempt_count_year, int) else 0
         self.notifications_sent = notifications_sent if isinstance(notifications_sent, int) else 0
@@ -79,6 +84,7 @@ class RocketLaunch(AbstractDatabaseEntity):
         hold_reason = data.get("holdreason", None)
         fail_reason = data.get("failreason", None)
         webcast_live = data.get("webcast_live", None)
+        image_url = data.get("image", None)
         orbital_launch_attempt_count = data.get("orbital_launch_attempt_count", None)
         orbital_launch_attempt_count_year = data.get("orbital_launch_attempt_count_year", None)
 
@@ -153,6 +159,7 @@ class RocketLaunch(AbstractDatabaseEntity):
             hold_reason=hold_reason,
             fail_reason=fail_reason,
             webcast_live=webcast_live,
+            image_url=image_url,
             orbital_launch_attempt_count=orbital_launch_attempt_count,
             orbital_launch_attempt_count_year=orbital_launch_attempt_count_year,
             notifications_sent=notifications_sent
@@ -196,3 +203,71 @@ class RocketLaunch(AbstractDatabaseEntity):
     def should_remove_entry(self) -> bool:
         # ToDo find out optimal parameters to find out which entries should be removed from the database
         return False
+    
+    def has_mission_agency(self) -> bool:
+        return len(self.mission_agencies) > 0
+
+    def get_mission_agency_name(self) -> Optional[str]:
+        if not self.has_mission_agency():
+            return None
+        agency = self.mission_agencies[0]
+        return agency.name
+    
+    def get_mission_agency_url(self) -> Optional[str]:
+        if not self.has_mission_agency():
+            return None
+        agency = self.mission_agencies[0]
+        if agency.info_url:
+            return agency.info_url
+        if agency.wiki_url:
+            return agency.wiki_url
+        return None
+    
+    def get_mission_agency_logo_url(self) -> Optional[str]:
+        if not self.has_mission_agency():
+            return None
+        agency = self.mission_agencies[0]
+        return agency.logo_url
+    
+    def get_launch_stamp(self) -> datetime:
+        return datetime.fromtimestamp(self.net)
+    
+    def get_description_with_name(self) -> str:
+        return f"**{limit_length(self.name, 256)}**\n*{limit_length(self.mission.description, 1000)}*"
+
+    def generate_today_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="LAUNCHING TODAY...", 
+            description=self.get_description_with_name(),
+            color=discord.Color.from_str("#5380B8"),
+            timestamp=self.get_launch_stamp()
+        )
+        if self.image_url:
+            embed.set_image(url=self.image_url)
+        if self.get_mission_agency_name():
+            embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
+        embed.add_field(name="Launch time", value=f"{relative_time(int(self.net))}\n{long_date_time(int(self.net))}")
+        embed.add_field(name="Launch Service Provider", value=f"**`{self.launch_service_provider}`**")
+        embed.add_field(name="Launch Vehicel", value=f"**`{self.rocket.full_name}`**")
+        embed.add_field(name="Target Orbit", value=f"**`{self.mission.target_orbit}`**")
+        embed.add_field(name="Number of launch", value=f"**`#{self.orbital_launch_attempt_count_year} this year`**\n**`#{self.orbital_launch_attempt_count} all time`**")
+        embed.add_field(name="Launch Location", value=f"**`{self.pad.name}`**\n**`{self.pad.location_name}`**", inline=False)
+        return embed
+    
+    def generate_soon_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="LAUNCHING SOON!", 
+            description=self.get_description_with_name(),
+            color=discord.Color.from_str("#ED4021"),
+            timestamp=self.get_launch_stamp()
+        )
+        if self.image_url:
+            embed.set_image(url=self.image_url)
+        if self.get_mission_agency_name():
+            embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
+        embed.add_field(name="Launch time", value=f"{relative_time(int(self.net))}\n{long_date_time(int(self.net))}", inline=False)
+        embed.add_field(name="Launch Vehicel", value=f"**`{self.rocket.full_name}`**", inline=False)
+        embed.add_field(name="Launch Location", value=f"**`{self.pad.name}`**\n**`{self.pad.location_name}`**", inline=False)
+        if self.webcast_live and self.mission.vid_urls:
+            embed.add_field(name="Livestream", value=f"{self.mission.vid_urls[0]}")
+        return embed

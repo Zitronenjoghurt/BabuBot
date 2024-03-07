@@ -3,7 +3,7 @@ from discord.ext import commands
 from datetime import datetime
 from typing import Optional
 from src.constants.config import Config
-from logging.log_color import LogColor
+from src.logging.log_color import LogColor
 from src.logging.logger import LOGGER
 from src.utils.string_operations import limit_length
 

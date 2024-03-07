@@ -2,7 +2,7 @@ from discord.ext import commands
 from src.entities.rocket_launch import RocketLaunch
 
 ACTIVE = False
-INTERVAL_SECONDS = 300
+INTERVAL_SECONDS = 180
 
 async def run(bot: commands.Bot):
     launches: list[RocketLaunch] = await RocketLaunch.findall(sort_key="net", descending=False)
