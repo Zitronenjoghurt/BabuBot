@@ -29,6 +29,9 @@ class AbstractDatabaseEntity(AbstractSerializableEntity):
             self.id = DB.insert(table_name=self.TABLE_NAME, data=save_data)
         else:
             return DB.update(table_name=self.TABLE_NAME, entity_id=self.id, data=save_data, return_changed_fields=return_changed_fields)
+        
+    async def delete(self) -> None:
+        pass
 
     @classmethod
     async def find(cls, **kwargs) -> Any:

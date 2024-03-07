@@ -20,3 +20,12 @@ class RocketLaunchStatus(AbstractSerializableEntity):
         abbreviation = data.get("abbrev", None)
         description = data.get("description", None)
         return RocketLaunchStatus(name=name, abbreviation=abbreviation, description=description)
+    
+    def is_go_confirmed(self) -> bool:
+        return self.abbreviation.lower() == "go"
+    
+    def is_successful(self) -> bool:
+        return self.abbreviation.lower() == "success"
+    
+    def is_failure(self) -> bool:
+        return self.abbreviation.lower() == "failure"

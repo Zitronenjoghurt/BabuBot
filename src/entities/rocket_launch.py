@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from src.constants.config import Config
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
@@ -12,9 +12,9 @@ CONFIG = Config.get_instance()
 
 class RocketLaunch(AbstractDatabaseEntity):
     TABLE_NAME = "rocket_launches"
-    SERIALIZED_PROPERTIES = ["id", "created_stamp", "launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year"]
+    SERIALIZED_PROPERTIES = ["id", "created_stamp", "launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "notifications_sent"]
     SERIALIZE_CLASSES = {"status": RocketLaunchStatus, "rocket": Rocket, "mission": RocketLaunchMission, "mission_agencies": RocketLaunchMissionAgency, "pad": RocketLaunchPad}
-    SAVED_PROPERTIES = ["launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year"]
+    SAVED_PROPERTIES = ["launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", ""]
 
     def __init__(
             self, 
@@ -38,7 +38,8 @@ class RocketLaunch(AbstractDatabaseEntity):
             fail_reason: Optional[str] = None,
             webcast_live: Optional[bool] = None,
             orbital_launch_attempt_count: Optional[int] = None,
-            orbital_launch_attempt_count_year: Optional[int] = None
+            orbital_launch_attempt_count_year: Optional[int] = None,
+            notifications_sent: Optional[int] = None
         ) -> None:
         super().__init__(id=id, created_stamp=created_stamp)
         self.launch_id = launch_id if isinstance(launch_id, str) else "No ID"
@@ -60,6 +61,7 @@ class RocketLaunch(AbstractDatabaseEntity):
         self.webcast_live = webcast_live if isinstance(webcast_live, bool) else False
         self.orbital_launch_attempt_count = orbital_launch_attempt_count if isinstance(orbital_launch_attempt_count, int) else 0
         self.orbital_launch_attempt_count_year = orbital_launch_attempt_count_year if isinstance(orbital_launch_attempt_count_year, int) else 0
+        self.notifications_sent = notifications_sent if isinstance(notifications_sent, int) else 0
 
     @staticmethod
     async def from_api_data(data: dict) -> 'RocketLaunch':
@@ -70,6 +72,8 @@ class RocketLaunch(AbstractDatabaseEntity):
         existing_entry = await RocketLaunch.find(launch_id=launch_id)
         id = existing_entry.id if isinstance(existing_entry, RocketLaunch) else None
         created_stamp = existing_entry.created_stamp if isinstance(existing_entry, RocketLaunch) else None
+        notifications_sent = existing_entry.notifications_sent if isinstance(existing_entry, RocketLaunch) else 0
+
         name = data.get("name", "No Name")
         weather_concerns = data.get("weather_concerns", None)
         hold_reason = data.get("holdreason", None)
@@ -150,5 +154,45 @@ class RocketLaunch(AbstractDatabaseEntity):
             fail_reason=fail_reason,
             webcast_live=webcast_live,
             orbital_launch_attempt_count=orbital_launch_attempt_count,
-            orbital_launch_attempt_count_year=orbital_launch_attempt_count_year
+            orbital_launch_attempt_count_year=orbital_launch_attempt_count_year,
+            notifications_sent=notifications_sent
         )
+    
+    def is_go_confirmed(self) -> bool:
+        return self.status.is_go_confirmed()
+    
+    def launches_in(self) -> timedelta:
+        now_stamp = datetime.now().timestamp()
+        seconds_left = self.net - now_stamp
+        return timedelta(seconds=seconds_left)
+
+    def launches_in_12h(self) -> bool:
+        if not self.is_go_confirmed():
+            return False
+        launch_in = self.launches_in()
+        return launch_in < timedelta(hours=12)
+    
+    def launches_in_10min(self) -> bool:
+        if not self.is_go_confirmed():
+            return False
+        launch_in = self.launches_in()
+        return launch_in < timedelta(minutes=10)
+    
+    def launch_successful(self) -> bool:
+        return self.status.is_successful()
+    
+    def launch_failure(self) -> bool:
+        return self.status.is_failure()
+    
+    def notify_launching_today(self) -> bool:
+        return self.launches_in_12h() and self.notifications_sent == 0
+    
+    def notify_launching_soon(self) -> bool:
+        return self.launches_in_10min() and self.notifications_sent == 1
+    
+    def notify_liftoff_status(self) -> bool:
+        return (self.launch_successful or self.launch_failure) and self.notifications_sent == 2
+    
+    def should_remove_entry(self) -> bool:
+        # ToDo find out optimal parameters to find out which entries should be removed from the database
+        return False
