@@ -44,13 +44,13 @@ class LaunchLibrary2Api(AbstractApiController):
     async def update_launches(self, limit: int = 100) -> Optional[list[tuple[str, dict]]]:
         if self.fetching:
             raise ApiError("The bot is currently fetching launches.")
+        updated_fields = None
         self.fetching = True
         try:
             data = await self.request(endpoint="2.2.0/launch/upcoming", expected_codes=[200], limit=limit)
             if isinstance(data, dict):
                 updated_fields = await self._process_launches(data=data)
                 LOGGER.info(f"Successfully updated launch entries from the LL2 API.")
-                return updated_fields
             else:
                 LOGGER.error(f"No dictionary was returned while trying to update launch entries.")
         except UnexpectedResponseCodeError as e:
@@ -60,3 +60,4 @@ class LaunchLibrary2Api(AbstractApiController):
         except aiohttp.ClientConnectionError as e:
             LOGGER.error(f"A connection error occured while trying to update launch entries: {e}")
         self.fetching = False
+        return updated_fields
