@@ -252,7 +252,7 @@ class RocketLaunch(AbstractDatabaseEntity):
             embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
         embed.add_field(name="Launch time", value=f"{relative_time(int(self.net))}\n{long_date_time(int(self.net))}")
         embed.add_field(name="Launch Service Provider", value=f"**`{self.launch_service_provider}`**")
-        embed.add_field(name="Launch Vehicel", value=f"**`{self.rocket.full_name}`**")
+        embed.add_field(name="Launch Vehicle", value=f"**`{self.rocket.full_name}`**")
         embed.add_field(name="Target Orbit", value=f"**`{self.mission.target_orbit}`**")
         embed.add_field(name="Number of launch", value=f"**`#{self.orbital_launch_attempt_count_year} this year`**\n**`#{self.orbital_launch_attempt_count} all time`**")
         embed.add_field(name="Launch Location", value=f"**`{self.pad.name}`**\n**`{self.pad.location_name}`**", inline=False)
@@ -270,7 +270,7 @@ class RocketLaunch(AbstractDatabaseEntity):
         if self.get_mission_agency_name():
             embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
         embed.add_field(name="Launch time", value=f"{relative_time(int(self.net))}\n{long_time(int(self.net))}", inline=False)
-        embed.add_field(name="Launch Vehicel", value=f"**`{self.rocket.full_name}`**", inline=False)
+        embed.add_field(name="Launch Vehicle", value=f"**`{self.rocket.full_name}`**", inline=False)
         embed.add_field(name="Launch Location", value=f"**`{self.pad.name}`**\n**`{self.pad.location_name}`**", inline=False)
         if self.webcast_live and self.vid_urls:
             embed.add_field(name="Livestream", value=f"{self.vid_urls[0]}")
