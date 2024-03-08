@@ -68,6 +68,7 @@ class MessageEvents(commands.Cog):
         await word_analyzer.save()
 
 async def ai_answer(bot: commands.Bot, message: discord.Message) -> None:
+    channel = message.channel
     async with message.channel.typing():
         context = await get_message_context(bot=bot, message=message, context_length=5)
         answer = await OPENAI.request(preset_name='message_commenter', user_messages=context)
@@ -75,7 +76,7 @@ async def ai_answer(bot: commands.Bot, message: discord.Message) -> None:
         try:
             await message.reply(content=answer)
         except discord.NotFound:
-            await message.channel.send(content=answer)
+            await channel.send(content=answer)
     else:
         LOGGER.error("OPENAI tried to answer a random message but api result was empty")
 
