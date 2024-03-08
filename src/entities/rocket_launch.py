@@ -9,15 +9,15 @@ from src.entities.rocket_launch_mission_agency import RocketLaunchMissionAgency
 from src.entities.rocket_launch_pad import RocketLaunchPad
 from src.entities.rocket_launch_status import RocketLaunchStatus
 from src.utils.string_operations import limit_length
-from src.utils.discord_time import relative_time, long_date_time
+from src.utils.discord_time import relative_time, long_date_time, long_time
 
 CONFIG = Config.get_instance()
 
 class RocketLaunch(AbstractDatabaseEntity):
     TABLE_NAME = "rocket_launches"
-    SERIALIZED_PROPERTIES = ["id", "created_stamp", "launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "notifications_sent"]
+    SERIALIZED_PROPERTIES = ["id", "created_stamp", "launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "notifications_sent", "vid_urls"]
     SERIALIZE_CLASSES = {"status": RocketLaunchStatus, "rocket": Rocket, "mission": RocketLaunchMission, "mission_agencies": RocketLaunchMissionAgency, "pad": RocketLaunchPad}
-    SAVED_PROPERTIES = ["launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", ""]
+    SAVED_PROPERTIES = ["launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "notifications_sent", "vid_urls"]
 
     def __init__(
             self, 
@@ -43,7 +43,8 @@ class RocketLaunch(AbstractDatabaseEntity):
             image_url: Optional[str] = None,
             orbital_launch_attempt_count: Optional[int] = None,
             orbital_launch_attempt_count_year: Optional[int] = None,
-            notifications_sent: Optional[int] = None
+            notifications_sent: Optional[int] = None,
+            vid_urls: Optional[list[str]] = None
         ) -> None:
         super().__init__(id=id, created_stamp=created_stamp)
         self.launch_id = launch_id if isinstance(launch_id, str) else "No ID"
@@ -67,6 +68,7 @@ class RocketLaunch(AbstractDatabaseEntity):
         self.orbital_launch_attempt_count = orbital_launch_attempt_count if isinstance(orbital_launch_attempt_count, int) else 0
         self.orbital_launch_attempt_count_year = orbital_launch_attempt_count_year if isinstance(orbital_launch_attempt_count_year, int) else 0
         self.notifications_sent = notifications_sent if isinstance(notifications_sent, int) else 0
+        self.vid_urls = vid_urls if isinstance(vid_urls, list) else []
 
     @staticmethod
     async def from_api_data(data: dict) -> 'RocketLaunch':
@@ -87,6 +89,7 @@ class RocketLaunch(AbstractDatabaseEntity):
         image_url = data.get("image", None)
         orbital_launch_attempt_count = data.get("orbital_launch_attempt_count", None)
         orbital_launch_attempt_count_year = data.get("orbital_launch_attempt_count_year", None)
+        vid_urls = data.get("vid_urls", None)
 
         last_updated = data.get("last_updated", None)
         if isinstance(last_updated, str):
@@ -162,7 +165,8 @@ class RocketLaunch(AbstractDatabaseEntity):
             image_url=image_url,
             orbital_launch_attempt_count=orbital_launch_attempt_count,
             orbital_launch_attempt_count_year=orbital_launch_attempt_count_year,
-            notifications_sent=notifications_sent
+            notifications_sent=notifications_sent,
+            vid_urls=vid_urls
         )
     
     def is_go_confirmed(self) -> bool:
@@ -237,7 +241,7 @@ class RocketLaunch(AbstractDatabaseEntity):
 
     def generate_today_embed(self) -> discord.Embed:
         embed = discord.Embed(
-            title="LAUNCHING TODAY...", 
+            title="ROCKET LAUNCH NEWS", 
             description=self.get_description_with_name(),
             color=discord.Color.from_str("#5380B8"),
             timestamp=self.get_launch_stamp()
@@ -265,9 +269,47 @@ class RocketLaunch(AbstractDatabaseEntity):
             embed.set_image(url=self.image_url)
         if self.get_mission_agency_name():
             embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
-        embed.add_field(name="Launch time", value=f"{relative_time(int(self.net))}\n{long_date_time(int(self.net))}", inline=False)
+        embed.add_field(name="Launch time", value=f"{relative_time(int(self.net))}\n{long_time(int(self.net))}", inline=False)
         embed.add_field(name="Launch Vehicel", value=f"**`{self.rocket.full_name}`**", inline=False)
         embed.add_field(name="Launch Location", value=f"**`{self.pad.name}`**\n**`{self.pad.location_name}`**", inline=False)
-        if self.webcast_live and self.mission.vid_urls:
+        if self.webcast_live and self.vid_urls:
+            embed.add_field(name="Livestream", value=f"{self.vid_urls[0]}")
+        elif self.webcast_live and self.mission.vid_urls:
             embed.add_field(name="Livestream", value=f"{self.mission.vid_urls[0]}")
+        else:
+            embed.add_field(name="Livestream unavailable", value="*We currently have no livestream URL, please check the official channels of the space agency.*")
         return embed
+    
+    def generate_success_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="LAUNCH SUCCESSFUL", 
+            description=self.get_description_with_name(),
+            color=discord.Color.green(),
+            timestamp=self.get_launch_stamp()
+        )
+        if self.image_url:
+            embed.set_image(url=self.image_url)
+        if self.get_mission_agency_name():
+            embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
+        return embed
+    
+    def generate_failure_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="LAUNCH FAILED", 
+            description=self.get_description_with_name(),
+            color=discord.Color.red(),
+            timestamp=self.get_launch_stamp()
+        )
+        if self.image_url:
+            embed.set_image(url=self.image_url)
+        if self.get_mission_agency_name():
+            embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
+        reason = self.fail_reason if self.fail_reason else "Unknown"
+        embed.add_field(name="Reason", value=reason)
+        return embed
+
+    def generate_liftoff_status_embed(self) -> Optional[discord.Embed]:
+        if self.launch_successful():
+            return self.generate_success_embed()
+        if self.launch_failure():
+            return self.generate_failure_embed()

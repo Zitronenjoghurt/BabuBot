@@ -29,6 +29,7 @@ class Config():
         self.FISHING_CHANNEL_ID = config_data.get("fishing_channel_id", None)
         self.LOG_CHANNEL_ID = config_data.get("log_channel_id", None)
         self.YOUTUBE_NOTIFICATION_CHANNEL_ID = config_data.get("youtube_notification_channel_id", None)
+        self.SPACE_CHANNEL_ID = config_data.get("space_channel_id", None)
 
         try:
             validate_of_type(self.BOT_TOKEN, str, "token")
@@ -49,6 +50,7 @@ class Config():
             validate_of_type(self.FISHING_CHANNEL_ID, int, "fishing_channel_id")
             validate_of_type(self.LOG_CHANNEL_ID, int, "log_channel_id")
             validate_of_type(self.YOUTUBE_NOTIFICATION_CHANNEL_ID, int, "youtube_notification_channel_id")
+            validate_of_type(self.SPACE_CHANNEL_ID, int, "space_channel_id")
         except ValueError as e:
             raise RuntimeError(f"An error occured while initializing config: {e}")
 

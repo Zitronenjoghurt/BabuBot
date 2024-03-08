@@ -1,7 +1,7 @@
 from discord.ext import commands
 from src.apis.launch_library2_api import LaunchLibrary2Api
 
-ACTIVE = False
+ACTIVE = True
 INTERVAL_SECONDS = 300
 
 LL2 = LaunchLibrary2Api.get_instance()

@@ -1,8 +1,13 @@
 from discord.ext import commands
+from src.constants.config import Config
 from src.entities.rocket_launch import RocketLaunch
+from src.logging.logger import LOGGER
+from src.utils.bot_operations import send_in_channel
 
-ACTIVE = False
+ACTIVE = True
 INTERVAL_SECONDS = 180
+
+CONFIG = Config.get_instance()
 
 async def run(bot: commands.Bot):
     launches: list[RocketLaunch] = await RocketLaunch.findall(sort_key="net", descending=False)
@@ -23,10 +28,16 @@ async def run(bot: commands.Bot):
             await launch.delete()
 
 async def notify_launch_today(bot: commands.Bot, launch: RocketLaunch):
-    pass
+    embed = launch.generate_today_embed()
+    await send_in_channel(bot=bot, channel_id=CONFIG.SPACE_CHANNEL_ID, embed=embed)
 
 async def notify_launch_soon(bot: commands.Bot, launch: RocketLaunch):
-    pass
+    embed = launch.generate_soon_embed()
+    await send_in_channel(bot=bot, channel_id=CONFIG.SPACE_CHANNEL_ID, embed=embed)
 
 async def notify_launch_liftoff_status(bot: commands.Bot, launch: RocketLaunch):
-    pass
+    embed = launch.generate_liftoff_status_embed()
+    if not embed:
+        LOGGER.warn(f"ROCKET Was unable to generate liftoff embed for launch {launch.name} ({launch.launch_id})")
+        return
+    await send_in_channel(bot=bot, channel_id=CONFIG.SPACE_CHANNEL_ID, embed=embed)

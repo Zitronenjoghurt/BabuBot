@@ -13,5 +13,6 @@
     "currency": "$",
     "fishing_channel_id": 0,
     "log_channel_id": 0,
-    "youtube_notification_channel_id": 0
+    "youtube_notification_channel_id": 0,
+    "space_channel_id": 0
 }
