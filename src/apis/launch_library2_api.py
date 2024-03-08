@@ -37,7 +37,8 @@ class LaunchLibrary2Api(AbstractApiController):
             entry = await RocketLaunch.from_api_data(data=result)
             updated_fields = await entry.save(return_changed_fields=True)
             all_updated_fields.append((entry.launch_id, updated_fields))
-            LOGGER.debug(f"ROCKET Got updated data for rocket launch {entry.name} ({entry.launch_id}):\n{updated_fields}")
+            if updated_fields:
+                LOGGER.debug(f"ROCKET Got updated data for rocket launch {entry.name} ({entry.launch_id}):\n{updated_fields}")
         return all_updated_fields
 
     @rate_limit(class_scope=True)
