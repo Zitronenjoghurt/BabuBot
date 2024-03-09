@@ -36,19 +36,19 @@ class LaunchLibrary2Api(AbstractApiController):
             # ToDo: Notify on certain updates, like when theres a new fail reason, etc.
             entry = await RocketLaunch.from_api_data(data=result)
             updated_fields = await entry.save(return_changed_fields=True)
-            all_updated_fields.append((entry.launch_id, updated_fields))
+            all_updated_fields.append((entry.id, updated_fields))
             if updated_fields:
                 LOGGER.debug(f"ROCKET Got updated data for rocket launch {entry.name} ({entry.launch_id}):\n{updated_fields}")
         return all_updated_fields
 
     @rate_limit(class_scope=True)
-    async def update_launches(self, limit: int = 100) -> Optional[list[tuple[str, dict]]]:
+    async def update_launches(self, limit: int = 50) -> Optional[list[tuple[str, dict]]]:
         if self.fetching:
             raise ApiError("The bot is currently fetching launches.")
         updated_fields = None
         self.fetching = True
         try:
-            data = await self.request(endpoint="2.2.0/launch/upcoming", expected_codes=[200], limit=limit)
+            data = await self.request(endpoint="2.2.0/launch/upcoming", expected_codes=[200], limit=limit, mode="detailed")
             if isinstance(data, dict):
                 updated_fields = await self._process_launches(data=data)
                 LOGGER.info(f"Successfully updated launch entries from the LL2 API.")

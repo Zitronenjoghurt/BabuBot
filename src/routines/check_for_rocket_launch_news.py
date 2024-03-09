@@ -17,18 +17,16 @@ async def run(bot: commands.Bot):
         embed = None
         if launch.notify_launching_today():
             embed = launch.generate_today_embed()
-            launch.notifications_sent = 1
+            launch.today_notification_sent = True
             send_notification = True
         elif launch.notify_launching_soon():
             embed = launch.generate_soon_embed()
-            launch.notifications_sent = 2
+            launch.soon_notification_sent = True
             send_notification = True
         elif launch.notify_liftoff_status():
             embed = launch.generate_liftoff_status_embed()
-            launch.notifications_sent = 3
+            launch.liftoff_notification_sent = True
             send_notification = True
-            if not embed:
-                LOGGER.warn(f"ROCKET Was unable to generate liftoff status embed for launch {launch.name} ({launch.launch_id})")
         
         if send_notification and embed:
             await launch.save()
