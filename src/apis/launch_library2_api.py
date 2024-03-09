@@ -48,7 +48,7 @@ class LaunchLibrary2Api(AbstractApiController):
         updated_fields = None
         self.fetching = True
         try:
-            data = await self.request(endpoint="2.2.0/launch/upcoming", expected_codes=[200], limit=limit, mode="detailed")
+            data = await self.request(endpoint="2.2.0/launch/upcoming", expected_codes=[200], limit=limit)
             if isinstance(data, dict):
                 updated_fields = await self._process_launches(data=data)
                 LOGGER.info(f"Successfully updated launch entries from the LL2 API.")
