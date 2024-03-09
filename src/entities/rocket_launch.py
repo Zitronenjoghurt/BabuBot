@@ -349,7 +349,7 @@ class RocketLaunch(AbstractDatabaseEntity):
             embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
         if self.hold_reason:
             embed.add_field(name="Reason", value=self.hold_reason)
-        embed.set_footer(text="After a failed launch attempt the launch sequence is on hold.")
+        embed.set_footer(text="After the failed launch attempt the launch sequence is on hold.")
         return embed
     
     def generate_tbc_embed(self) -> discord.Embed:
@@ -363,7 +363,7 @@ class RocketLaunch(AbstractDatabaseEntity):
         if self.hold_reason:
             embed.add_field(name="Hold Reason", value=self.hold_reason, inline=False)
         embed.add_field(name="Potential New Launch Time", value=f"{relative_time(int(self.net))}\n{long_date_time(int(self.net))}")
-        embed.set_footer(text="After a failed launch attempt the new launch window is awaiting confirmation.")
+        embed.set_footer(text="After the failed launch attempt the new launch window is awaiting confirmation.")
         return embed
     
     def generate_go_embed(self) -> discord.Embed:
@@ -379,5 +379,5 @@ class RocketLaunch(AbstractDatabaseEntity):
         if self.fail_reason:
             embed.add_field(name="Fail Reason", value=self.fail_reason, inline=False)
         embed.add_field(name="Launch Time", value=f"{relative_time(int(self.net))}\n{long_date_time(int(self.net))}")
-        embed.set_footer(text="After a failed launch attempt the new launch window was confirmed.")
+        embed.set_footer(text="After the failed launch attempt the new launch window was confirmed.")
         return embed

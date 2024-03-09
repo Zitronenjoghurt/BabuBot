@@ -33,10 +33,9 @@ class LaunchLibrary2Api(AbstractApiController):
 
         all_updated_fields = []
         for result in results:
-            # ToDo: Notify on certain updates, like when theres a new fail reason, etc.
             entry = await RocketLaunch.from_api_data(data=result)
             updated_fields = await entry.save(return_changed_fields=True)
-            all_updated_fields.append((entry.id, updated_fields))
+            all_updated_fields.append((entry.launch_id, updated_fields))
             if updated_fields:
                 LOGGER.debug(f"ROCKET Got updated data for rocket launch {entry.name} ({entry.launch_id}):\n{updated_fields}")
         return all_updated_fields

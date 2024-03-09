@@ -1,4 +1,5 @@
 from discord.ext import commands
+from datetime import timedelta
 from src.apis.launch_library2_api import LaunchLibrary2Api
 from src.constants.config import Config
 from src.entities.rocket_launch import RocketLaunch
@@ -55,8 +56,9 @@ async def handle_status_change(bot: commands.Bot, launch_id: str, status: dict) 
         LOGGER.warning(f"ROCKET Detected a status change to {new_status} after it was set to {old_status} from {rocket_launch.name} ({rocket_launch.id})")
         embed = rocket_launch.generate_tbc_embed()
     elif new_status == "go":
-        rocket_launch.today_notification_sent = False
-        rocket_launch.soon_notification_sent = False
+        if rocket_launch.launches_in() > timedelta(hours=12):
+            rocket_launch.today_notification_sent = False
+            rocket_launch.soon_notification_sent = False
         rocket_launch.liftoff_notification_sent = False
         rocket_launch.botched_launch = False
         await rocket_launch.save()
