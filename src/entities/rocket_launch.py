@@ -15,9 +15,9 @@ CONFIG = Config.get_instance()
 
 class RocketLaunch(AbstractDatabaseEntity):
     TABLE_NAME = "rocket_launches"
-    SERIALIZED_PROPERTIES = ["id", "created_stamp", "launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "vid_urls"]
+    SERIALIZED_PROPERTIES = ["id", "created_stamp", "launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "vid_urls", "today_notification_sent", "soon_notification_sent", "liftoff_notification_sent", "botched_launch"]
     SERIALIZE_CLASSES = {"status": RocketLaunchStatus, "rocket": Rocket, "mission": RocketLaunchMission, "mission_agencies": RocketLaunchMissionAgency, "pad": RocketLaunchPad}
-    SAVED_PROPERTIES = ["launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "vid_urls"]
+    SAVED_PROPERTIES = ["launch_id", "name", "last_updated", "status", "rocket", "net", "window_start", "window_end", "launch_service_provider", "launch_service_type", "weather_concerns", "hold_reason", "fail_reason", "mission", "mission_agencies", "pad", "webcast_live", "image_url", "orbital_launch_attempt_count", "orbital_launch_attempt_count_year", "vid_urls", "today_notification_sent", "soon_notification_sent", "liftoff_notification_sent", "botched_launch"]
 
     def __init__(
             self, 
@@ -47,7 +47,8 @@ class RocketLaunch(AbstractDatabaseEntity):
             vid_urls: Optional[list[str]] = None,
             today_notification_sent: Optional[bool] = None,
             soon_notification_sent: Optional[bool] = None,
-            liftoff_notification_sent: Optional[bool] = None
+            liftoff_notification_sent: Optional[bool] = None,
+            botched_launch: Optional[bool] = None
         ) -> None:
         super().__init__(id=id, created_stamp=created_stamp)
         self.launch_id = launch_id if isinstance(launch_id, str) else "No ID"
@@ -75,6 +76,7 @@ class RocketLaunch(AbstractDatabaseEntity):
         self.today_notification_sent = today_notification_sent if isinstance(today_notification_sent, bool) else False
         self.soon_notification_sent = soon_notification_sent if isinstance(soon_notification_sent, bool) else False
         self.liftoff_notification_sent = liftoff_notification_sent if isinstance(liftoff_notification_sent, bool) else False
+        self.botched_launch = botched_launch if isinstance(botched_launch, bool) else False
 
     @staticmethod
     async def from_api_data(data: dict) -> 'RocketLaunch':
@@ -90,6 +92,7 @@ class RocketLaunch(AbstractDatabaseEntity):
             today_notification_sent = existing_entry.today_notification_sent
             soon_notification_sent = existing_entry.soon_notification_sent
             liftoff_notification_sent = existing_entry.liftoff_notification_sent
+            botched_launch = existing_entry.botched_launch
         else:
             id = None
             created_stamp = None
@@ -97,6 +100,7 @@ class RocketLaunch(AbstractDatabaseEntity):
             today_notification_sent = None
             soon_notification_sent = None
             liftoff_notification_sent = None
+            botched_launch = None
 
         name = data.get("name", "No Name")
         weather_concerns = data.get("weather_concerns", None)
@@ -186,7 +190,8 @@ class RocketLaunch(AbstractDatabaseEntity):
             vid_urls=vid_urls,
             today_notification_sent=today_notification_sent,
             soon_notification_sent=soon_notification_sent,
-            liftoff_notification_sent=liftoff_notification_sent
+            liftoff_notification_sent=liftoff_notification_sent,
+            botched_launch=botched_launch
         )
     
     def is_go_confirmed(self) -> bool:
@@ -333,3 +338,46 @@ class RocketLaunch(AbstractDatabaseEntity):
             return self.generate_success_embed()
         if self.launch_failure():
             return self.generate_failure_embed()
+        
+    def generate_hold_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="ON HOLD",
+            description=self.get_description_with_name(),
+            color=discord.Color.yellow()
+        )
+        if self.get_mission_agency_name():
+            embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
+        if self.hold_reason:
+            embed.add_field(name="Reason", value=self.hold_reason)
+        embed.set_footer(text="After a failed launch attempt the launch sequence is on hold.")
+        return embed
+    
+    def generate_tbc_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="LAUNCH WINDOW TBC",
+            description=self.get_description_with_name(),
+            color=discord.Color.light_gray()
+        )
+        if self.get_mission_agency_name():
+            embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
+        if self.hold_reason:
+            embed.add_field(name="Hold Reason", value=self.hold_reason, inline=False)
+        embed.add_field(name="Potential New Launch Time", value=f"{relative_time(int(self.net))}\n{long_date_time(int(self.net))}")
+        embed.set_footer(text="After a failed launch attempt the new launch window is awaiting confirmation.")
+        return embed
+    
+    def generate_go_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="NEW LAUNCH WINDOW CONFIRMED",
+            description=self.get_description_with_name(),
+            color=discord.Color.green()
+        )
+        if self.get_mission_agency_name():
+            embed.set_author(name=self.get_mission_agency_name(), icon_url=self.get_mission_agency_logo_url(), url=self.get_mission_agency_url())
+        if self.hold_reason:
+            embed.add_field(name="Hold Reason", value=self.hold_reason, inline=False)
+        if self.fail_reason:
+            embed.add_field(name="Fail Reason", value=self.fail_reason, inline=False)
+        embed.add_field(name="Launch Time", value=f"{relative_time(int(self.net))}\n{long_date_time(int(self.net))}")
+        embed.set_footer(text="After a failed launch attempt the new launch window was confirmed.")
+        return embed
