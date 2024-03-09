@@ -7,7 +7,7 @@ CONFIG = Config.get_instance()
 class DiggingQueueItem(AbstractDatabaseEntity):
     TABLE_NAME = "digging_queue"
     SERIALIZED_PROPERTIES = ["id", "created_stamp", "user_id", "item_id", "finish_stamp"]
-    SAVED_PROPERTIES = ["user_id", "item_id", "finish_stamp"]
+    SAVED_PROPERTIES = ["created_stamp", "user_id", "item_id", "finish_stamp"]
 
     def __init__(
             self, 

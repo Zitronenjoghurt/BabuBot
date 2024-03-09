@@ -1,3 +1,4 @@
+from typing import Any
 from src.utils.validator import validate_of_type
 
 def retrieve_data(data: dict, keys: list[str]) -> dict:
@@ -39,3 +40,20 @@ def deep_difference(old_dict: dict, new_dict: dict) -> dict:
             changes[key] = (old_value, new_value)
 
     return changes
+
+def get_ensure_dict(data: dict, key: str) -> dict:
+    value = data.get(key, {})
+    if not isinstance(value, dict):
+        value = {}
+    return value
+
+def get_safe_from_path(data: dict, path: list[str]) -> Any:
+    value = data
+    try:
+        for key in path:
+           value = value.get(key, {})
+           if not value:
+               return
+    except Exception:
+        return None
+    return value

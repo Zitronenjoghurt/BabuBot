@@ -7,7 +7,7 @@ config.json
 config_test.json
 hidden_fish.json
 test.py
-test.json
+test*.json
 result.json
 
 # Byte-compiled / optimized / DLL files
