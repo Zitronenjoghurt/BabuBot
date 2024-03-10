@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 from typing import Optional
 from src.constants.config import Config
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
-from src.entities.rocket import Rocket
-from src.entities.rocket_launch_mission import RocketLaunchMission
-from src.entities.rocket_launch_mission_agency import RocketLaunchMissionAgency
-from src.entities.rocket_launch_pad import RocketLaunchPad
-from src.entities.rocket_launch_status import RocketLaunchStatus
+from src.entities.rocket_launch.rocket import Rocket
+from src.entities.rocket_launch.rocket_launch_mission import RocketLaunchMission
+from src.entities.rocket_launch.rocket_launch_mission_agency import RocketLaunchMissionAgency
+from src.entities.rocket_launch.rocket_launch_pad import RocketLaunchPad
+from src.entities.rocket_launch.rocket_launch_status import RocketLaunchStatus
 from src.utils.string_operations import limit_length
 from src.utils.discord_time import relative_time, long_date_time, long_time
 

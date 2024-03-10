@@ -2,7 +2,7 @@ from discord.ext import commands
 from datetime import timedelta
 from src.apis.launch_library2_api import LaunchLibrary2Api
 from src.constants.config import Config
-from src.entities.rocket_launch import RocketLaunch
+from src.entities.rocket_launch.rocket_launch import RocketLaunch
 from src.logging.logger import LOGGER
 from src.utils.bot_operations import send_in_channel
 
