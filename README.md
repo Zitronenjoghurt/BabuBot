@@ -13,7 +13,7 @@ A discord bot with all kinds of stuff made with discord.py
 - Using the OpenAI API to randomly answer a message in a channel using 5 prior messages as context
 - A command to fetch random pet (dog, cat, duck) pictures from different APIs
 - Notifications for new youtube videos using the YouTube Data API v3
-- Ability to set a custom server profile via a UI pop-up + the specified pronouns will also be provided for Gpt-4 when it answers to a message
+- Ability to set a custom server profile via a UI pop-up + the specified pronouns will also be provided for Gpt-4 when it answers a message
 - A custom decorator for handling command costs making it possible to easily make commands cost currency from the economy system
 - Abstract "scrollable" embeds enabling easy implementation of paged embeds wherever I need
 - Simple routine system which will call a run method in specific modules in a specified interval
