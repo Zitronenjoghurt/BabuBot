@@ -9,7 +9,7 @@ A discord bot with all kinds of stuff made with discord.py
 - Level System with leaderboard and rewards for level-ups
 - Fishing Minigame with over 80 fish, prestige progression and commands to look into every aspect of the game
 - Rocket launch notifications, keeping a specified channel up-to-date with recent rocket launches (also notifying about potantial hold-offs, failures or successes)
-- A command to fetch a random Astronomy Picture Of the Day entries from NASA and display them neatly
+- A command to fetch random Astronomy Picture Of the Day entries from NASA and display them neatly
 - Using the OpenAI API to randomly answer a message in a channel using 5 prior messages as context
 - A command to fetch random pet (dog, cat, duck) pictures from different APIs
 - Notifications for new youtube videos using the YouTube Data API v3
