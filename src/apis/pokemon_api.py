@@ -5,6 +5,7 @@ from src.apis.abstract_api_controller import AbstractApiController, UnexpectedRe
 from src.apis.rate_limiting import rate_limit
 from src.constants.config import Config
 from src.logging.logger import LOGGER
+from src.utils.dict_operations import get_safe_from_path
 
 CONFIG = Config.get_instance()
 
@@ -25,29 +26,39 @@ class PokemonApi(AbstractApiController):
             PokemonApi._instance = PokemonApi()
         return PokemonApi._instance
     
-    @rate_limit(calls=10, seconds=5)
+    @rate_limit(calls=5, seconds=5)
     async def get_pokemon_data(self, name: str) -> Optional[dict]:
-        general = await self.get_general_data(name=name)
+        general = await self.data_request(endpoint=f"api/v2/pokemon/{name}", data_name="general")
         if not general:
             return
         id = general.get("id", None)
         if not id:
             return
+        
+        species = await self.data_request(endpoint=f"api/v2/pokemon-species/{name}", data_name="species")
+        if isinstance(species, dict):
+            general["species"] = species
+            evolution_chain_url = get_safe_from_path(species, ["evolution_chain", "url"])
+            evolution = await self.data_request(endpoint=endpoint_from_url(evolution_chain_url), data_name="evolution")
+            if isinstance(evolution, dict):
+                general["evolution"] = evolution
 
-        # ToDo: fetch other data
         return general
 
-    @rate_limit(calls=10, seconds=5)
-    async def get_general_data(self, name: str) -> Optional[dict]:
+    @rate_limit(calls=25, seconds=5)
+    async def data_request(self, endpoint: str, data_name: str, type = dict) -> Optional[dict]:
         try:
-            result = await self.request(endpoint=f"api/v2/pokemon/{name}", expected_codes=[200])
-            if isinstance(result, dict):
+            result = await self.request(endpoint=endpoint, expected_codes=[200])
+            if isinstance(result, type):
                 return result
             else:
-                LOGGER.error(f"No dict was returned while trying to fetch general pokemon data.")
+                LOGGER.error(f"No dict was returned while trying to fetch {data_name} pokemon data.")
         except UnexpectedResponseCodeError as e:
-            LOGGER.error(f"An unexpected response code was returned while trying to fetch general pokemon data: {e}")
+            LOGGER.error(f"An unexpected response code was returned while trying to fetch {data_name} pokemon data: {e}")
         except asyncio.TimeoutError as e:
-            LOGGER.error(f"A timeout happened while trying to fetch general pokemon data: {e}")
+            LOGGER.error(f"A timeout happened while trying to fetch {data_name} pokemon data: {e}")
         except aiohttp.ClientConnectionError as e:
-            LOGGER.error(f"A connection error occured while trying to fetch general pokemon data: {e}")
+            LOGGER.error(f"A connection error occured while trying to fetch {data_name} pokemon data: {e}")
+
+def endpoint_from_url(url: str) -> str:
+    return url[19:-1]

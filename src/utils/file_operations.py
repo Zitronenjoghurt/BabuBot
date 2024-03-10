@@ -40,3 +40,7 @@ def files_in_directory(path: str, suffix: Optional[str] = None) -> list[str]:
         else:
             files.append(file)
     return files
+
+def dict_to_file(file_path: str, data: dict):
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4)
