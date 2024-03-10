@@ -3,6 +3,7 @@ from src.apis.pokemon_api import PokemonApi
 from src.constants.config import Config
 from src.constants.pokemon_names import PokemonNames
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
+from src.entities.pokemon.evolution_chain import EvolutionChain, chain_url_to_id
 from src.utils.dict_operations import get_ensure_dict
 
 CONFIG = Config.get_instance()
@@ -11,8 +12,8 @@ POKEMON_NAMES = PokemonNames.get_instance()
 
 class Pokemon(AbstractDatabaseEntity):
     TABLE_NAME = "pokemon"
-    SERIALIZED_PROPERTIES = ["id", "created_stamp", "name", "pokedex_number", "hp", "attack", "defense", "sp_attack", "sp_defense", "speed", "types"]
-    SAVED_PROPERTIES = ["created_stamp", "name", "pokedex_number", "hp", "attack", "defense", "sp_attack", "sp_defense", "speed", "types"]
+    SERIALIZED_PROPERTIES = ["id", "created_stamp", "name", "pokedex_number", "hp", "attack", "defense", "sp_attack", "sp_defense", "speed", "types", "chain_id"]
+    SAVED_PROPERTIES = ["created_stamp", "name", "pokedex_number", "hp", "attack", "defense", "sp_attack", "sp_defense", "speed", "types", "chain_id"]
 
     def __init__(
             self, 
@@ -26,7 +27,8 @@ class Pokemon(AbstractDatabaseEntity):
             sp_attack: Optional[int] = None,
             sp_defense: Optional[int] = None,
             speed: Optional[int] = None,
-            types: Optional[list[str]] = None
+            types: Optional[list[str]] = None,
+            chain_id: Optional[int] = None
         ) -> None:
         super().__init__(id=id, created_stamp=created_stamp)
         self.name = name.lower() if isinstance(name, str) else "No Name"
@@ -38,9 +40,12 @@ class Pokemon(AbstractDatabaseEntity):
         self.sp_defense = sp_defense if isinstance(sp_defense, int) else 0
         self.speed = speed if isinstance(speed, int) else 0
         self.types = types if isinstance(types, list) else []
+        self.chain_id = chain_id if isinstance(chain_id, int) else None
+
+        self.evolution_chain: Optional[EvolutionChain] = None
 
     @staticmethod
-    def from_api_data(data: dict) -> 'Pokemon':
+    async def from_api_data(data: dict) -> 'Pokemon':
         name = data.get("name", None)
         if not name:
             raise RuntimeError(f"Tried to instantiate Pokemon from api data but it did not include a name.")
@@ -66,6 +71,12 @@ class Pokemon(AbstractDatabaseEntity):
             if isinstance(type_name, str):
                 types.append(type_name)
 
+        evolution_chain_url = data.get("evolution_chain_url", None)
+        if not evolution_chain_url:
+            chain_id = None
+        else:
+            chain_id = chain_url_to_id(chain_url=evolution_chain_url)
+
         return Pokemon(
             name=name,
             pokedex_number=pokedex_number,
@@ -75,7 +86,8 @@ class Pokemon(AbstractDatabaseEntity):
             sp_attack=sp_attack,
             sp_defense=sp_defense,
             speed=speed,
-            types=types
+            types=types,
+            chain_id=chain_id
         )
     
     @staticmethod
@@ -86,15 +98,17 @@ class Pokemon(AbstractDatabaseEntity):
         name = name.lower()
 
         pokemon = await Pokemon.find(name=name)
-        if isinstance(pokemon, Pokemon):
-            return pokemon
+        if not isinstance(pokemon, Pokemon):
+            data = await POKEMON_API.get_pokemon_data(name=name)
+            if not data:
+                return
+            
+            pokemon = await Pokemon.from_api_data(data=data)
+            await pokemon.save()
         
-        data = await POKEMON_API.get_pokemon_data(name=name)
-        if not data:
-            return
-        
-        pokemon = Pokemon.from_api_data(data=data)
-        await pokemon.save()
+        if pokemon.chain_id:
+            pokemon.evolution_chain = await EvolutionChain.fetch(chain_id=pokemon.chain_id)
+
         return pokemon
     
     def get_image_url(self) -> str:

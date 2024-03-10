@@ -39,11 +39,14 @@ class PokemonApi(AbstractApiController):
         if isinstance(species, dict):
             general["species"] = species
             evolution_chain_url = get_safe_from_path(species, ["evolution_chain", "url"])
-            evolution = await self.data_request(endpoint=endpoint_from_url(evolution_chain_url), data_name="evolution")
-            if isinstance(evolution, dict):
-                general["evolution"] = evolution
+            if isinstance(evolution_chain_url, str):
+                general["evolution_chain_url"] = evolution_chain_url
 
         return general
+    
+    @rate_limit(calls=5, seconds=5)
+    async def get_evolution_chain_data(self, id: int) -> Optional[dict]:
+        return await self.data_request(endpoint=f"api/v2/evolution-chain/{id}", data_name="evolution")
 
     @rate_limit(calls=25, seconds=5)
     async def data_request(self, endpoint: str, data_name: str, type = dict) -> Optional[dict]:
