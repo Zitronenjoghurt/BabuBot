@@ -44,9 +44,3 @@ class EvolutionChain(AbstractDatabaseEntity):
         chain = await EvolutionChain.from_api_data(id=chain_id, data=chain_data)
         await chain.save()
         return chain
-    
-def chain_url_to_id(chain_url: str) -> Optional[int]:
-    matches = re.findall(r'\d+', chain_url)
-    if not matches:
-        return
-    return int(matches[-1])
