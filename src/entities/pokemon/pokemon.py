@@ -3,6 +3,8 @@ from src.apis.pokemon_api import PokemonApi
 from src.constants.config import Config
 from src.constants.pokemon_names import PokemonNames
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
+from src.entities.pokemon.pokemon_ability import PokemonAbility
+from src.entities.pokemon.learning_moves import LearningMoves
 from src.entities.pokemon.evolution_chain import EvolutionChain
 from src.utils.dict_operations import get_ensure_dict, get_safe_from_path
 from src.utils.string_operations import last_integer_from_url
@@ -16,8 +18,9 @@ FLAVORTEXT_LANGUAGES = ["en", "de", "fr"]
 
 class Pokemon(AbstractDatabaseEntity):
     TABLE_NAME = "pokemon"
-    SERIALIZED_PROPERTIES = ["id", "created_stamp", "name", "pokedex_number", "hp", "attack", "defense", "sp_attack", "sp_defense", "speed", "types", "chain_id", "capture_rate", "is_baby", "is_legendary", "is_mythical", "localized_names", "localized_flavor_texts", "generation", "growth_rate", "height", "weight"]
-    SAVED_PROPERTIES = ["created_stamp", "name", "pokedex_number", "hp", "attack", "defense", "sp_attack", "sp_defense", "speed", "types", "chain_id", "capture_rate", "is_baby", "is_legendary", "is_mythical", "localized_names", "localized_flavor_texts", "generation", "growth_rate", "height", "weight"]
+    SERIALIZED_PROPERTIES = ["id", "created_stamp", "name", "pokedex_number", "hp", "attack", "defense", "sp_attack", "sp_defense", "speed", "types", "chain_id", "capture_rate", "is_baby", "is_legendary", "is_mythical", "localized_names", "localized_flavor_texts", "generation", "growth_rate", "height", "weight", "learning_moves", "ability_names", "hidden_ability_names"]
+    SAVED_PROPERTIES = ["created_stamp", "name", "pokedex_number", "hp", "attack", "defense", "sp_attack", "sp_defense", "speed", "types", "chain_id", "capture_rate", "is_baby", "is_legendary", "is_mythical", "localized_names", "localized_flavor_texts", "generation", "growth_rate", "height", "weight", "learning_moves", "ability_names", "hidden_ability_names"]
+    SERIALIZE_CLASSES = {"learning_moves": LearningMoves}
 
     def __init__(
             self, 
@@ -42,7 +45,10 @@ class Pokemon(AbstractDatabaseEntity):
             generation: Optional[int] = None,
             growth_rate: Optional[str] = None,
             height: Optional[int] = None, # height in decimeter
-            weight: Optional[int] = None  # weight in hectograms
+            weight: Optional[int] = None, # weight in hectograms
+            learning_moves: Optional[LearningMoves] = None,
+            ability_names: Optional[list[str]] = None,
+            hidden_ability_names: Optional[list[str]] = None
         ) -> None:
         super().__init__(id=id, created_stamp=created_stamp)
         self.name = name.lower() if isinstance(name, str) else "Missing Name"
@@ -65,8 +71,13 @@ class Pokemon(AbstractDatabaseEntity):
         self.growth_rate = growth_rate if isinstance(growth_rate, str) else None
         self.height = height if isinstance(height, int) else 0
         self.weight = weight if isinstance(weight, int) else 0
+        self.learning_moves = learning_moves if isinstance(learning_moves, LearningMoves) else LearningMoves()
+        self.ability_names = ability_names if isinstance(ability_names, list) else []
+        self.hidden_ability_names = hidden_ability_names if isinstance(hidden_ability_names, list) else []
 
         self.evolution_chain: Optional[EvolutionChain] = None
+        self.abilities: list[PokemonAbility] = []
+        self.hidden_abilities: list[PokemonAbility] = []
 
     @staticmethod
     async def from_api_data(data: dict) -> 'Pokemon':
@@ -130,6 +141,18 @@ class Pokemon(AbstractDatabaseEntity):
                 generation = None
             else:
                 generation = last_integer_from_url(url=generation_url)
+
+        moves_data = data.get("moves", None)
+        if isinstance(moves_data, list):
+            learning_moves = LearningMoves.from_api_data(data=moves_data)
+        else:
+            learning_moves = None
+
+        abilities_data = data.get("abilities", None)
+        if isinstance(abilities_data, list):
+            abilities, hidden_abilities = parse_abilities(abilities=abilities_data)
+        else:
+            abilities, hidden_abilities = None, None
                 
         return Pokemon(
             name=name,
@@ -151,7 +174,10 @@ class Pokemon(AbstractDatabaseEntity):
             generation=generation,
             growth_rate=growth_rate,
             height=height,
-            weight=weight
+            weight=weight,
+            learning_moves=learning_moves,
+            ability_names=abilities,
+            hidden_ability_names=hidden_abilities
         )
     
     @staticmethod
@@ -169,9 +195,21 @@ class Pokemon(AbstractDatabaseEntity):
             
             pokemon = await Pokemon.from_api_data(data=data)
             await pokemon.save()
-        
+
+        # Fetch additional data            
         if pokemon.chain_id:
             pokemon.evolution_chain = await EvolutionChain.fetch(chain_id=pokemon.chain_id)
+
+        for ability_name in pokemon.ability_names:
+            ability = await PokemonAbility.fetch(name=ability_name)
+            if isinstance(ability, PokemonAbility):
+                pokemon.abilities.append(ability)
+
+        for hidden_ability_name in pokemon.hidden_ability_names:
+            hidden_ability = await PokemonAbility.fetch(name=hidden_ability_name)
+            if isinstance(hidden_ability, PokemonAbility):
+                pokemon.hidden_abilities.append(hidden_ability)
+        
         return pokemon
     
     def get_image_url(self) -> str:
@@ -205,3 +243,22 @@ def parse_localized_flavor_texts(texts: list[dict]) -> dict[str, dict[str, str]]
             version_language_text_map[version] = {}
         version_language_text_map[version][language] = text.replace("\n", " ")
     return version_language_text_map
+
+def parse_abilities(abilities: list[dict]) -> tuple[list[str], list[str]]:
+    regular = []
+    hidden = []
+
+    for ability in abilities:
+        name = get_safe_from_path(ability, ["ability", "name"])
+        if not isinstance(name, str):
+            continue
+        is_hidden = ability.get("is_hidden", None)
+        if not isinstance(is_hidden, bool):
+            continue
+
+        if is_hidden:
+            hidden.append(name)
+        else:
+            regular.append(name)
+    
+    return regular, hidden
