@@ -75,7 +75,7 @@ async def ai_answer(bot: commands.Bot, message: discord.Message) -> None:
     if answer:
         try:
             await message.reply(content=answer)
-        except discord.NotFound:
+        except Exception:
             await channel.send(content=answer)
     else:
         LOGGER.error("OPENAI tried to answer a random message but api result was empty")
