@@ -4,7 +4,7 @@ from src.entities.rocket_launch.rocket_launch import RocketLaunch
 from src.logging.logger import LOGGER
 from src.utils.bot_operations import send_in_channel
 
-ACTIVE = False
+ACTIVE = True
 INTERVAL_SECONDS = 180
 
 CONFIG = Config.get_instance()
