@@ -22,7 +22,7 @@ class PetCommand(commands.Cog):
     @app_commands.command(name="pet", description="Get a random image of a pet")
     @app_commands.describe(private="If the response should be only visible to you")
     @app_commands.checks.cooldown(1, 5)
-    async def reputation(self, interaction: discord.Interaction, private: Optional[bool] = None):
+    async def pet(self, interaction: discord.Interaction, private: Optional[bool] = None):
         if private is None:
             private = False
         await interaction.response.defer(ephemeral=private)

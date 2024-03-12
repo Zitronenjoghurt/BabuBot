@@ -4,7 +4,7 @@ from typing import Optional
 from src.apis.abstract_api_controller import AbstractApiController, ApiError, UnexpectedResponseCodeError
 from src.apis.rate_limiting import rate_limit
 from src.constants.config import Config
-from src.entities.rocket_launch import RocketLaunch
+from src.entities.rocket_launch.rocket_launch import RocketLaunch
 from src.logging.logger import LOGGER
 
 CONFIG = Config.get_instance()

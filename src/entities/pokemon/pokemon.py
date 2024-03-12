@@ -1,3 +1,5 @@
+import discord
+import random
 from typing import Optional
 from src.apis.pokemon_api import PokemonApi
 from src.constants.config import Config
@@ -196,7 +198,7 @@ class Pokemon(AbstractDatabaseEntity):
             pokemon = await Pokemon.from_api_data(data=data)
             await pokemon.save()
 
-        # Fetch additional data            
+        # Fetch additional data
         if pokemon.chain_id:
             pokemon.evolution_chain = await EvolutionChain.fetch(chain_id=pokemon.chain_id)
 
@@ -214,6 +216,48 @@ class Pokemon(AbstractDatabaseEntity):
     
     def get_image_url(self) -> str:
         return f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{self.pokedex_number}.png"
+    
+    def get_name(self, language: str) -> str:
+        return self.localized_names.get(language, "Missing Name")
+    
+    def get_random_flavor_text(self) -> str:
+        versions = list(self.localized_flavor_texts.keys())
+        if not isinstance(versions, list):
+            return "Missing Flavor Text"
+        
+        random_version_index = random.randint(0, len(versions) - 1)
+        random_version = versions[random_version_index]
+        text = get_safe_from_path(self.localized_flavor_texts, [random_version, "en"])
+        if not isinstance(text, str):
+            return "Missing English Flavor Text"
+        
+        return text
+    
+    def get_different_localized_names(self) -> str:
+        names = [
+            f"DE: **`{self.localized_names.get('de', 'no german name')}`**",
+            f"FR: **`{self.localized_names.get('fr', 'no french name')}`**",
+            f"JA: **`{self.localized_names.get('ja', 'no japanese name')}`**"
+        ]
+        return "\n".join(names)
+    
+    def get_typing(self) -> str:
+        return " / ".join([type.capitalize() for type in self.types])
+    
+    def generate_general_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title=self.get_name(language="en"),
+            description=f"*{self.get_random_flavor_text()}*",
+            color=discord.Color.from_str("#EF4134")
+        )
+        embed.add_field(name="Names", value=self.get_different_localized_names())
+        embed.add_field(name="Generation", value=f"**`{self.generation}`**")
+        embed.add_field(name="Typing", value=f"**`{self.get_typing()}`**")
+        embed.add_field(name="National Dex", value=f"**`#{self.pokedex_number}`**")
+        embed.add_field(name="Capture Rate", value=f"**`{self.capture_rate}`**")
+        embed.add_field(name="Growth Rate", value=f"**`{self.growth_rate}`**")
+        embed.set_image(url=self.get_image_url())
+        return embed
     
 def parse_localized_names(names: list[dict]) -> dict[str, str]:
     language_name_map = {}
