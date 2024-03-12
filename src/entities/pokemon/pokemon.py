@@ -1,9 +1,11 @@
+from datetime import datetime
 import discord
 import random
 from typing import Optional
 from src.apis.pokemon_api import PokemonApi
 from src.constants.config import Config
 from src.constants.pokemon_names import PokemonNames
+from src.constants.pokemon_types import PokemonTypes
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.pokemon.pokemon_ability import PokemonAbility
 from src.entities.pokemon.learning_moves import LearningMoves
@@ -14,6 +16,7 @@ from src.utils.string_operations import last_integer_from_url
 CONFIG = Config.get_instance()
 POKEMON_API = PokemonApi.get_instance()
 POKEMON_NAMES = PokemonNames.get_instance()
+POKEMON_TYPES = PokemonTypes.get_instance()
 
 NAMES_LANGUAGES = ["en", "de", "fr", "ja", "roomaji"]
 FLAVORTEXT_LANGUAGES = ["en", "de", "fr"]
@@ -77,6 +80,9 @@ class Pokemon(AbstractDatabaseEntity):
         self.ability_names = ability_names if isinstance(ability_names, list) else []
         self.hidden_ability_names = hidden_ability_names if isinstance(hidden_ability_names, list) else []
 
+        self.type_effectiveness = POKEMON_TYPES.get_typing_effectiveness(self.types)
+
+        # Will be assigned from fetch method
         self.evolution_chain: Optional[EvolutionChain] = None
         self.abilities: list[PokemonAbility] = []
         self.hidden_abilities: list[PokemonAbility] = []
@@ -217,6 +223,9 @@ class Pokemon(AbstractDatabaseEntity):
     def get_image_url(self) -> str:
         return f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{self.pokedex_number}.png"
     
+    def get_image_url_shiny(self) -> str:
+        return f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/{self.pokedex_number}.png"
+    
     def get_name(self, language: str) -> str:
         return self.localized_names.get(language, "Missing Name")
     
@@ -244,8 +253,9 @@ class Pokemon(AbstractDatabaseEntity):
     def get_typing(self) -> str:
         return " / ".join([type.capitalize() for type in self.types])
     
-    def generate_general_embed(self) -> discord.Embed:
-        embed = discord.Embed(
+    def generate_general_embed(self) -> 'PokedexEmbed':
+        embed = PokedexEmbed(
+            pokemon=self,
             title=self.get_name(language="en"),
             description=f"*{self.get_random_flavor_text()}*",
             color=discord.Color.from_str("#EF4134")
@@ -259,6 +269,43 @@ class Pokemon(AbstractDatabaseEntity):
         embed.set_image(url=self.get_image_url())
         return embed
     
+    def generate_weakness_embed(self) -> 'PokedexEmbed':
+        embed = PokedexEmbed(
+            pokemon=self,
+            title=f"Weaknesses of {self.get_name(language='en')}",
+            color=discord.Color.from_str("#EF4134")
+        )
+        embed.add_field(name="Typing", value=f"**`{self.get_typing()}`**", inline=False)
+        embed.add_field(name="Super effective (x4)", value=self.type_effectiveness.super_effective, inline=False)
+        embed.add_field(name="Effective (x2)", value=self.type_effectiveness.effective, inline=False)
+        embed.add_field(name="Neutral (x1)", value=self.type_effectiveness.neutral, inline=False)
+        embed.add_field(name="Resistant (x1/2)", value=self.type_effectiveness.resistant, inline=False)
+        embed.add_field(name="Super resistant (x1/4)", value=self.type_effectiveness.super_resistant, inline=False)
+        embed.add_field(name="Immune (x0)", value=self.type_effectiveness.immune, inline=False)
+        embed.set_image(url=self.get_image_url())
+        return embed
+    
+class PokedexEmbed(discord.Embed):
+    def __init__(self, pokemon: Pokemon, **kwargs):
+        super().__init__(**kwargs)
+        self.pokemon = pokemon
+        self.shiny_state = False
+        self.name = self.title
+        self.shiny_title = f"{self.name} ✨"
+
+    def timeout(self) -> None:
+        self.color = discord.Color.dark_grey()
+        self.set_footer(text="This interaction has timed out.")
+
+    def toggle_shiny(self) -> None:
+        if self.shiny_state:
+            self.title = self.name
+            self.set_image(url=self.pokemon.get_image_url())
+        else:
+            self.title = self.shiny_title
+            self.set_image(url=self.pokemon.get_image_url_shiny())
+        self.shiny_state = not self.shiny_state
+
 def parse_localized_names(names: list[dict]) -> dict[str, str]:
     language_name_map = {}
     for entry in names:
