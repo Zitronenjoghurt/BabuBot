@@ -22,7 +22,7 @@ CHANNEL_IDS = {
     "Ceave Perspective": "UCepgG8BiC4jlGTSZfYkpHiQ",
     "Code Bullet": "UC0e3QhIYukixgh5VVpKHH9Q",
     "Design Doc": "UCNOVwMpD-5A1xzcQGbIHNeA",
-    "fern": "UCODHrzPMGbNv67e84WDZhQQ",
+    "Fern": "UCODHrzPMGbNv67e84WDZhQQ",
     "FitMC": "UCHZ986wm_sJT6wntdDTIIcw",
     "Jasper": "UC5bN6XKHDCFt_wYAJmsP_Mg",
     "Kaze Emanuar": "UCuvSqzfO_LV_QzHdmEj84SQ",
@@ -40,6 +40,7 @@ CHANNEL_IDS = {
     "Veritasium": "UCHnyfMqiRRG1u-2MsSQLbXA",
     "Vsauce": "UC6nSFpj9HTCZ5t-N3Rm3-HA",
     "Vsauce2": "UCqmugCqELzhIMNYnsjScXXw",
+    "Yosh": "UCh1zLfuN6F_X4eoNKCsyICA",
     "Zeltik": "UCudx6plmpbs5WtWvsvu-EdQ"
 }
 
@@ -68,6 +69,7 @@ CHANNEL_COLORS = {
     "Veritasium": "#2674E8",
     "Vsauce": "#03BF02",
     "Vsauce2": "#126B9D",
+    "Yosh": "#A20E0A",
     "Zeltik": "#FD6200"
 }
 
