@@ -1,6 +1,7 @@
 import discord
 import json
 from discord.ext import commands, tasks
+from src.apis.lemon_image_api import LemonImageApi
 from src.constants.config import Config
 from src.entities.user import User
 from src.logging.channel_logger import ChannelLogger
@@ -19,6 +20,7 @@ bot = commands.Bot(command_prefix=CONFIG.PREFIX, intents=intents, enable_debug_e
 LOGGER.info("Bot initialized")
 
 CL = ChannelLogger.get_instance()
+LIA = LemonImageApi.get_instance()
 
 @bot.event
 async def on_ready():
@@ -46,6 +48,9 @@ async def on_ready():
         loop = tasks.loop(seconds=interval)(routine)
         loop.start()
     LOGGER.info("Routines initialized")
+
+    # Initialize LemonImageApi beforehand so it doesnt have to defer, making it possible to get ping's on actions
+    await LIA._initialize()
 
     # Set activity
     await bot.change_presence(activity=discord.Game(name="try: /tasks"))
