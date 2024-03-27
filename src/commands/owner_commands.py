@@ -28,16 +28,6 @@ class OwnerCommands(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def entry(self, ctx: commands.Context, id: str):
-        user = await User.find(userid=id)
-        if not isinstance(user, User):
-            await ctx.send("User not found.")
-        message = f"```json\n{user.to_json_string()}\n```"
-        await ctx.reply(message)
-        LOGGER.debug(f"Retrieved database entry of {id}")
-
-    @commands.command()
-    @commands.is_owner()
     async def reset_user_profile(self, ctx: commands.Context, id: str):
         user = await User.find(userid=id)
         if not isinstance(user, User):
@@ -45,7 +35,29 @@ class OwnerCommands(commands.Cog):
         user.profile.clear()
         await user.save()
         await ctx.reply("User profile cleared.")
-        LOGGER.info("Cleared user profile of {id}")
+        LOGGER.info(f"Cleared user profile of {user.get_name()} ({id})")
+
+    @commands.command()
+    @commands.is_owner()
+    async def enable(self, ctx: commands.Context, id: str):
+        user = await User.find(userid=id)
+        if not isinstance(user, User):
+            await ctx.send("User not found.")
+        user.settings.ai_responses = True
+        await user.save()
+        await ctx.reply("User ai answers enabled.")
+        LOGGER.info(f"AI answers for user {user.get_name()} ({id}) were enabled")
+
+    @commands.command()
+    @commands.is_owner()
+    async def disable_ai(self, ctx: commands.Context, id: str):
+        user = await User.find(userid=id)
+        if not isinstance(user, User):
+            await ctx.send("User not found.")
+        user.settings.ai_responses = True
+        await user.save()
+        await ctx.reply("User ai answers enabled.")
+        LOGGER.info(f"AI answers for user {user.get_name()} ({id}) were enabled")
 
 async def setup(bot):
     await bot.add_cog(OwnerCommands(bot))
