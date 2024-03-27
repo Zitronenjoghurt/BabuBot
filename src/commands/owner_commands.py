@@ -54,10 +54,10 @@ class OwnerCommands(commands.Cog):
         user = await User.find(userid=id)
         if not isinstance(user, User):
             await ctx.send("User not found.")
-        user.settings.ai_responses = True
+        user.settings.ai_responses = False
         await user.save()
-        await ctx.reply("User ai answers enabled.")
-        LOGGER.info(f"AI answers for user {user.get_name()} ({id}) were enabled")
+        await ctx.reply("User ai answers disabled.")
+        LOGGER.info(f"AI answers for user {user.get_name()} ({id}) were disabled")
 
 async def setup(bot):
     await bot.add_cog(OwnerCommands(bot))
