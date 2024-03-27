@@ -231,7 +231,7 @@ class Pokemon(AbstractDatabaseEntity):
     
     def get_random_flavor_text(self) -> str:
         versions = list(self.localized_flavor_texts.keys())
-        if not isinstance(versions, list):
+        if not isinstance(versions, list) or len(versions) == 0:
             return "Missing Flavor Text"
         
         random_version_index = random.randint(0, len(versions) - 1)
