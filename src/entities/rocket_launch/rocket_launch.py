@@ -230,7 +230,7 @@ class RocketLaunch(AbstractDatabaseEntity):
         return (self.launch_successful or self.launch_failure) and not self.liftoff_notification_sent
     
     def should_remove_entry(self) -> bool:
-        return self.liftoff_notification_sent and self.launches_in() > timedelta(days=1)
+        return (self.liftoff_notification_sent and self.launches_in() > timedelta(days=1)) or self.launches_in() > timedelta(days=7)
     
     def has_mission_agency(self) -> bool:
         return len(self.mission_agencies) > 0

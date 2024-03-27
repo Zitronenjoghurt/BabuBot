@@ -18,6 +18,8 @@ async def run(bot: commands.Bot):
         return
     
     for launch_id, fields in launch_and_updated_fields:
+        if fields is None:
+            return
         status = fields.get("status", None)
         if status:
             await handle_status_change(bot=bot, launch_id=launch_id, status=status)
