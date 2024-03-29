@@ -253,6 +253,28 @@ class Pokemon(AbstractDatabaseEntity):
     def get_typing(self) -> str:
         return " / ".join([type.capitalize() for type in self.types])
     
+    def get_height(self) -> str:
+        if self.height < 10:  # Height is below 1 meter (10 decimeters)
+            return f"{self.height * 10} cm"
+        return f"{self.height / 10} m"
+        
+    def get_weight(self) -> str:
+        if self.weight < 10:  # Weight is below 1 kilogram (10 hectograms)
+            return f"{self.weight * 100} g"
+        return f"{self.weight / 10} kg"
+    
+    def get_special_status(self) -> str:
+        status = []
+        if self.is_baby:
+            status.append("baby")
+        if self.is_legendary:
+            status.append("legendary")
+        if self.is_mythical:
+            status.append("mythical")
+        if len(status) == 0:
+            return "None"
+        return "\n".join(status)
+    
     def generate_general_embed(self) -> 'PokedexEmbed':
         embed = PokedexEmbed(
             pokemon=self,
@@ -266,6 +288,9 @@ class Pokemon(AbstractDatabaseEntity):
         embed.add_field(name="National Dex", value=f"**`#{self.pokedex_number}`**")
         embed.add_field(name="Capture Rate", value=f"**`{self.capture_rate}`**")
         embed.add_field(name="Growth Rate", value=f"**`{self.growth_rate}`**")
+        embed.add_field(name="Height", value=f"**`{self.get_height()}`**")
+        embed.add_field(name="Weight", value=f"**`{self.get_weight()}`**")
+        embed.add_field(name="Special Status", value=f"**`{self.get_special_status()}`**")
         embed.set_image(url=self.get_image_url())
         return embed
     
