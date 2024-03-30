@@ -1,13 +1,12 @@
-import discord
 import matplotlib.pyplot as plt
-from src.utils.file_operations import construct_path, file_exists
-
-IMAGE_PATH = construct_path("tmp/{id}.png")
+from src.utils.file_operations import get_image_api_path, file_exists
 
 NAMES = ['HP', 'ATK', 'DEF', 'SP ATK', 'SP DEF', 'SPEED']
 # Credits to bulbapedia for the stat hex colors!
 COLORS = ['#2EEB5D', '#EED545', '#FD8732', '#48CCD2', '#436BFF', '#C33CFF']
 STATS_COUNT = len(NAMES)
+
+IMAGE_URL = "https://image.lemon.industries/{file_name}"
 
 class PokemonStatsImage():
     def __init__(self, hp: int, attack: int, defense: int, sp_attack: int, sp_defense: int, speed: int) -> None:
@@ -24,7 +23,8 @@ class PokemonStatsImage():
         self.total = sum(self.stats)
         self.id = "PKMSTATS-" + "-".join([str(stat) for stat in self.stats])
         self.file_name = self.id + ".png"
-        self.file_path = IMAGE_PATH.format(id=self.id)
+        self.file_path = get_image_api_path(file_name=self.file_name)
+        self._image_url = IMAGE_URL.format(file_name=self.file_name)
 
     def _generate(self) -> None:
         plt.figure(figsize=(10, 6), facecolor='#2B2D31')
@@ -66,6 +66,7 @@ class PokemonStatsImage():
             self._generate()
         return self.file_path
     
-    def get_image_file(self) -> discord.File:
-        fp = self.get_image_path()
-        return discord.File(fp=fp, filename=self.file_name)
+    def get_image_url(self) -> str:
+        if not self.exists():
+            self._generate()
+        return self._image_url

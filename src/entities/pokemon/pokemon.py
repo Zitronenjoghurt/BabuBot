@@ -316,7 +316,7 @@ class Pokemon(AbstractDatabaseEntity):
             title=f"Base stats of {self.get_name(language='en')}"
         )
         embed.add_field(name="Total", value=f"**`{self.stats_image.total}`**", inline=False)
-        embed.set_image(url=f"attachment://{self.stats_image.file_name}")
+        embed.set_image(url=self.stats_image.get_image_url())
         return embed
     
 class PokedexEmbed(discord.Embed):

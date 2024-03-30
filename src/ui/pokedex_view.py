@@ -69,7 +69,6 @@ class PokedexView(View):
 
 async def send_pokedex_view(interaction: discord.Interaction, pokemon: Pokemon, timeout: float = 180):
     view = PokedexView(pokemon=pokemon, user_id=interaction.user.id)
-    stats_image_file = pokemon.stats_image.get_image_file()
-    await interaction.followup.send(embed=view.embeds["general"], view=view, file=stats_image_file)
+    await interaction.followup.send(embed=view.embeds["general"], view=view)
     view.message = await interaction.original_response()
     await view.timeout_after(timeout)
