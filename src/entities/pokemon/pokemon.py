@@ -5,6 +5,7 @@ from typing import Optional
 from src.apis.pokemon_api import PokemonApi
 from src.constants.config import Config
 from src.pokemon.names import PokemonNames
+from src.pokemon.stats_image import PokemonStatsImage
 from src.pokemon.types import PokemonTypes
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.pokemon.pokemon_ability import PokemonAbility
@@ -81,6 +82,7 @@ class Pokemon(AbstractDatabaseEntity):
         self.hidden_ability_names = hidden_ability_names if isinstance(hidden_ability_names, list) else []
 
         self.type_effectiveness = POKEMON_TYPES.get_typing_effectiveness(self.types)
+        self.stats_image = PokemonStatsImage(hp=self.hp, attack=self.attack, defense=self.defense, sp_attack=self.sp_attack, sp_defense=self.sp_defense, speed=self.speed)
 
         # Will be assigned from fetch method
         self.evolution_chain: Optional[EvolutionChain] = None
@@ -197,7 +199,7 @@ class Pokemon(AbstractDatabaseEntity):
 
         pokemon = await Pokemon.find(name=name)
         if not isinstance(pokemon, Pokemon):
-            data = await POKEMON_API.get_pokemon_data(name=name)
+            data = await POKEMON_API.get_pokemon_data(name=name) # type: ignore
             if not data:
                 return
             
@@ -279,8 +281,7 @@ class Pokemon(AbstractDatabaseEntity):
         embed = PokedexEmbed(
             pokemon=self,
             title=self.get_name(language="en"),
-            description=f"*{self.get_random_flavor_text()}*",
-            color=discord.Color.from_str("#EF4134")
+            description=f"*{self.get_random_flavor_text()}*"
         )
         embed.add_field(name="Names", value=self.get_different_localized_names())
         embed.add_field(name="Generation", value=f"**`{self.generation}`**")
@@ -297,8 +298,7 @@ class Pokemon(AbstractDatabaseEntity):
     def generate_weakness_embed(self) -> 'PokedexEmbed':
         embed = PokedexEmbed(
             pokemon=self,
-            title=f"Weaknesses of {self.get_name(language='en')}",
-            color=discord.Color.from_str("#EF4134")
+            title=f"Weaknesses of {self.get_name(language='en')}"
         )
         embed.add_field(name="Typing", value=f"**`{self.get_typing()}`**", inline=False)
         embed.add_field(name="Super effective (x4)", value=self.type_effectiveness.super_effective, inline=False)
@@ -310,6 +310,15 @@ class Pokemon(AbstractDatabaseEntity):
         embed.set_image(url=self.get_image_url())
         return embed
     
+    def generate_base_stats_embed(self) -> 'PokedexEmbed':
+        embed = PokedexEmbed(
+            pokemon=self,
+            title=f"Base stats of {self.get_name(language='en')}"
+        )
+        embed.add_field(name="Total", value=f"**`{self.stats_image.total}`**", inline=False)
+        embed.set_image(url=f"attachment://{self.stats_image.file_name}")
+        return embed
+    
 class PokedexEmbed(discord.Embed):
     def __init__(self, pokemon: Pokemon, **kwargs):
         super().__init__(**kwargs)
@@ -317,6 +326,7 @@ class PokedexEmbed(discord.Embed):
         self.shiny_state = False
         self.name = self.title
         self.shiny_title = f"{self.name} ✨"
+        self.color = discord.Color.from_str("#EF4134")
 
     def timeout(self) -> None:
         self.color = discord.Color.dark_grey()

@@ -2,7 +2,10 @@ import asyncio
 import discord
 from discord.ui import Button, View
 from typing import Optional
+from src.constants.emoji_index import EmojiIndex
 from src.entities.pokemon.pokemon import Pokemon, PokedexEmbed
+
+EMOJI_INDEX = EmojiIndex.get_instance()
 
 class PokedexView(View):
     def __init__(self, pokemon: Pokemon, user_id: int, timeout: float = 180):
@@ -18,6 +21,7 @@ class PokedexView(View):
         embeds = {}
         embeds["general"] = self.pokemon.generate_general_embed()
         embeds["weakness"] = self.pokemon.generate_weakness_embed()
+        embeds["stats"] = self.pokemon.generate_base_stats_embed()
         return embeds
 
     @discord.ui.button(emoji="✨", style=discord.ButtonStyle.red)
@@ -34,6 +38,11 @@ class PokedexView(View):
     async def weakness_button(self, interaction: discord.Interaction, button: Button):
         self.current_embed = "weakness"
         await interaction.response.edit_message(embed=self.embeds["weakness"])
+
+    @discord.ui.button(emoji=EMOJI_INDEX.get_emoji("base_stats"), style=discord.ButtonStyle.secondary)
+    async def stats_button(self, interaction: discord.Interaction, button: Button):
+        self.current_embed = "stats"
+        await interaction.response.edit_message(embed=self.embeds["stats"])
     
     def toggle_shiny(self) -> None:
         for embed in self.embeds.values():
@@ -60,6 +69,7 @@ class PokedexView(View):
 
 async def send_pokedex_view(interaction: discord.Interaction, pokemon: Pokemon, timeout: float = 180):
     view = PokedexView(pokemon=pokemon, user_id=interaction.user.id)
-    await interaction.followup.send(embed=view.embeds["general"], view=view)
+    stats_image_file = pokemon.stats_image.get_image_file()
+    await interaction.followup.send(embed=view.embeds["general"], view=view, file=stats_image_file)
     view.message = await interaction.original_response()
     await view.timeout_after(timeout)

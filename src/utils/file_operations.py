@@ -6,7 +6,7 @@ from typing import Optional
 ROOT_DIR = str(Path(__file__).parent.parent.parent)
 
 def file_exists(file_path: str) -> bool:
-    return os.path.exists(file_path)
+    return os.path.isfile(file_path)
 
 def file_to_dict(file_path: str) -> dict:
     with open(file_path, 'r', encoding='utf-8') as f:
