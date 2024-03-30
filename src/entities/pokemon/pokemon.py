@@ -313,17 +313,19 @@ class Pokemon(AbstractDatabaseEntity):
     def generate_base_stats_embed(self) -> 'PokedexEmbed':
         embed = PokedexEmbed(
             pokemon=self,
-            title=f"Base stats of {self.get_name(language='en')}"
+            title=f"Base stats of {self.get_name(language='en')}",
+            shiny_switch_enabled=False
         )
         embed.add_field(name="Total", value=f"**`{self.stats_image.total}`**", inline=False)
         embed.set_image(url=self.stats_image.get_image_url())
         return embed
     
 class PokedexEmbed(discord.Embed):
-    def __init__(self, pokemon: Pokemon, **kwargs):
+    def __init__(self, pokemon: Pokemon, shiny_switch_enabled: bool = True, **kwargs):
         super().__init__(**kwargs)
         self.pokemon = pokemon
         self.shiny_state = False
+        self.shiny_switch_enabled = shiny_switch_enabled
         self.name = self.title
         self.shiny_title = f"{self.name} ✨"
         self.color = discord.Color.from_str("#EF4134")
