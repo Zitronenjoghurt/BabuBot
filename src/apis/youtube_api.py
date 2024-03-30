@@ -10,6 +10,7 @@ from src.logging.logger import LOGGER
 
 CONFIG = Config.get_instance()
 
+# Find channel ID by going to yt channel page source > og:url
 # Needs 2 quota per channel check
 # Can check for 150 channels per hour
 # 80 channels per 30 mins
@@ -40,6 +41,7 @@ CHANNEL_IDS = {
     "Veritasium": "UCHnyfMqiRRG1u-2MsSQLbXA",
     "Vsauce": "UC6nSFpj9HTCZ5t-N3Rm3-HA",
     "Vsauce2": "UCqmugCqELzhIMNYnsjScXXw",
+    "Wirtual": "UCt-HTfaCUz8QIoknqyXKYiw",
     "Yosh": "UCh1zLfuN6F_X4eoNKCsyICA",
     "Zeltik": "UCudx6plmpbs5WtWvsvu-EdQ"
 }
@@ -69,6 +71,7 @@ CHANNEL_COLORS = {
     "Veritasium": "#2674E8",
     "Vsauce": "#03BF02",
     "Vsauce2": "#126B9D",
+    "Wirtual": "#C02223",
     "Yosh": "#A20E0A",
     "Zeltik": "#FD6200"
 }
