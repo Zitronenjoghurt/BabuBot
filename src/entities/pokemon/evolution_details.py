@@ -1,6 +1,6 @@
 from typing import Optional
 from src.entities.abstract_serializable_entity import AbstractSerializableEntity
-from src.constants.pokemon_gender import PokemonGender
+from src.pokemon.gender import PokemonGender
 from src.utils.dict_operations import get_safe_from_path
 
 class EvolutionDetails(AbstractSerializableEntity):

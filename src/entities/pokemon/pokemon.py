@@ -4,8 +4,8 @@ import random
 from typing import Optional
 from src.apis.pokemon_api import PokemonApi
 from src.constants.config import Config
-from src.constants.pokemon_names import PokemonNames
-from src.constants.pokemon_types import PokemonTypes
+from src.pokemon.names import PokemonNames
+from src.pokemon.types import PokemonTypes
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.pokemon.pokemon_ability import PokemonAbility
 from src.entities.pokemon.learning_moves import LearningMoves

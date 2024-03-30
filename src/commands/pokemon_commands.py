@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from src.constants.custom_embeds import ErrorEmbed
-from src.constants.pokemon_names import PokemonNames
+from src.pokemon.names import PokemonNames
 from src.entities.pokemon.pokemon import Pokemon
 from src.ui.pokedex_view import send_pokedex_view
 

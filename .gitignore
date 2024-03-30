@@ -9,6 +9,7 @@ hidden_fish.json
 test.py
 test*.json
 result.json
+tmp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
