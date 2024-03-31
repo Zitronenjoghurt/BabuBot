@@ -42,6 +42,25 @@ class EvolutionStage(AbstractSerializableEntity):
             next=next_stages,
             methods=details
         )
+    
+    def has_next_stages(self) -> bool:
+        return len(self.next) > 0
+    
+    def get_methods_string(self) -> str:
+        if len(self.methods) == 0:
+            return "no known methods"
+        
+        method_strings = []
+        for method in self.methods:
+            if not isinstance(method, EvolutionDetails):
+                continue
+            string = method.to_string()
+            if isinstance(string, str):
+                method_strings.append(f"> {string}")
+
+        if len(method_strings) == 0:
+            return "no known methods"
+        return "\n".join(method_strings)
 
 # Ensures that EvolutionStage is fully initialized and then put into the serialize classes constant
 EvolutionStage.SERIALIZE_CLASSES = {"next": EvolutionStage, "methods": EvolutionDetails}

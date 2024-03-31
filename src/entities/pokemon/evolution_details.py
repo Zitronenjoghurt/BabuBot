@@ -89,3 +89,67 @@ class EvolutionDetails(AbstractSerializableEntity):
             trade_species=trade_species,
             turn_upside_down=turn_upside_down
         )
+    
+    def to_string(self) -> Optional[str]:
+        if not isinstance(self.trigger, str):
+            return
+        
+        string = f"On: **`{format_name(self.trigger)}`**"
+        extra = []
+
+        if isinstance(self.item, str):
+            extra.append(f"Use item: **`{format_name(self.item)}`**")
+        if isinstance(self.gender_type, PokemonGender):
+            extra.append(f"Gender: **`{self.gender_type.name}`**")
+        if isinstance(self.held_item, str):
+            extra.append(f"Hold item: **`{format_name(self.held_item)}`**")
+        if isinstance(self.known_move, str):
+            extra.append(f"Know move: **`{format_name(self.known_move)}`**")
+        if isinstance(self.known_move_type, str):
+            extra.append(f"Know move of type: **`{self.known_move_type}`**")
+        if isinstance(self.location, str):
+            extra.append(f"At location: **`{format_name(self.location)}`**")
+        if isinstance(self.min_level, int):
+            extra.append(f"At level: **`{str(self.min_level)}`**")
+        if isinstance(self.min_happiness, int):
+            extra.append(f"Min happiness: **`{str(self.min_happiness)}`**")
+        if isinstance(self.min_beauty, int):
+            extra.append(f"Min beauty: **`{str(self.min_beauty)}`**")
+        if isinstance(self.min_affection, int):
+            extra.append(f"Min affection: **`{str(self.min_affection)}`**")
+        if isinstance(self.needs_overworld_rain, bool) and self.needs_overworld_rain is True:
+            extra.append(f"**`While its raining`**")
+        if isinstance(self.party_species, str):
+            extra.append(f"Pokemon in party: **`{format_name(self.party_species)}`**")
+        if isinstance(self.party_type, str):
+            extra.append(f"Pokemon of type in party: **`{self.party_type}`**")
+        if isinstance(self.relative_physical_stats, int):
+            match self.relative_physical_stats:
+                case -1:
+                    stats = "atk > def"
+                case 0:
+                    stats = "atk = def"
+                case 1:
+                    stats = "atk < def"
+                case _:
+                    stats = "UNKNOWN"
+            extra.append(f"Relative physical stats: **`{stats}`**")
+        if isinstance(self.time_of_day, str) and len(self.time_of_day) > 0:
+            extra.append(f"At time of day: **`{self.time_of_day}`**")
+        if isinstance(self.trade_species, str):
+            extra.append(f"Traded for: **`{format_name(self.trade_species)}`**")
+        if isinstance(self.turn_upside_down, bool) and self.turn_upside_down is True:
+            extra.append(f"**`While device is turned upside down`**")
+
+        if extra:
+            extra_string = "\n".join(extra)
+            string += f"\n{extra_string}"
+        else:
+            return
+
+        return string
+
+def format_name(string: str) -> str:
+    parts = string.split('-')
+    capitalized_parts = [part.capitalize() for part in parts]
+    return ' '.join(capitalized_parts)

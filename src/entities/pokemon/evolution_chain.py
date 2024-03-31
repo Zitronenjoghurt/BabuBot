@@ -44,3 +44,32 @@ class EvolutionChain(AbstractDatabaseEntity):
         chain = await EvolutionChain.from_api_data(id=chain_id, data=chain_data)
         await chain.save()
         return chain
+    
+    def has_stages(self) -> bool:
+        if not isinstance(self.root, EvolutionStage):
+            return False
+        return self.root.has_next_stages()
+    
+    def get_fields(self) -> list[tuple[str, str]]:
+        if not isinstance(self.root, EvolutionStage):
+            return []
+        
+        fields = []
+        fields.append((f"{format_name(self.root.species)}", "**`Base Stage`**"))
+
+        next = self.root.next
+        stage_number = 1
+        while len(next) > 0:
+            next_stages = []
+            for stage in next:
+                fields.append((f"({stage_number}) {format_name(stage.species)}", f"{stage.get_methods_string()}"))
+                next_stages.extend(stage.next)
+            next = next_stages
+            stage_number += 1
+
+        return fields
+    
+def format_name(string: str) -> str:
+    parts = string.split('-')
+    capitalized_parts = [part.capitalize() for part in parts]
+    return ' '.join(capitalized_parts)

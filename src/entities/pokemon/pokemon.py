@@ -277,6 +277,11 @@ class Pokemon(AbstractDatabaseEntity):
             return "None"
         return "\n".join(status)
     
+    def does_evolve(self) -> bool:
+        if not isinstance(self.evolution_chain, EvolutionChain):
+            return False
+        return self.evolution_chain.has_stages()
+    
     def generate_general_embed(self) -> 'PokedexEmbed':
         embed = PokedexEmbed(
             pokemon=self,
@@ -318,6 +323,20 @@ class Pokemon(AbstractDatabaseEntity):
         )
         embed.add_field(name="Total", value=f"**`{self.stats_image.total}`**", inline=False)
         embed.set_image(url=self.stats_image.get_image_url())
+        return embed
+    
+    def generate_evolution_embed(self) -> 'PokedexEmbed':
+        embed = PokedexEmbed(
+            pokemon=self,
+            title=f"Evolution of {self.get_name(language='en')}"
+        )
+        if isinstance(self.evolution_chain, EvolutionChain) and self.evolution_chain.has_stages():
+            fields = self.evolution_chain.get_fields()
+            for name, value in fields:
+                embed.add_field(name=name, value=value, inline=False)
+        else:
+            embed.description = "**`does not evolve`**"
+        embed.set_image(url=self.get_image_url())
         return embed
     
 class PokedexEmbed(discord.Embed):

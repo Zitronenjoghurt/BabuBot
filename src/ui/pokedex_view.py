@@ -17,11 +17,19 @@ class PokedexView(View):
 
         self.message: Optional[discord.InteractionMessage] = None
 
+        # Disable evolution button when pokemon does not evolve
+        if not self.pokemon.does_evolve():
+            for child in self.children:
+                if isinstance(child, Button) and child.custom_id == "evolution_button":
+                    child.disabled = True
+                    break
+
     def generate_embeds(self) -> dict[str, PokedexEmbed]:
         embeds = {}
         embeds["general"] = self.pokemon.generate_general_embed()
         embeds["weakness"] = self.pokemon.generate_weakness_embed()
         embeds["stats"] = self.pokemon.generate_base_stats_embed()
+        embeds["evolution"] = self.pokemon.generate_evolution_embed()
         return embeds
 
     @discord.ui.button(emoji="✨", style=discord.ButtonStyle.red)
@@ -43,7 +51,12 @@ class PokedexView(View):
     async def stats_button(self, interaction: discord.Interaction, button: Button):
         self.current_embed = "stats"
         await interaction.response.edit_message(embed=self.embeds["stats"])
-    
+
+    @discord.ui.button(emoji=EMOJI_INDEX.get_emoji("evolution"), style=discord.ButtonStyle.secondary, custom_id="evolution_button")
+    async def evolution_button(self, interaction: discord.Interaction, button: Button):
+        self.current_embed = "evolution"
+        await interaction.response.edit_message(embed=self.embeds["evolution"])
+
     def toggle_shiny(self) -> None:
         for embed in self.embeds.values():
             if embed.shiny_switch_enabled:
