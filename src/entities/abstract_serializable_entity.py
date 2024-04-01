@@ -18,6 +18,13 @@ class AbstractSerializableEntity():
                     else:
                         new_value.append(list_value)
                 value = new_value
+            elif isinstance(value, dict):
+                new_value = {}
+                for dict_key, dict_value in value.items():
+                    if hasattr(dict_value, "to_dict"):
+                        dict_value = dict_value.to_dict()
+                    new_value[dict_key] = dict_value
+                value = new_value
             # Allows for nested serialization
             elif hasattr(value, "to_dict"):
                 value = value.to_dict()
@@ -40,6 +47,10 @@ class AbstractSerializableEntity():
                     data[property] = []
                     for list_value in value:
                         data[property].append(serialize_class.from_dict(list_value))
+                elif isinstance(value, dict):
+                    data[property] = {}
+                    for dict_key, dict_value in value:
+                        data[property][dict_key] = serialize_class.from_dict(dict_value)
                 else:
                     data[property] = serialize_class.from_dict(value)
         return cls(**data)
