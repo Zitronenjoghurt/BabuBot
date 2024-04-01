@@ -4,6 +4,7 @@ from src.utils.dict_operations import retrieve_data
 class AbstractSerializableEntity():
     SERIALIZED_PROPERTIES = []
     SERIALIZE_CLASSES = {}
+    NESTED_DICT_PROPERTIES = []
 
     def to_dict(self) -> dict:
         data = {}
@@ -18,7 +19,7 @@ class AbstractSerializableEntity():
                     else:
                         new_value.append(list_value)
                 value = new_value
-            elif isinstance(value, dict):
+            elif isinstance(value, dict) and property in self.NESTED_DICT_PROPERTIES:
                 new_value = {}
                 for dict_key, dict_value in value.items():
                     if hasattr(dict_value, "to_dict"):
@@ -27,7 +28,7 @@ class AbstractSerializableEntity():
                 value = new_value
             # Allows for nested serialization
             elif hasattr(value, "to_dict"):
-                value = value.to_dict()
+                value = value.to_dict() # type: ignore
             data[property] = value
         return data
     
@@ -47,10 +48,11 @@ class AbstractSerializableEntity():
                     data[property] = []
                     for list_value in value:
                         data[property].append(serialize_class.from_dict(list_value))
-                elif isinstance(value, dict):
+                elif isinstance(value, dict) and property in cls.NESTED_DICT_PROPERTIES:
                     data[property] = {}
-                    for dict_key, dict_value in value:
-                        data[property][dict_key] = serialize_class.from_dict(dict_value)
+                    for dict_key, dict_value in value.items():
+                        if isinstance(dict_value, dict):
+                            data[property][dict_key] = serialize_class.from_dict(dict_value)
                 else:
                     data[property] = serialize_class.from_dict(value)
         return cls(**data)
