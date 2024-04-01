@@ -14,3 +14,9 @@ def last_integer_from_url(url: str) -> Optional[int]:
     if not matches:
         return
     return int(matches[-1])
+
+# Splits the string by hyphen and capitalizes each part
+def format_name(string: str) -> str:
+    parts = string.split('-')
+    capitalized_parts = [part.capitalize() for part in parts]
+    return ' '.join(capitalized_parts)

@@ -1,8 +1,8 @@
-import re
 from typing import Optional
 from src.apis.pokemon_api import PokemonApi
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.entities.pokemon.evolution_stage import EvolutionStage
+from src.utils.string_operations import format_name
 
 POKEMON_API = PokemonApi.get_instance()
 
@@ -68,8 +68,3 @@ class EvolutionChain(AbstractDatabaseEntity):
             stage_number += 1
 
         return fields
-    
-def format_name(string: str) -> str:
-    parts = string.split('-')
-    capitalized_parts = [part.capitalize() for part in parts]
-    return ' '.join(capitalized_parts)

@@ -2,6 +2,7 @@ from typing import Optional
 from src.entities.abstract_serializable_entity import AbstractSerializableEntity
 from src.pokemon.gender import PokemonGender
 from src.utils.dict_operations import get_safe_from_path
+from src.utils.string_operations import format_name
 
 class EvolutionDetails(AbstractSerializableEntity):
     SERIALIZED_PROPERTIES = ["trigger", "item", "gender", "held_item", "known_move", "known_move_type", "location", "min_level", "min_happiness", "min_beauty", "min_affection", "needs_overworld_rain", "party_species", "party_type", "relative_physical_stats", "time_of_day", "trade_species", "turn_upside_down"]
@@ -148,8 +149,3 @@ class EvolutionDetails(AbstractSerializableEntity):
             return
 
         return string
-
-def format_name(string: str) -> str:
-    parts = string.split('-')
-    capitalized_parts = [part.capitalize() for part in parts]
-    return ' '.join(capitalized_parts)
