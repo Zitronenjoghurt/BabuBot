@@ -1,0 +1,86 @@
+{
+    "red-blue": {
+        "gen": 1,
+        "name": "Red/Blue"
+    },
+    "yellow": {
+        "gen": 2,
+        "name": "Yellow"
+    },
+    "gold-silver": {
+        "gen": 2,
+        "name": "Gold/Silver"
+    },
+    "crystal": {
+        "gen": 2,
+        "name": "Crystal"
+    },
+    "ruby-sapphire": {
+        "gen": 3,
+        "name": "Ruby/Sapphire"
+    },
+    "emerald": {
+        "gen": 3,
+        "name": "Emerald"
+    },
+    "firered-leafgreen": {
+        "gen": 3,
+        "name": "Firered/Leafgreen"
+    },
+    "diamond-perl": {
+        "gen": 4,
+        "name": "Diamond/Perl"
+    },
+    "platinum": {
+        "gen": 4,
+        "name": "Platinum"
+    },
+    "heartgold-soulsilver": {
+        "gen": 4,
+        "name": "Heartgold/Soulsilver"
+    },
+    "black-white": {
+        "gen": 5,
+        "name": "Black/White"
+    },
+    "black-2-white-2": {
+        "gen": 5,
+        "name": "Black/White 2"
+    },
+    "x-y": {
+        "gen": 6,
+        "name": "X/Y"
+    },
+    "omega-ruby-alpha-sapphire": {
+        "gen": 6,
+        "name": "OmegaRuby/AlphaSapphire"
+    },
+    "sun-moon": {
+        "gen": 7,
+        "name": "Sun/Moon"
+    },
+    "ultra-sun-ultra-moon": {
+        "gen": 7,
+        "name": "UltraSun/UltraMoon"
+    },
+    "lets-go-pikachu-lets-go-eevee": {
+        "gen": 7,
+        "name": "Let's Go Pikachu/Eevee"
+    },
+    "sword-shield": {
+        "gen": 8,
+        "name": "Sword/Shield"
+    },
+    "brilliant-diamond-and-shining-pearl": {
+        "gen": 8,
+        "name": "BrilliantDiamond/ShiningPerl"
+    },
+    "legends-arceus": {
+        "gen": 8,
+        "name": "Legends Arceus"
+    },
+    "scarlet-violet": {
+        "gen": 9,
+        "name": "Scarlet/Violet"
+    }
+}
