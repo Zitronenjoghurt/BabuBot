@@ -2,6 +2,7 @@ from typing import Optional
 from src.apis.pokemon_api import PokemonApi
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
 from src.utils.dict_operations import get_safe_from_path
+from src.utils.pokemon_operations import parse_localized_names
 from src.utils.string_operations import last_integer_from_url
 
 POKEMON_API = PokemonApi.get_instance()
@@ -55,7 +56,7 @@ class PokemonAbility(AbstractDatabaseEntity):
         names_data = data.get("names", [])
         if not isinstance(names_data, list):
             names_data = []
-        localized_names = parse_localized_names(names=names_data)
+        localized_names = parse_localized_names(names=names_data, languages=NAMES_LANGUAGES)
 
         return PokemonAbility(
             name=name,
@@ -102,15 +103,3 @@ def parse_pokemon(pokemon_data: list[dict]) -> list[tuple[str, bool]]:
         pokemon_and_hidden.append((name, is_hidden))
     
     return pokemon_and_hidden
-
-def parse_localized_names(names: list[dict]) -> dict[str, str]:
-    language_name_map = {}
-    for entry in names:
-        language = get_safe_from_path(entry, ["language", "name"])
-        if not isinstance(language, str) or language not in NAMES_LANGUAGES:
-            continue
-        name = entry.get("name", None)
-        if not isinstance(name, str):
-            continue
-        language_name_map[language] = name
-    return language_name_map

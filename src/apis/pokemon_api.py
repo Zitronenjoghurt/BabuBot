@@ -51,6 +51,10 @@ class PokemonApi(AbstractApiController):
     @rate_limit(calls=5, seconds=5)
     async def get_ability_data(self, name: str) -> Optional[dict]:
         return await self.data_request(endpoint=f"api/v2/ability/{name}", data_name="ability")
+    
+    @rate_limit(calls=10, seconds=3)
+    async def get_move_data(self, name: str) -> Optional[dict]:
+        return await self.data_request(endpoint=f"api/v2/move/{name}", data_name="move")
 
     @rate_limit(calls=25, seconds=5)
     async def data_request(self, endpoint: str, data_name: str, type = dict) -> Optional[dict]:

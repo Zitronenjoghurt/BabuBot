@@ -12,6 +12,7 @@ from src.entities.pokemon.pokemon_ability import PokemonAbility
 from src.entities.pokemon.learning_moves import LearningMoves
 from src.entities.pokemon.evolution_chain import EvolutionChain
 from src.utils.dict_operations import get_ensure_dict, get_safe_from_path
+from src.utils.pokemon_operations import parse_localized_flavor_texts, parse_localized_names
 from src.utils.string_operations import last_integer_from_url
 
 CONFIG = Config.get_instance()
@@ -138,13 +139,13 @@ class Pokemon(AbstractDatabaseEntity):
             if not isinstance(names, list):
                 localized_names = None
             else:
-                localized_names = parse_localized_names(names=names)
+                localized_names = parse_localized_names(names=names, languages=NAMES_LANGUAGES)
 
             flavor_text_entries = species_data.get("flavor_text_entries", None)
             if not isinstance(flavor_text_entries, list):
                 localized_flavor_texts = None
             else:
-                localized_flavor_texts = parse_localized_flavor_texts(texts=flavor_text_entries)
+                localized_flavor_texts = parse_localized_flavor_texts(texts=flavor_text_entries, languages=FLAVORTEXT_LANGUAGES)
 
             generation_url = get_safe_from_path(species_data, ["generation", "url"])
             if not isinstance(generation_url, str):
@@ -361,35 +362,6 @@ class PokedexEmbed(discord.Embed):
             self.title = self.shiny_title
             self.set_image(url=self.pokemon.get_image_url_shiny())
         self.shiny_state = not self.shiny_state
-
-def parse_localized_names(names: list[dict]) -> dict[str, str]:
-    language_name_map = {}
-    for entry in names:
-        language = get_safe_from_path(entry, ["language", "name"])
-        if not isinstance(language, str) or language not in NAMES_LANGUAGES:
-            continue
-        name = entry.get("name", None)
-        if not isinstance(name, str):
-            continue
-        language_name_map[language] = name
-    return language_name_map
-
-def parse_localized_flavor_texts(texts: list[dict]) -> dict[str, dict[str, str]]:
-    version_language_text_map = {}
-    for entry in texts:
-        language = get_safe_from_path(entry, ["language", "name"])
-        if not isinstance(language, str) or language not in FLAVORTEXT_LANGUAGES:
-            continue
-        version = get_safe_from_path(entry, ["version", "name"])
-        if not isinstance(version, str):
-            continue
-        text = entry.get("flavor_text", None)
-        if not isinstance(text, str):
-            continue
-        if version not in version_language_text_map:
-            version_language_text_map[version] = {}
-        version_language_text_map[version][language] = text.replace("\n", " ")
-    return version_language_text_map
 
 def parse_abilities(abilities: list[dict]) -> tuple[list[str], list[str]]:
     regular = []
