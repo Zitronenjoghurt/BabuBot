@@ -34,7 +34,7 @@ class PokemonMove(AbstractDatabaseEntity):
         self.move_id = move_id if isinstance(move_id, str) else "no-id"
         self.accuracy = accuracy if isinstance(accuracy, int) else -1
         self.damage_class = damage_class if isinstance(damage_class, str) else "unknown"
-        self.power = power if isinstance(power, int) else -1
+        self.power = power if isinstance(power, int) else 0
         self.pp = pp if isinstance(pp, int) else -1
         self.type = type if isinstance(type, str) else "unknown"
         self.priority = priority if isinstance(priority, int) else None
@@ -112,3 +112,14 @@ class PokemonMove(AbstractDatabaseEntity):
             f"JA: **`{self.localized_names.get('ja', 'no japanese name')}`**"
         ]
         return "\n".join(names)
+    
+    def get_damage_class_abbreviation(self) -> str:
+        match self.damage_class:
+            case "physical":
+                return "PHY"
+            case "special":
+                return "SP"
+            case "status":
+                return "STAT"
+            case _:
+                return "NaN"
