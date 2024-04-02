@@ -17,9 +17,9 @@ class Database():
             raise RuntimeError("Tried to initialize multiple instances of Database.")
         self.connection = sqlite3.connect("bot.db")
         self.cursor = self.connection.cursor()
-        self._setup()
+        self._create_tables()
 
-    def _setup(self) -> None:
+    def _create_tables(self) -> None:
         for table_name in TABLE_NAMES:
             self.create_table(table_name=table_name)
 
@@ -40,11 +40,15 @@ class Database():
         )
         self.connection.commit()
 
-    def drop_tables(self, tables_to_drop: list) -> None:
+    def drop_tables(self, tables_to_drop: list[str]) -> None:
         for table_name in tables_to_drop:
             if table_name in DROPPABLE_TABLES:
                 self.cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
         self.connection.commit()
+
+    def clear_tables(self, tables_to_clear: list[str]) -> None:
+        self.drop_tables(tables_to_drop=tables_to_clear)
+        self._create_tables()
     
     def insert(self, table_name: str, data: dict) -> Optional[int]:
         validate_table_name(table_name=table_name)

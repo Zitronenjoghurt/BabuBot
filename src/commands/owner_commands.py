@@ -65,7 +65,7 @@ class OwnerCommands(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def clear_pokemon_cache(self, ctx: commands.Context):
-        DB.drop_tables(["pokemon", "pokemon_evo_chains", "pokemon_abilities", "pokemon_moves"])
+        DB.clear_tables(["pokemon", "pokemon_evo_chains", "pokemon_abilities", "pokemon_moves"])
         await ctx.reply("Pokemon cache has been cleared.")
         LOGGER.info(f"Cleared pokemon cache.")
 
