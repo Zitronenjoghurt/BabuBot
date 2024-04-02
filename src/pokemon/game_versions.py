@@ -19,12 +19,14 @@ class PokemonGameVersions():
         data = file_to_dict(VERSIONS_FILE_PATH)
         self.id_version_map: dict[str, PokemonVersionGroup]   = {}
         self.name_version_map: dict[str, PokemonVersionGroup] = {}
+        self.versions: list[str] = []
         try:
             for id, version_data in data.items():
                 version_data["id"] = id
                 version = PokemonVersionGroup(**version_data)
                 self.id_version_map[id.lower()] = version
                 self.name_version_map[version.name.lower()] = version
+                self.versions.append(version.name)
         except Exception as e:
             raise RuntimeError(f"An error occured while initializing PokemonGameVersions: {e}")
 
@@ -34,10 +36,14 @@ class PokemonGameVersions():
             PokemonGameVersions._instance = PokemonGameVersions()
         return PokemonGameVersions._instance
     
-    def get_by_id(self, id: str) -> Optional[PokemonVersionGroup]:
+    def get_by_id(self, id: Optional[str] = None) -> Optional[PokemonVersionGroup]:
+        if id is None:
+            return
         id = id.lower()
         return self.id_version_map.get(id, None)
     
-    def get_by_name(self, name: str) -> Optional[PokemonVersionGroup]:
+    def get_by_name(self, name: Optional[str] = None) -> Optional[PokemonVersionGroup]:
+        if name is None:
+            return
         name = name.lower()
         return self.name_version_map.get(name, None)

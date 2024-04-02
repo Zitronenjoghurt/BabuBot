@@ -1,9 +1,9 @@
-from datetime import datetime
 import discord
 import random
 from typing import Optional
 from src.apis.pokemon_api import PokemonApi
 from src.constants.config import Config
+from src.pokemon.game_versions import PokemonGameVersions, PokemonVersionGroup
 from src.pokemon.names import PokemonNames
 from src.pokemon.stats_image import PokemonStatsImage
 from src.pokemon.types import PokemonTypes
@@ -19,6 +19,7 @@ CONFIG = Config.get_instance()
 POKEMON_API = PokemonApi.get_instance()
 POKEMON_NAMES = PokemonNames.get_instance()
 POKEMON_TYPES = PokemonTypes.get_instance()
+GAME_VERSIONS = PokemonGameVersions.get_instance()
 
 NAMES_LANGUAGES = ["en", "de", "fr", "ja", "roomaji"]
 FLAVORTEXT_LANGUAGES = ["en", "de", "fr"]
@@ -337,7 +338,35 @@ class Pokemon(AbstractDatabaseEntity):
                 embed.add_field(name=name, value=value, inline=False)
         else:
             embed.description = "**`does not evolve`**"
+            embed.disabled = True
         embed.set_image(url=self.get_image_url())
+        return embed
+    
+    async def generate_move_embed(self, version_id: Optional[str] = None):
+        embed = PokedexEmbed(
+            pokemon=self,
+            title=f"Levelup moves of {self.get_name(language='en')}"
+        )
+
+        version_group = GAME_VERSIONS.get_by_id(id=version_id)
+        if not isinstance(version_group, PokemonVersionGroup):
+            embed.description = "**`No valid game version was given.`**"
+            embed.disabled = True
+            return embed
+        
+        if version_group.id not in self.learning_moves.moves_by_version:
+            embed.description = f"**`Has no moves or did not exist in {version_group.name}.`**"
+            embed.disabled = True
+            return embed
+        
+        description = await self.learning_moves.get_moves_string(version=version_group.id, egg_moves=False)
+        if description is None:
+            embed.description = f"**`An error occured while trying to generate move string for {version_group.name}.`**"
+            embed.disabled = True
+            return embed
+        
+        embed.title += f" in {version_group.name}" # type: ignore
+        embed.description = description
         return embed
     
 class PokedexEmbed(discord.Embed):
@@ -349,6 +378,7 @@ class PokedexEmbed(discord.Embed):
         self.name = self.title
         self.shiny_title = f"{self.name} ✨"
         self.color = discord.Color.from_str("#EF4134")
+        self.disabled = False
 
     def timeout(self) -> None:
         self.color = discord.Color.dark_grey()

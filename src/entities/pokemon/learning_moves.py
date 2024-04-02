@@ -61,11 +61,15 @@ class VersionMoves(AbstractSerializableEntity):
     def has_move(self, id: str) -> bool:
         return id in self.moves
     
-    async def get_move_strings(self) -> list[str]:
+    async def get_move_strings(self, egg_moves: bool = False) -> list[str]:
         sorted_moves = sorted(self.moves.values(), key=lambda move: move.level_learned_at)
 
         move_strings = []
         for move in sorted_moves:
+            if egg_moves and move.level_learned_at != 0:
+                continue
+            if not egg_moves and move.level_learned_at == 0:
+                continue
             move_string = await move.get_string()
             move_strings.append(move_string)
         
@@ -117,9 +121,9 @@ class LearningMoves(AbstractSerializableEntity):
             moves_by_version=moves_by_version
         )
     
-    async def get_moves_string(self, version: str) -> Optional[str]:
+    async def get_moves_string(self, version: str, egg_moves: bool = False) -> Optional[str]:
         if version not in self.moves_by_version:
             return
         version_moves = self.moves_by_version[version]
-        move_strings = await version_moves.get_move_strings()
+        move_strings = await version_moves.get_move_strings(egg_moves=egg_moves)
         return "\n".join(move_strings)
