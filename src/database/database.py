@@ -7,6 +7,7 @@ from src.utils.dict_operations import deep_difference
 from src.utils.validator import validate_of_type
 
 TABLE_NAMES = ["feedback", "users", "word_analyzer", "relationships", "digging_queue", "rocket_launches", "pokemon", "pokemon_evo_chains", "pokemon_abilities", "pokemon_moves"]
+DROPPABLE_TABLES = ["pokemon", "pokemon_evo_chains", "pokemon_abilities", "pokemon_moves"]
 
 class Database():
     _instance = None
@@ -37,6 +38,12 @@ class Database():
             )
             '''
         )
+        self.connection.commit()
+
+    def drop_tables(self, tables_to_drop: list) -> None:
+        for table_name in tables_to_drop:
+            if table_name in DROPPABLE_TABLES:
+                self.cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
         self.connection.commit()
     
     def insert(self, table_name: str, data: dict) -> Optional[int]:

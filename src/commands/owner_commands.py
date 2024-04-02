@@ -1,8 +1,11 @@
 import discord
 from discord.ext import commands
+from src.database.database import Database
 from src.entities.user import User
 from src.logging.logger import LOGGER
 from src.utils.bot_operations import notify_user_private
+
+DB = Database.get_instance()
 
 class OwnerCommands(commands.Cog):
     def __init__(self, bot):
@@ -58,6 +61,13 @@ class OwnerCommands(commands.Cog):
         await user.save()
         await ctx.reply("User ai answers disabled.")
         LOGGER.info(f"AI answers for user {user.get_name()} ({id}) were disabled")
+
+    @commands.command()
+    @commands.is_owner()
+    async def clear_pokemon_cache(self, ctx: commands.Context):
+        DB.drop_tables(["pokemon", "pokemon_evo_chains", "pokemon_abilities", "pokemon_moves"])
+        await ctx.reply("Pokemon cache has been cleared.")
+        LOGGER.info(f"Cleared pokemon cache.")
 
 async def setup(bot):
     await bot.add_cog(OwnerCommands(bot))
