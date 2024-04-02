@@ -9,6 +9,7 @@ class PokemonVersionGroup:
     id: str
     name: str
     gen: int
+    short: str
 
 class PokemonGameVersions():
     _instance = None

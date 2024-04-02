@@ -1,86 +1,107 @@
 {
     "red-blue": {
         "gen": 1,
-        "name": "Red/Blue"
+        "name": "Red/Blue",
+        "short": "RED/BLUE"
     },
     "yellow": {
         "gen": 2,
-        "name": "Yellow"
+        "name": "Yellow",
+        "short": "YELLOW"
     },
     "gold-silver": {
         "gen": 2,
-        "name": "Gold/Silver"
+        "name": "Gold/Silver",
+        "short": "G/S"
     },
     "crystal": {
         "gen": 2,
-        "name": "Crystal"
+        "name": "Crystal",
+        "short": "CRYSTAL"
     },
     "ruby-sapphire": {
         "gen": 3,
-        "name": "Ruby/Sapphire"
+        "name": "Ruby/Sapphire",
+        "short": "Ru/Sa"
     },
     "emerald": {
         "gen": 3,
-        "name": "Emerald"
+        "name": "Emerald",
+        "short": "EMERALD"
     },
     "firered-leafgreen": {
         "gen": 3,
-        "name": "Firered/Leafgreen"
+        "name": "Firered/Leafgreen",
+        "short": "FR/LG"
     },
     "diamond-perl": {
         "gen": 4,
-        "name": "Diamond/Perl"
+        "name": "Diamond/Perl",
+        "short": "D/P"
     },
     "platinum": {
         "gen": 4,
-        "name": "Platinum"
+        "name": "Platinum",
+        "short": "PLATINUM"
     },
     "heartgold-soulsilver": {
         "gen": 4,
-        "name": "Heartgold/Soulsilver"
+        "name": "Heartgold/Soulsilver",
+        "short": "HG/SS"
     },
     "black-white": {
         "gen": 5,
-        "name": "Black/White"
+        "name": "Black/White",
+        "short": "B/W"
     },
     "black-2-white-2": {
         "gen": 5,
-        "name": "Black/White 2"
+        "name": "Black/White 2",
+        "short": "B/W 2"
     },
     "x-y": {
         "gen": 6,
-        "name": "X/Y"
+        "name": "X/Y",
+        "short": "X/Y"
     },
     "omega-ruby-alpha-sapphire": {
         "gen": 6,
-        "name": "OmegaRuby/AlphaSapphire"
+        "name": "OmegaRuby/AlphaSapphire",
+        "short": "OR/AS"
     },
     "sun-moon": {
         "gen": 7,
-        "name": "Sun/Moon"
+        "name": "Sun/Moon",
+        "short": "S/M"
     },
     "ultra-sun-ultra-moon": {
         "gen": 7,
-        "name": "UltraSun/UltraMoon"
+        "name": "UltraSun/UltraMoon",
+        "short": "US/UM"
     },
     "lets-go-pikachu-lets-go-eevee": {
         "gen": 7,
-        "name": "Let's Go Pikachu/Eevee"
+        "name": "Let's Go Pikachu/Eevee",
+        "short": "LGPE"
     },
     "sword-shield": {
         "gen": 8,
-        "name": "Sword/Shield"
+        "name": "Sword/Shield",
+        "short": "Sw/Sh"
     },
     "brilliant-diamond-and-shining-pearl": {
         "gen": 8,
-        "name": "BrilliantDiamond/ShiningPerl"
+        "name": "BrilliantDiamond/ShiningPerl",
+        "short": "BD/SP"
     },
     "legends-arceus": {
         "gen": 8,
-        "name": "Legends Arceus"
+        "name": "Legends Arceus",
+        "short": "LA"
     },
     "scarlet-violet": {
         "gen": 9,
-        "name": "Scarlet/Violet"
+        "name": "Scarlet/Violet",
+        "short": "S/V"
     }
 }

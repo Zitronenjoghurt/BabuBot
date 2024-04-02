@@ -361,7 +361,7 @@ class Pokemon(AbstractDatabaseEntity):
         
         description = await self.learning_moves.get_moves_string(version=version_group.id, egg_moves=False)
         if description is None:
-            embed.description = f"**`An error occured while trying to generate move string for {version_group.name}.`**"
+            embed.description = f"**`An error occured while trying to generate move string for {version_group.short}.`**"
             embed.disabled = True
             return embed
         
