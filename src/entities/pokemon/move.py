@@ -4,11 +4,13 @@ from typing import Optional
 from src.apis.pokemon_api import PokemonApi
 from src.constants.emoji_index import EmojiIndex
 from src.entities.abstract_database_entity import AbstractDatabaseEntity
+from src.pokemon.type_colors import PokemonTypeColors
 from src.utils.dict_operations import get_safe_from_path
 from src.utils.pokemon_operations import parse_localized_flavor_texts, parse_localized_names
 from src.utils.string_operations import last_integer_from_url, format_name
 
 POKEMON_API = PokemonApi.get_instance()
+TYPE_COLORS = PokemonTypeColors.get_instance()
 EMOJI_INDEX = EmojiIndex.get_instance()
 
 NAMES_LANGUAGES = ["en", "de", "fr", "ja", "it", "es"]
@@ -302,8 +304,10 @@ class MoveEmbed(discord.Embed):
     def __init__(self, move: PokemonMove, disabled: bool = False, **kwargs):
         super().__init__(**kwargs)
         self.move = move
-        self.color = discord.Color.from_str("#78AEE3")
         self.disabled = disabled
+
+        hex_color = TYPE_COLORS.get_color(move.type)
+        self.color = discord.Color.from_str(hex_color)
 
     def timeout(self) -> None:
         self.color = discord.Color.dark_grey()
