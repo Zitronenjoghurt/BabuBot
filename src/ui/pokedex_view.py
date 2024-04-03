@@ -65,8 +65,7 @@ class PokedexView(View):
 
     def toggle_shiny(self) -> None:
         for embed in self.embeds.values():
-            if embed.shiny_switch_enabled:
-                embed.toggle_shiny()
+            embed.toggle_shiny()
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         return interaction.user.id == self.user_id

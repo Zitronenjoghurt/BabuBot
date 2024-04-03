@@ -345,7 +345,8 @@ class Pokemon(AbstractDatabaseEntity):
     async def generate_move_embed(self, version_id: Optional[str] = None):
         embed = PokedexEmbed(
             pokemon=self,
-            title=f"Levelup moves of {self.get_name(language='en')}"
+            title=f"Levelup moves of {self.get_name(language='en')}",
+            shiny_switch_enabled=False
         )
 
         version_group = GAME_VERSIONS.get_by_id(id=version_id)
@@ -359,7 +360,7 @@ class Pokemon(AbstractDatabaseEntity):
             embed.disabled = True
             return embed
         
-        description = await self.learning_moves.get_moves_string(version=version_group.id, egg_moves=False)
+        description = await self.learning_moves.get_moves_string(version=version_group.id, lvl_moves=True, egg_moves=True)
         if description is None:
             embed.description = f"**`An error occured while trying to generate move string for {version_group.short}.`**"
             embed.disabled = True
@@ -385,6 +386,8 @@ class PokedexEmbed(discord.Embed):
         self.set_footer(text="This interaction has timed out.")
 
     def toggle_shiny(self) -> None:
+        if not self.shiny_switch_enabled:
+            return
         if self.shiny_state:
             self.title = self.name
             self.set_image(url=self.pokemon.get_image_url())
