@@ -3,12 +3,16 @@ from discord import app_commands
 from discord.ext import commands
 from typing import Optional
 from src.constants.custom_embeds import ErrorEmbed
-from src.pokemon.game_versions import PokemonGameVersions, PokemonVersionGroup
-from src.pokemon.names import PokemonNames
+from src.entities.pokemon.move import PokemonMove
 from src.entities.pokemon.pokemon import Pokemon
+from src.pokemon.game_versions import PokemonGameVersions, PokemonVersionGroup
+from src.pokemon.move_names import PokemonMoveNames
+from src.pokemon.names import PokemonNames
+from src.ui.movedex_view import send_movedex_view
 from src.ui.pokedex_view import send_pokedex_view
 
 PN = PokemonNames.get_instance()
+POKEMON_MOVE_NAMES = PokemonMoveNames.get_instance()
 GAME_VERSIONS = PokemonGameVersions.get_instance()
 
 class PokemonCommands(commands.Cog):
@@ -33,6 +37,22 @@ class PokemonCommands(commands.Cog):
                 version_id = version_group.id
 
         await send_pokedex_view(interaction=interaction, pokemon=pokemon, version_id=version_id)
+
+    @app_commands.command(name="movedex", description="Get all important information about a pokemon move.")
+    @app_commands.describe(name="Name of the move. Can include typos.")
+    @app_commands.checks.cooldown(1, 5)
+    async def movedex(self, interaction: discord.Interaction, name: str):
+        await interaction.response.defer()
+
+        move_id = POKEMON_MOVE_NAMES.match_name(name=name)
+        if not isinstance(move_id, str):
+            return await interaction.followup.send(embed=ErrorEmbed(title="Move not found", message="The specified move does not exist. The typo-correction only recognizes en, de, fr, it and es names."))
+
+        move = await PokemonMove.fetch(move_id=move_id)
+        if not isinstance(move, PokemonMove):
+            return await interaction.followup.send(embed=ErrorEmbed(title="Move not found", message="The specified move does not exist. The typo-correction only recognizes en, de, fr, it and es names."))
+
+        await send_movedex_view(interaction=interaction, move=move)
 
     @app_commands.command(name="pokemon-name", description="Find the closest pokemon name to your provided name.")
     @app_commands.describe(name="Name of the pokemon. Can include typos.")
