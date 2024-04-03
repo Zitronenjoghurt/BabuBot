@@ -345,7 +345,7 @@ class Pokemon(AbstractDatabaseEntity):
     async def generate_move_embed(self, version_id: Optional[str] = None):
         embed = PokedexEmbed(
             pokemon=self,
-            title=f"Levelup moves of {self.get_name(language='en')}",
+            title=f"Moveset of {self.get_name(language='en')}",
             shiny_switch_enabled=False
         )
 
