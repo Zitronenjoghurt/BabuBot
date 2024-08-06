@@ -10,14 +10,16 @@ from src.logging.logger import LOGGER
 
 CONFIG = Config.get_instance()
 
-# Find channel ID by going to yt channel page source > og:url
+# Find channel ID by going to yt channel page source > og:url (or optionally search "channelid" and go to the watch file)
 # Needs 2 quota per channel check
 # Can check for 150 channels per hour
 # 80 channels per 30 mins
 # 40 channels per 15 mins
 # 12 channels per 5 mins
 CHANNEL_IDS = {
+    "adef": "UCdnteqJUEFetgKgWItToLHg",
     "ambiguousamphibian": "UCSDiMahT5qDCjoWtzruztkw",
+    "Any Austin": "UCH_7doiCkWeq0v3ycWE5lDw",
     "Astrum": "UC-9b7aDP6ZN0coj9-xFnrtw",
     "Ceave Gaming": "UCFXc5nAao6554AIXlN9KgwQ",
     "Ceave Perspective": "UCepgG8BiC4jlGTSZfYkpHiQ",
@@ -28,6 +30,7 @@ CHANNEL_IDS = {
     "Jasper": "UC5bN6XKHDCFt_wYAJmsP_Mg",
     "Kaze Emanuar": "UCuvSqzfO_LV_QzHdmEj84SQ",
     "Kurzgesagt - In a Nutshell": "UCsXVk37bltHxD1rDPwtNM8Q",
+    "Kyle Hill": "UCFbtcTaMFnOAP0pFO1L8hVw",
     "Lowest Percent": "UCxQrToVDBwHKuyIr47X04yA",
     "melodysheep": "UCR9sFzaG9Ia_kXJhfxtFMBA",
     "Nile Blue": "UC1D3yD4wlPMico0dss264XA",
@@ -47,7 +50,9 @@ CHANNEL_IDS = {
 }
 
 CHANNEL_COLORS = {
+    "adef": "#004E52",
     "ambiguousamphibian": "#B0A02A",
+    "Any Austin": "#FD0E52",
     "Astrum": "#002863",
     "Ceave Gaming": "#EEEEEE",
     "Ceave Perspective": "#5A6DB9",
@@ -58,6 +63,7 @@ CHANNEL_COLORS = {
     "Jasper": "#FFDD25",
     "Kaze Emanuar": "#82A155",
     "Kurzgesagt - In a Nutshell": "#208BD7",
+    "Kyle Hill": "#03483A",
     "Lowest Percent": "#016DE1",
     "melodysheep": "#1B1915",
     "Nile Blue": "#0062FD",
