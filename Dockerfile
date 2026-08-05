@@ -1,3 +1,12 @@
+FROM python:3.12-slim AS builder
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends build-essential \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
 FROM python:3.12-slim
 
 # tzdata so a TZ= env var actually resolves. Without it the container silently
@@ -7,16 +16,14 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends tzdata \
  && rm -rf /var/lib/apt/lists/*
 
+COPY --from=builder /install /usr/local
+
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
     MPLBACKEND=Agg \
     MPLCONFIGDIR=/tmp/matplotlib
 
 WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
@@ -27,8 +34,8 @@ COPY . .
 RUN mkdir -p src/assets src/data/ai_presets \
  && touch src/config.json src/data/hidden_fish.json
 
-# uid/gid 1000 matches `blackbird` on the host, so the bind-mounted state
-# directory is writable without chowning anything at runtime.
+# uid/gid 1000 matches `blackbird` on the host, so the bind-mounted state and
+# media directories are writable without chowning anything at runtime.
 RUN groupadd --gid 1000 babubot \
  && useradd --uid 1000 --gid 1000 --create-home --shell /usr/sbin/nologin babubot \
  && chown -R babubot:babubot /app
