@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Optional
 
 ROOT_DIR = str(Path(__file__).parent.parent.parent)
-SERVER_ROOT_DIR = str(Path(ROOT_DIR).parent.parent)
 
 def file_exists(file_path: str) -> bool:
     return os.path.isfile(file_path)
@@ -46,12 +45,14 @@ def dict_to_file(file_path: str, data: dict):
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4)
 
-# Server specific
-def construct_path_server(relative_path: str) -> str:
-    path_parts = relative_path.split("/")
-    absolute_path = os.path.join(SERVER_ROOT_DIR, *path_parts)
-    return absolute_path
+IMAGE_OUTPUT_DIR = os.environ.get("BABUBOT_IMAGE_DIR", construct_path("tmp/images"))
+IMAGE_BASE_URL = os.environ.get("BABUBOT_IMAGE_BASE_URL", "https://media.lemon.industries/pokemon")
 
-IMAGE_API_FILE_PATH = construct_path_server("Caddy/image_api/{file_name}")
-def get_image_api_path(file_name: str) -> str:
-    return IMAGE_API_FILE_PATH.format(file_name=file_name)
+def ensure_image_output_dir() -> None:
+    os.makedirs(IMAGE_OUTPUT_DIR, exist_ok=True)
+
+def get_image_output_path(file_name: str) -> str:
+    return os.path.join(IMAGE_OUTPUT_DIR, file_name)
+
+def get_image_url(file_name: str) -> str:
+    return f"{IMAGE_BASE_URL.rstrip('/')}/{file_name}"

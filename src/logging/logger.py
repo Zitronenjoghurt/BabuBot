@@ -2,6 +2,19 @@ import discord
 from discord import app_commands
 import logging
 import logging.handlers
+import os
+
+LOG_DIR = os.environ.get("BABUBOT_LOG_DIR", ".")
+BOT_LOG_LEVEL = os.environ.get("BABUBOT_LOG_LEVEL", "DEBUG").upper()
+DISCORD_LOG_LEVEL = os.environ.get("BABUBOT_DISCORD_LOG_LEVEL", "DEBUG").upper()
+LOG_MAX_BYTES = int(os.environ.get("BABUBOT_LOG_MAX_BYTES", "0"))
+LOG_BACKUP_COUNT = int(os.environ.get("BABUBOT_LOG_BACKUP_COUNT", "3"))
+
+def build_file_handler(file_name):
+    file_path = os.path.join(LOG_DIR, file_name)
+    if LOG_MAX_BYTES > 0:
+        return logging.handlers.RotatingFileHandler(file_path, maxBytes=LOG_MAX_BYTES, backupCount=LOG_BACKUP_COUNT)
+    return logging.FileHandler(file_path)
 
 class LC:
     BLUE = '\033[94m'
@@ -43,14 +56,14 @@ class ColoredFormatter(logging.Formatter):
 class BotLogger:
     def __init__(self):
         self.logger = logging.getLogger("BOT")
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(BOT_LOG_LEVEL)
 
-        bot_file_handler = logging.FileHandler('bot.log')
-        discord_file_handler = logging.FileHandler('discord.log')
+        bot_file_handler = build_file_handler('bot.log')
+        discord_file_handler = build_file_handler('discord.log')
         stream_handler = logging.StreamHandler()
 
-        bot_file_handler.setLevel(logging.DEBUG)
-        discord_file_handler.setLevel(logging.DEBUG)
+        bot_file_handler.setLevel(BOT_LOG_LEVEL)
+        discord_file_handler.setLevel(DISCORD_LOG_LEVEL)
         stream_handler.setLevel(logging.INFO)
 
         bot_file_handler.setFormatter(FileFormatter())
@@ -64,20 +77,20 @@ class BotLogger:
 
         # Setup discord loggers
         discord_logger = logging.getLogger('discord')
-        discord_logger.setLevel(logging.DEBUG)
+        discord_logger.setLevel(DISCORD_LOG_LEVEL)
         discord_logger.addHandler(discord_file_handler)
 
         discord_http_logger = logging.getLogger('discord.http')
-        discord_http_logger.setLevel(logging.DEBUG)
+        discord_http_logger.setLevel(DISCORD_LOG_LEVEL)
 
         discord_gateway_logger = logging.getLogger('discord.gateway')
-        discord_gateway_logger.setLevel(logging.DEBUG)
+        discord_gateway_logger.setLevel(DISCORD_LOG_LEVEL)
 
         discord_client_logger = logging.getLogger('discord.client')
-        discord_client_logger.setLevel(logging.DEBUG)
+        discord_client_logger.setLevel(DISCORD_LOG_LEVEL)
 
         discord_commands_logger = logging.getLogger('discord.ext.commands')
-        discord_commands_logger.setLevel(logging.DEBUG)
+        discord_commands_logger.setLevel(DISCORD_LOG_LEVEL)
 
     def get_logger(self):
         return self.logger

@@ -1,10 +1,13 @@
 import json
+import os
 import sqlite3
 from numbers import Number
 from typing import Any, Optional
 from src.logging.logger import LOGGER
 from src.utils.dict_operations import deep_difference
 from src.utils.validator import validate_of_type
+
+DB_PATH = os.environ.get("BABUBOT_DB_PATH", "bot.db")
 
 TABLE_NAMES = ["feedback", "users", "word_analyzer", "relationships", "digging_queue", "rocket_launches", "pokemon", "pokemon_evo_chains", "pokemon_abilities", "pokemon_moves"]
 DROPPABLE_TABLES = ["pokemon", "pokemon_evo_chains", "pokemon_abilities", "pokemon_moves"]
@@ -15,7 +18,7 @@ class Database():
     def __init__(self) -> None:
         if Database._instance is not None:
             raise RuntimeError("Tried to initialize multiple instances of Database.")
-        self.connection = sqlite3.connect("bot.db")
+        self.connection = sqlite3.connect(DB_PATH)
         self.cursor = self.connection.cursor()
         self._create_tables()
 

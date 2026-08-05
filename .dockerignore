@@ -1,0 +1,43 @@
+.git
+.gitignore
+.idea
+.vscode
+.pytest_cache
+.DS_Store
+**/.DS_Store
+**/__pycache__
+
+venv
+env
+.venv
+
+# Runtime state — the container keeps these on a mounted volume.
+bot.db
+bot.log
+discord.log
+
+# Gitignored payload. Excluded on purpose so a local build produces the same
+# image as the server one: these are bind-mounted at runtime, never baked in.
+src/config.json
+src/config_test.json
+src/assets
+src/data/hidden_fish.json
+src/data/ai_presets
+
+# Local scratch and analysis leftovers, not part of the running bot.
+analysis
+tests
+test.py
+test*.json
+testi.json
+testmove.json
+testpokemon.json
+testspecies.json
+result.json
+all_words_*.json
+tmp
+
+Dockerfile
+.dockerignore
+README.md
+LICENSE
